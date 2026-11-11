@@ -251,13 +251,14 @@
 </head>
 <body>
 
+<!-- 구글 시트 CORS 차단 우회용 숨김 iframe -->
 <iframe name="hidden_send_frame" id="hidden_send_frame" style="display:none;"></iframe>
 
 <div class="container">
   <div class="top-header">
     <h2>🎓 중국어 말하기 평가</h2>
     <div class="header-right">
-      <!-- 엄격 / 관대 판단 선택 토글 -->
+      <!-- 엄격 / 관대 판단 토글 버튼 -->
       <div class="mode-toggle-group">
         <button type="button" class="btn-mode active" id="btnModeLenient" onclick="setGradingMode('lenient')">😊 관대 판단</button>
         <button type="button" class="btn-mode" id="btnModeStrict" onclick="setGradingMode('strict')">⚖️ 엄격 판단</button>
@@ -307,7 +308,10 @@
 </div>
 
 <script>
-  const GAS_API_URL = "https://script.google.com/macros/s/AKfycblxuNTbPZuJ7fuIKSP-AMNi44oT-O6jZl-yOzZ-HJoBhAHjl8rm3DEPtphwYCTPVJkgg/exec";
+  // 스프레드시트 탭 주소와 일치시킨 Google Apps Script API URL
+  const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzCGt2-GSBhd5cmpFo5mqub3cEaSTjntj8cRrHJR9Im20nHSTbA6deh2hbzG3Srnt9UOg/exec";
+
+  // 원본 스프레드시트 공유 링크
   const MASTER_SHEET_URL = "https://docs.google.com/spreadsheets/d/1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk/edit?usp=sharing";
 
   // 기본 채점 모드 (관대 판단 기본)
@@ -392,7 +396,7 @@
     window.speechSynthesis.speak(utter);
   }
 
-  // 아라비아 숫자 -> 한자 수사 자동 정규화 함수
+  // 아라비아 숫자 -> 한자 수사 정규화
   function normalizeChineseDigits(str) {
     const digitMap = {
       '0': '零', '1': '一', '2': '二', '3': '三', '4': '四',
@@ -407,7 +411,6 @@
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   function handleRecButtonClick(index, targetZh) {
-    // 녹음 중 버튼 다시 누르면 수동 종료 및 채점
     if (activeIndex === index && activeRecognition) {
       activeRecognition.stop();
       return;
@@ -481,7 +484,6 @@
       }
     };
 
-    // 종료 시 채점
     activeRecognition.onend = () => {
       const finalSpoken = accumulatedTranscript.trim();
       recBtn.className = 'btn-rec';
@@ -494,14 +496,10 @@
         return;
       }
 
-      // 숫자(678 등)를 한자(六七八)로 정규화
       const normalizedSpoken = normalizeChineseDigits(finalSpoken);
-
-      // 점수 계산 (엄격 / 관대 모드 분기)
       const rawScore = calculateSimilarity(targetZh, normalizedSpoken);
       let finalScore = rawScore;
       if (currentGradingMode === 'lenient') {
-        // 관대 모드: 15% 보정 가산
         finalScore = Math.min(100, Math.round(rawScore * 1.15 + (rawScore > 30 ? 5 : 0)));
       }
 
@@ -512,10 +510,9 @@
       scoreEl.innerHTML = `정확도: <strong>${finalScore}점</strong> (${grade}) <span style="font-size:12px; color:#cbd5e1;">[${modeLabel} 모드]</span>`;
       statusEl.innerText = "⏳ 구글 시트 저장 중...";
 
-      // 글자별 1:1 정오 피드백
       renderPronunciationDiff(targetZh, normalizedSpoken, feedbackBox);
 
-      // 시트 전송
+      // Hidden Form 방식으로 Apps Script API에 저장 요청
       sendDataViaHiddenForm({
         sheetUrl: document.getElementById('teacherSheetUrl').value.trim(),
         studentId: id,
@@ -574,7 +571,7 @@
     containerEl.innerHTML = html;
   }
 
-  // 시트 전송
+  // Hidden Form 동적 생성 및 시트 전송
   function sendDataViaHiddenForm(payload, statusEl) {
     let form = document.getElementById('temp_submit_form');
     if (form) form.remove();
@@ -602,7 +599,7 @@
     }, 1200);
   }
 
-  // 유사도 계산 (레벤슈타인 거리)
+  // 레벤슈타인 거리 기반 유사도 점수 계산
   function calculateSimilarity(str1, str2) {
     const s1 = str1.replace(/[，。！？\s]/g, "");
     const s2 = str2.replace(/[，。！？\s]/g, "");
@@ -630,7 +627,7 @@
     return Math.round(((maxLen - distance) / maxLen) * 100);
   }
 
-  // 모드별 성취 등급 판정
+  // 성취 등급 판정
   function getGrade(score, mode) {
     if (mode === 'lenient') {
       if (score >= 80) return "우수 (A)";

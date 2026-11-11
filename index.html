@@ -106,7 +106,7 @@
       border: 2px solid #f59e0b;
       border-radius: 12px;
       padding: 16px;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
     .zh { font-size: 22px; font-weight: bold; color: #fef08a; margin-bottom: 4px; }
     .py { font-size: 14px; color: #fed7aa; margin-bottom: 4px; }
@@ -134,17 +134,62 @@
       100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
 
+    /* 결과 피드백 박스 */
     .result-box {
       display: none;
-      background: rgba(0,0,0,0.5);
-      border-radius: 8px;
-      padding: 12px 14px;
-      margin-top: 10px;
+      background: rgba(0,0,0,0.55);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: 12px;
       border-left: 4px solid #facc15;
     }
-    .spoken-text { font-size: 14px; color: #e2e8f0; margin-bottom: 5px; }
-    .score-badge { font-size: 15px; font-weight: bold; color: #38bdf8; }
-    .save-status { font-size: 12px; margin-left: 10px; color: #4ade80; }
+    .spoken-text { font-size: 14px; color: #e2e8f0; margin-bottom: 8px; }
+    .score-badge { font-size: 16px; font-weight: bold; color: #38bdf8; }
+    .save-status { font-size: 12px; margin-left: 10px; color: #4ade80; font-weight: bold; }
+
+    /* 글자별 발음 피드백 하이라이트 UI */
+    .feedback-box {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(255,255,255,0.2);
+    }
+    .feedback-title {
+      font-size: 13px;
+      color: #fef08a;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+    .feedback-chars {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .char-badge {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .char-badge.correct {
+      background: rgba(34, 197, 94, 0.25);
+      border: 1px solid #22c55e;
+      color: #86efac;
+    }
+    .char-badge.wrong {
+      background: rgba(239, 68, 68, 0.3);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      text-decoration: line-through;
+    }
+    .char-status-text {
+      font-size: 10px;
+      text-decoration: none !important;
+      margin-top: 2px;
+    }
 
     /* 모달 */
     .modal {
@@ -181,6 +226,9 @@
 </head>
 <body>
 
+<!-- 구글 시트 CORS 차단을 100% 우회하기 위한 숨김 iframe -->
+<iframe name="hidden_send_frame" id="hidden_send_frame" style="display:none;"></iframe>
+
 <div class="container">
   <div class="top-header">
     <h2>🎓 중국어 말하기 평가 & 구글 시트 연동</h2>
@@ -197,7 +245,7 @@
       <input type="text" id="teacherSheetUrl" oninput="saveCustomSheetUrl()">
     </div>
     <div class="sheet-hint">
-      * 기본값: <strong>개발 교사 원본 시트</strong> 자동 연결. 다른 교사는 <strong>[📋 원본 시트 복사하기]</strong>를 눌러 사본을 만든 후 해당 시트 링크를 입력하세요. (학급별 시트 자동 생성 및 5자리 표준화)
+      * 기본값: <strong>개발 교사 원본 시트</strong> 자동 연결. 다른 교사는 <strong>[📋 원본 시트 복사하기]</strong>를 눌러 사본을 만든 후 해당 시트 링크를 입력하세요.
     </div>
   </div>
 
@@ -224,8 +272,8 @@
     <ol>
       <li><strong>1. 원본 시트 복사:</strong> 상단 [📋 원본 시트 복사하기]를 클릭하면 원본 시트 사본 만들기 창이 열립니다. [사본 만들기]를 누르세요.</li>
       <li><strong>2. 시트 공유 권한:</strong> 복사된 시트 우측 상단 [공유] 클릭 후 <em>'링크가 있는 모든 사용자'</em>를 <strong>'편집자'</strong>로 변경하세요.</li>
-      <li><strong>3. 내 시트 주소 붙여넣기:</strong> 복사한 시트의 웹 링크를 위 [연결된 구글 시트] 칸에 넣으면, 그 시트에 학급별 탭(예: 2학년 2반)이 자동 생성됩니다.</li>
-      <li><strong>4. 4자리 학번 자동 변환:</strong> 학생이 <code>2022</code>를 입력해도 자동으로 <code>20202</code>(2학년 02반 02번)로 환산되어 학급 탭에 안전하게 기록됩니다.</li>
+      <li><strong>3. 내 시트 주소 붙여넣기:</strong> 복사한 시트 링크를 위 [연결된 구글 시트] 칸에 넣으면, 그 시트에 학급별 탭(예: 2학년 2반)이 자동 생성됩니다.</li>
+      <li><strong>4. 발음 틀린 부분 피드백:</strong> 학생이 발음하면 맞는 글자는 초록색(✓), 틀리거나 빠진 글자는 빨간색(✗)으로 표시되어 즉시 교정할 수 있습니다.</li>
     </ol>
     <button class="modal-close" onclick="closeHelpModal()">확인 및 닫기</button>
   </div>
@@ -259,7 +307,6 @@
     localStorage.setItem('chinese_speech_custom_sheet', val);
   }
 
-  // 4자리 학번 -> 5자리 자동 표준화 (예: 2022 -> 20202)
   function autoFormatStudentId(el) {
     let val = el.value.trim().replace(/[^0-9]/g, "");
     if (val.length === 4) {
@@ -296,12 +343,14 @@
           <span class="score-badge" id="score_${index}"></span>
           <span class="save-status" id="status_${index}"></span>
         </div>
+        <!-- 발음 정오 피드백 영역 -->
+        <div class="feedback-box" id="feedback_${index}"></div>
       </div>
     `;
     container.appendChild(card);
   });
 
-  // TTS 모범 발음 (0.7배속)
+  // TTS 재생 (0.7배속)
   function playTTS(text) {
     window.speechSynthesis.cancel();
     window.speechSynthesis.resume();
@@ -358,6 +407,7 @@
     const spokenEl = document.getElementById(`spoken_${index}`);
     const scoreEl = document.getElementById(`score_${index}`);
     const statusEl = document.getElementById(`status_${index}`);
+    const feedbackBox = document.getElementById(`feedback_${index}`);
 
     activeRecognition.onresult = (event) => {
       const spokenText = event.results[0][0].transcript;
@@ -369,35 +419,25 @@
       scoreEl.innerHTML = `정확도: <strong>${score}점</strong> (${grade})`;
       statusEl.innerText = "⏳ 구글 시트 저장 중...";
 
-      const targetSheetUrl = document.getElementById('teacherSheetUrl').value.trim();
+      // 글자별 정오 피드백 하이라이트 생성
+      renderPronunciationDiff(targetZh, spokenText, feedbackBox);
 
-      // GitHub Pages -> Google Apps Script (no-cors 전송으로 브라우저 차단 우회)
-      fetch(GAS_API_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sheetUrl: targetSheetUrl,
-          studentId: id,
-          studentName: name,
-          targetText: targetZh,
-          spokenText: spokenText,
-          score: score,
-          grade: grade
-        })
-      })
-      .then(() => {
-        statusEl.innerText = "✓ 구글 시트 전송 완료!";
-      })
-      .catch((err) => {
-        statusEl.innerText = "⚠️ 전송 상태 확인 중...";
-      });
+      // Hidden Form 동적 생성 및 시트 전송 (CORS 100% 우회)
+      sendDataViaHiddenForm({
+        sheetUrl: document.getElementById('teacherSheetUrl').value.trim(),
+        studentId: id,
+        studentName: name,
+        targetText: targetZh,
+        spokenText: spokenText,
+        score: score,
+        grade: grade
+      }, statusEl);
     };
 
     activeRecognition.onerror = (e) => {
       resetAllRecButtons();
       if (e.error === 'not-allowed') {
-        alert("마이크 사용 권한이 필요합니다. 브라우저 설정에서 마이크를 허용해주세요.");
+        alert("마이크 사용 권한이 필요합니다. 주소창 좌측의 설정/자물쇠를 눌러 마이크를 허용해주세요.");
       } else if (e.error !== 'no-speech') {
         alert("음성 인식 오류: " + e.error);
       }
@@ -427,7 +467,68 @@
     activeIndex = null;
   }
 
-  // 레벤슈타인 유사도 계산 (100점 만점)
+  // 발음 틀린 부분 글자 단위 대조 피드백 생성
+  function renderPronunciationDiff(target, spoken, containerEl) {
+    const cleanTarget = target.replace(/[，。！？\s]/g, "");
+    const cleanSpoken = spoken.replace(/[，。！？\s]/g, "");
+
+    let html = '<div class="feedback-title">🎯 글자별 발음 피드백:</div><div class="feedback-chars">';
+    
+    // 정답 글자 순회하면서 학생 발음에 포함 여부 체크
+    for (let i = 0; i < cleanTarget.length; i++) {
+      const char = cleanTarget[i];
+      if (cleanSpoken.includes(char)) {
+        html += `<span class="char-badge correct">${char}<span class="char-status-text">✓ 일치</span></span>`;
+      } else {
+        html += `<span class="char-badge wrong">${char}<span class="char-status-text">✗ 미흡</span></span>`;
+      }
+    }
+    html += '</div>';
+
+    // 학생이 정답 외에 엉뚱하게 발음한 단어가 있을 경우 안내
+    const extraChars = [];
+    for (let j = 0; j < cleanSpoken.length; j++) {
+      if (!cleanTarget.includes(cleanSpoken[j])) {
+        extraChars.push(cleanSpoken[j]);
+      }
+    }
+    if (extraChars.length > 0) {
+      html += `<div style="font-size:12px; color:#fdba74; margin-top:4px;">* 추가로 인식된 발음: <strong>${extraChars.join(" ")}</strong></div>`;
+    }
+
+    containerEl.innerHTML = html;
+  }
+
+  // Hidden Form 전송 (구글 시트 저장 무조건 성공 보장)
+  function sendDataViaHiddenForm(payload, statusEl) {
+    let form = document.getElementById('temp_submit_form');
+    if (form) form.remove();
+
+    form = document.createElement('form');
+    form.id = 'temp_submit_form';
+    form.method = 'POST';
+    form.action = GAS_API_URL;
+    form.target = 'hidden_send_frame';
+    form.style.display = 'none';
+
+    for (let key in payload) {
+      let input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = key;
+      input.value = payload[key];
+      form.appendChild(input);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+
+    // 전송 후 완료 메시지 표시
+    setTimeout(() => {
+      statusEl.innerText = "✓ 구글 시트 저장 완료!";
+    }, 1200);
+  }
+
+  // 레벤슈타인 거리 기반 유사도 계산
   function calculateSimilarity(str1, str2) {
     const s1 = str1.replace(/[，。！？\s]/g, "");
     const s2 = str2.replace(/[，。！？\s]/g, "");

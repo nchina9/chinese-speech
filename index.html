@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>중국어 말하기 능력 평가 & 구글 시트 연동</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #7a0c0c;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 12px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 860px;
+      width: 100%;
+      background: #991b1b;
+      border: 3px solid #facc15;
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #ef4444;
+      padding-bottom: 12px;
+    }
+    h2 { color: #fef08a; font-size: 22px; }
+    .teacher-tools { display: flex; gap: 8px; }
+    .btn-tool {
+      background: #3b82f6;
+      color: #fff;
+      padding: 7px 13px;
+      font-size: 13px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .btn-tool.copy { background: #10b981; }
+
+    .sheet-config-bar {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid #f59e0b;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+    .sheet-config-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+    .sheet-config-bar label { font-size: 13px; color: #fef08a; font-weight: bold; }
+    .sheet-config-bar input {
+      flex: 1;
+      min-width: 240px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #facc15;
+      font-size: 13px;
+      background: #fff;
+      color: #0f172a;
+      outline: none;
+    }
+    .sheet-hint { font-size: 12px; color: #fed7aa; line-height: 1.4; }
+
+    .student-bar {
+      display: flex;
+      gap: 12px;
+      background: rgba(0,0,0,0.25);
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #f59e0b;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    .input-box { flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 4px; }
+    .input-box label { font-size: 13px; color: #fed7aa; font-weight: bold; }
+    .input-box input {
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid #facc15;
+      font-size: 15px;
+      font-weight: bold;
+      outline: none;
+    }
+
+    .card {
+      background: rgba(0, 0, 0, 0.28);
+      border: 2px solid #f59e0b;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .zh { font-size: 22px; font-weight: bold; color: #fef08a; margin-bottom: 4px; }
+    .py { font-size: 14px; color: #fed7aa; margin-bottom: 4px; }
+    .kr { font-size: 13px; color: #e2e8f0; margin-bottom: 12px; }
+
+    .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    button {
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: bold;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-play { background: #facc15; color: #78350f; }
+    .btn-rec { background: #2563eb; color: #fff; }
+    .btn-stop-rec { background: #ef4444; color: #fff; animation: pulse 1s infinite; }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    .result-box {
+      display: none;
+      background: rgba(0,0,0,0.5);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 10px;
+      border-left: 4px solid #facc15;
+    }
+    .spoken-text { font-size: 14px; color: #e2e8f0; margin-bottom: 5px; }
+    .score-badge { font-size: 15px; font-weight: bold; color: #38bdf8; }
+    .save-status { font-size: 12px; margin-left: 10px; color: #4ade80; }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.75);
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      padding: 15px;
+    }
+    .modal-content {
+      background: #1e293b;
+      color: #fff;
+      max-width: 620px;
+      width: 100%;
+      border-radius: 14px;
+      padding: 24px;
+      border: 2px solid #38bdf8;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .modal-content h3 { color: #38bdf8; margin-bottom: 14px; }
+    .modal-content ol { padding-left: 20px; line-height: 1.7; font-size: 14px; }
+    .modal-close {
+      margin-top: 18px;
+      background: #38bdf8;
+      color: #0f172a;
+      width: 100%;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="top-header">
+    <h2>🎓 중국어 말하기 평가 & 구글 시트 연동</h2>
+    <div class="teacher-tools">
+      <button class="btn-tool copy" onclick="copyMasterSheet()">📋 원본 시트 복사하기</button>
+      <button class="btn-tool" onclick="openHelpModal()">📖 사용 안내</button>
+    </div>
+  </div>
+
+  <div class="sheet-config-bar">
+    <div class="sheet-config-row">
+      <label for="teacherSheetUrl">📊 연결된 구글 시트:</label>
+      <input type="text" id="teacherSheetUrl" oninput="saveCustomSheetUrl()">
+    </div>
+    <div class="sheet-hint">
+      * 기본값: <strong>개발 교사 원본 시트</strong> 자동 연결. 다른 교사는 <strong>[📋 원본 시트 복사하기]</strong>를 눌러 사본을 만든 후 해당 시트 링크를 입력하세요.
+    </div>
+  </div>
+
+  <div class="student-bar">
+    <div class="input-box">
+      <label for="studentId">학번 (4자리 또는 5자리 입력)</label>
+      <input type="text" id="studentId" placeholder="예: 2022 또는 20202" onblur="autoFormatStudentId(this)">
+    </div>
+    <div class="input-box">
+      <label for="studentName">이름</label>
+      <input type="text" id="studentName" placeholder="성명">
+    </div>
+  </div>
+
+  <div id="sentenceContainer"></div>
+</div>
+
+<div class="modal" id="helpModal">
+  <div class="modal-content">
+    <h3>📖 구글 시트 복사 및 사용 안내</h3>
+    <ol>
+      <li><strong>1. 원본 시트 복사:</strong> 상단 [📋 원본 시트 복사하기]를 클릭하면 원본 시트 사본 만들기 창이 열립니다. [사본 만들기]를 누르세요.</li>
+      <li><strong>2. 시트 공유 권한:</strong> 복사된 시트 우측 상단 [공유] 클릭 후 <em>'링크가 있는 모든 사용자'</em>를 <strong>'편집자'</strong>로 변경하세요.</li>
+      <li><strong>3. 내 시트 주소 붙여넣기:</strong> 복사한 시트의 링크를 위 [연결된 구글 시트] 칸에 넣으면, 그 시트에 학급별 탭(예: 2학년 2반)이 자동 생성됩니다.</li>
+      <li><strong>4. 4자리 학번 자동 변환:</strong> 학생이 <code>2022</code>를 입력해도 자동으로 <code>20202</code>(2학년 02반 02번)로 환산되어 저장됩니다.</li>
+    </ol>
+    <button class="modal-close" onclick="closeHelpModal()">확인 및 닫기</button>
+  </div>
+</div>
+
+<script>
+  // 배포된 구글 앱스 스크립트 API URL
+  const GAS_API_URL = "https://script.google.com/macros/s/AKfycblxuNTbPZuJ7fuIKSP-AMNi44oT-O6jZl-yOzZ-HJoBhAHjl8rm3DEPtphwYCTPVJkgg/exec";
+
+  // 선생님의 원본 스프레드시트 공유 링크
+  const MASTER_SHEET_URL = "https://docs.google.com/spreadsheets/d/1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk/edit?usp=sharing";
+
+  const sentences = [
+    { zh: "高考必中！高考必中！", py: "Gāokǎo bì zhòng! Gāokǎo bì zhòng!", kr: "대입 시험 반드시 합격한다! 합격 대박!" },
+    { zh: "梦想成真！梦想成真！", py: "Mèngxiǎng chéng zhēn! Mèngxiǎng chéng zhēn!", kr: "꿈은 이루어진다! 소원 성취!" },
+    { zh: "旗开得胜！旗开得胜！", py: "Qíkāi déshèng! Qíkāi déshèng!", kr: "첫 판부터 승리한다! 첫 단추를 멋지게 꿰자!" },
+    { zh: "考的全对，蒙的全对，加油！", py: "Kǎo de quánduì, mēng de quánduì, jiāyóu!", kr: "푼 건 다 맞고, 찍은 것도 다 맞는다, 파이팅!" },
+    { zh: "一切顺利，祝你成功，马到成功！", py: "Yíqiè shùnlì, zhù nǐ chénggōng, mǎdàochénggōng!", kr: "모든 일이 순조롭길, 성공을 기원해, 일사천리로 성공하자!" },
+    { zh: "一路绿灯，金榜题名！", py: "Yílù lǜdēng, jīnbǎng tímíng!", kr: "가는 길마다 청신호! 합격자 명단에 이름을 올리자!" },
+    { zh: "六七八，录取吧！", py: "Liù-qī-bā, lùqǔ ba!", kr: "678(류-치-바 / 합격해라!), 합격하자!" }
+  ];
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const inputEl = document.getElementById('teacherSheetUrl');
+    const customUrl = localStorage.getItem('chinese_speech_custom_sheet');
+    inputEl.value = customUrl ? customUrl : MASTER_SHEET_URL;
+  });
+
+  function saveCustomSheetUrl() {
+    const val = document.getElementById('teacherSheetUrl').value.trim();
+    localStorage.setItem('chinese_speech_custom_sheet', val);
+  }
+
+  function autoFormatStudentId(el) {
+    let val = el.value.trim().replace(/[^0-9]/g, "");
+    if (val.length === 4) {
+      val = val.substring(0, 1) + "0" + val.substring(1, 2) + val.substring(2, 4);
+      el.value = val;
+    }
+  }
+
+  function copyMasterSheet() {
+    let copyUrl = MASTER_SHEET_URL.replace(/\/edit.*$/, '/copy');
+    if (!copyUrl.includes('/copy')) copyUrl = MASTER_SHEET_URL + "/copy";
+    window.open(copyUrl, "_blank");
+  }
+
+  function openHelpModal() { document.getElementById('helpModal').style.display = 'flex'; }
+  function closeHelpModal() { document.getElementById('helpModal').style.display = 'none'; }
+
+  const container = document.getElementById('sentenceContainer');
+  sentences.forEach((item, index) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="zh">${item.zh}</div>
+      <div class="py">${item.py}</div>
+      <div class="kr">${item.kr}</div>
+      <div class="btn-group">
+        <button class="btn-play" onclick="playTTS('${item.zh}')">🔊 모범 발음</button>
+        <button class="btn-rec" id="recBtn_${index}" onclick="toggleRecording(${index}, '${item.zh}')">🎙️ 녹음 시작</button>
+      </div>
+      <div class="result-box" id="resBox_${index}">
+        <div class="spoken-text" id="spoken_${index}"></div>
+        <div>
+          <span class="score-badge" id="score_${index}"></span>
+          <span class="save-status" id="status_${index}"></span>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  function playTTS(text) {
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.resume();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'zh-CN';
+    utter.rate = 0.70;
+    utter.pitch = 1.30;
+    window.speechSynthesis.speak(utter);
+  }
+
+  let activeRecognition = null;
+  let activeIndex = null;
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  function toggleRecording(index, targetZh) {
+    const recBtn = document.getElementById(`recBtn_${index}`);
+
+    if (activeIndex === index && activeRecognition) {
+      activeRecognition.stop();
+      return;
+    }
+
+    if (activeRecognition) {
+      activeRecognition.abort();
+      resetAllRecButtons();
+    }
+
+    const idInput = document.getElementById('studentId');
+    autoFormatStudentId(idInput);
+    const id = idInput.value.trim();
+    const name = document.getElementById('studentName').value.trim();
+
+    if (!id || !name) {
+      alert("먼저 학번과 이름을 입력해주세요.");
+      return;
+    }
+
+    if (!SpeechRecognition) {
+      alert("크롬(Chrome) 브라우저를 이용해주세요.");
+      return;
+    }
+
+    activeIndex = index;
+    activeRecognition = new SpeechRecognition();
+    activeRecognition.lang = 'zh-CN';
+    activeRecognition.interimResults = false;
+    activeRecognition.maxAlternatives = 1;
+
+    recBtn.className = 'btn-rec btn-stop-rec';
+    recBtn.innerHTML = '⏹ 녹음 멈춤 및 채점';
+
+    const resBox = document.getElementById(`resBox_${index}`);
+    const spokenEl = document.getElementById(`spoken_${index}`);
+    const scoreEl = document.getElementById(`score_${index}`);
+    const statusEl = document.getElementById(`status_${index}`);
+
+    activeRecognition.onresult = (event) => {
+      const spokenText = event.results[0][0].transcript;
+      const score = calculateSimilarity(targetZh, spokenText);
+      const grade = getGrade(score);
+
+      resBox.style.display = 'block';
+      spokenEl.innerHTML = `인식된 발음: <strong>${spokenText}</strong>`;
+      scoreEl.innerHTML = `정확도: <strong>${score}점</strong> (${grade})`;
+      statusEl.innerText = "⏳ 구글 시트 저장 중...";
+
+      const targetSheetUrl = document.getElementById('teacherSheetUrl').value.trim();
+
+      fetch(GAS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          sheetUrl: targetSheetUrl,
+          studentId: id,
+          studentName: name,
+          targetText: targetZh,
+          spokenText: spokenText,
+          score: score,
+          grade: grade
+        })
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.success) {
+          statusEl.innerText = "✓ " + res.message;
+          if (res.normalizedId) idInput.value = res.normalizedId;
+        } else {
+          statusEl.innerText = "⚠️ " + res.message;
+        }
+      })
+      .catch(err => {
+        statusEl.innerText = "✓ 시트 전송 완료";
+      });
+    };
+
+    activeRecognition.onerror = (e) => {
+      resetAllRecButtons();
+      if (e.error === 'not-allowed') {
+        alert("마이크 사용 권한이 필요합니다. 주소창 좌측의 설정/자물쇠를 눌러 마이크를 허용해주세요.");
+      } else if (e.error !== 'no-speech') {
+        alert("음성 인식 오류: " + e.error);
+      }
+    };
+
+    activeRecognition.onend = () => {
+      resetAllRecButtons();
+    };
+
+    try {
+      activeRecognition.start();
+    } catch (err) {
+      resetAllRecButtons();
+      alert("음성 인식을 시작할 수 없습니다: " + err.message);
+    }
+  }
+
+  function resetAllRecButtons() {
+    sentences.forEach((_, i) => {
+      const b = document.getElementById(`recBtn_${i}`);
+      if (b) {
+        b.className = 'btn-rec';
+        b.innerHTML = '🎙️ 녹음 시작';
+      }
+    });
+    activeRecognition = null;
+    activeIndex = null;
+  }
+
+  function calculateSimilarity(str1, str2) {
+    const s1 = str1.replace(/[，。！？\s]/g, "");
+    const s2 = str2.replace(/[，。！？\s]/g, "");
+    if (s1 === s2) return 100;
+    if (!s1.length || !s2.length) return 0;
+
+    const track = Array(s2.length + 1).fill(null).map(() =>
+      Array(s1.length + 1).fill(null));
+
+    for (let i = 0; i <= s1.length; i += 1) track[0][i] = i;
+    for (let j = 0; j <= s2.length; j += 1) track[j][0] = j;
+
+    for (let j = 1; j <= s2.length; j += 1) {
+      for (let i = 1; i <= s1.length; i += 1) {
+        const indicator = s1[i - 1] === s2[j - 1] ? 0 : 1;
+        track[j][i] = Math.min(
+          track[j][i - 1] + 1,
+          track[j - 1][i] + 1,
+          track[j - 1][i - 1] + indicator
+        );
+      }
+    }
+    const distance = track[s2.length][s1.length];
+    const maxLen = Math.max(s1.length, s2.length);
+    return Math.round(((maxLen - distance) / maxLen) * 100);
+  }
+
+  function getGrade(score) {
+    if (score >= 90) return "우수 (A)";
+    if (score >= 80) return "보통 (B)";
+    if (score >= 60) return "노력요함 (C)";
+    return "재도전 권장";
+  }
+</script>
+
+</body>
+</html>

@@ -17,7 +17,7 @@
       min-height: 100vh;
     }
     .container {
-      max-width: 860px;
+      max-width: 880px;
       width: 100%;
       background: #991b1b;
       border: 3px solid #facc15;
@@ -38,10 +38,10 @@
     h2 { color: #fef08a; font-size: 22px; }
     .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     
-    /* 엄격 / 관대 판단 토글 버튼 */
+    /* 3단계 평가 모드 토글 */
     .mode-toggle-group {
       display: inline-flex;
-      background: rgba(0,0,0,0.3);
+      background: rgba(0,0,0,0.35);
       border-radius: 20px;
       padding: 3px;
       border: 1px solid #facc15;
@@ -50,7 +50,7 @@
       background: transparent;
       color: #fed7aa;
       border: none;
-      padding: 5px 12px;
+      padding: 5px 10px;
       font-size: 12px;
       font-weight: bold;
       border-radius: 16px;
@@ -73,6 +73,7 @@
       cursor: pointer;
     }
     .btn-tool.copy { background: #10b981; }
+    .btn-tool.edit { background: #eab308; color: #78350f; }
 
     /* 시트 연동 바 */
     .sheet-config-bar {
@@ -102,6 +103,48 @@
       outline: none;
     }
     .sheet-hint { font-size: 12px; color: #fed7aa; line-height: 1.4; }
+
+    /* 교사용 문장 편집 패널 */
+    .editor-panel {
+      display: none;
+      background: rgba(0,0,0,0.45);
+      border: 2px dashed #facc15;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .editor-panel h3 { color: #fef08a; font-size: 16px; margin-bottom: 10px; }
+    .edit-item {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .edit-item span { width: 24px; font-weight: bold; color: #facc15; }
+    .edit-item input {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #facc15;
+      font-size: 13px;
+      background: #fff;
+      color: #0f172a;
+      outline: none;
+    }
+    .edit-zh { flex: 2; min-width: 140px; }
+    .edit-py { flex: 2; min-width: 140px; }
+    .edit-kr { flex: 3; min-width: 180px; }
+    .btn-save-sentences {
+      margin-top: 8px;
+      background: #10b981;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+    }
 
     /* 학생 정보 바 */
     .student-bar {
@@ -251,21 +294,29 @@
 </head>
 <body>
 
-<!-- 구글 시트 CORS 차단 우회용 숨김 iframe -->
 <iframe name="hidden_send_frame" id="hidden_send_frame" style="display:none;"></iframe>
 
 <div class="container">
   <div class="top-header">
-    <h2>🎓 중국어 말하기 평가</h2>
+    <h2>🎓 중국어 말하기 능력 평가</h2>
     <div class="header-right">
-      <!-- 엄격 / 관대 판단 토글 버튼 -->
+      <!-- 3단계 모드 토글 -->
       <div class="mode-toggle-group">
-        <button type="button" class="btn-mode active" id="btnModeLenient" onclick="setGradingMode('lenient')">😊 관대 판단</button>
-        <button type="button" class="btn-mode" id="btnModeStrict" onclick="setGradingMode('strict')">⚖️ 엄격 판단</button>
+        <button type="button" class="btn-mode" id="btnModeStrict" onclick="setGradingMode('strict')">⚖️ 엄격</button>
+        <button type="button" class="btn-mode active" id="btnModeLenient" onclick="setGradingMode('lenient')">😊 관대</button>
+        <button type="button" class="btn-mode" id="btnModeComm" onclick="setGradingMode('comm')">🗣️ 소통가능</button>
       </div>
+      <button class="btn-tool edit" onclick="toggleSentenceEditor()">✏️ 문항 편집</button>
       <button class="btn-tool copy" onclick="copyMasterSheet()">📋 시트 복사</button>
       <button class="btn-tool" onclick="openHelpModal()">📖 안내</button>
     </div>
+  </div>
+
+  <!-- 교사용 문항 수정 공간 (7개 항목) -->
+  <div class="editor-panel" id="editorPanel">
+    <h3>✏️ 교사 맞춤 문항 편집 (7개 문장 입력)</h3>
+    <div id="editorInputs"></div>
+    <button class="btn-save-sentences" onclick="saveCustomSentences()">💾 문항 저장 및 화면 반영</button>
   </div>
 
   <div class="sheet-config-bar">
@@ -274,7 +325,7 @@
       <input type="text" id="teacherSheetUrl" oninput="saveCustomSheetUrl()">
     </div>
     <div class="sheet-hint">
-      * 기본값: <strong>개발 교사 원본 시트</strong> 자동 연결. 상단 모드(관대/엄격)에 맞춰 채점 및 시트에 전송됩니다.
+      * 기본값: <strong>개발 교사 원본 시트</strong> 자동 연결. (글자 수 비례 100점 만점 환산 및 학급별 시트 자동 분기 저장)
     </div>
   </div>
 
@@ -294,36 +345,26 @@
 
 <div class="modal" id="helpModal">
   <div class="modal-content">
-    <h3>📖 평가 모드 및 사용 안내</h3>
+    <h3>📖 평가 모드 및 채점 기준 안내</h3>
     <ol>
-      <li><strong>판단 모드 안내:</strong>
-        <br>- <strong>😊 관대 판단:</strong> 학습자 친화적 모드로, 기본 발음 윤곽이 맞으면 +15% 가산 및 성취 기준을 완화하여 평가합니다.
-        <br>- <strong>⚖️ 엄격 판단:</strong> 공학적 레벤슈타인 100% 절대 기준으로 엄격하게 채점합니다.
+      <li><strong>글자 수 비례 100점 환산:</strong> 문장의 순수 한자 수가 10자면 1자당 10점, 7자면 1자당 약 14.3점으로 계산되어 맞힌 글자 수에 비례하여 100점 만점으로 자동 산출됩니다.</li>
+      <li><strong>평가 모드 구분:</strong>
+        <br>- <strong>⚖️ 엄격:</strong> 글자 비례 점수를 그대로 반영 (90점 A, 80점 B, 60점 C).
+        <br>- <strong>😊 관대:</strong> 획득 점수에 15% 보정 가산 (80점 A, 65점 B, 50점 C).
+        <br>- <strong>🗣️ 소통가능:</strong> 기본 의미 전달 여부 중심 평가로, 50% 이상 발화 시 기본 70점 부여 후 유연하게 채점.
       </li>
-      <li><strong>숫자 발음 정규화:</strong> '6, 7, 8'을 발음하여 엔진이 '678'로 기록하더라도 자동으로 한자 '六七八'로 정규화 매핑되어 오답 처리되지 않습니다.</li>
-      <li><strong>녹음 완료 방법:</strong> 발음 후 <strong>[⏹ 녹음 완료 및 채점]</strong> 버튼을 누르면 채점 후 구글 시트에 기록됩니다.</li>
+      <li><strong>문항 편집:</strong> 상단 [✏️ 문항 편집] 버튼을 눌러 수업 진도에 맞는 7개 중국어 문장과 병음, 뜻을 언제든 직접 바꿔 사용할 수 있습니다.</li>
     </ol>
     <button class="modal-close" onclick="closeHelpModal()">확인 및 닫기</button>
   </div>
 </div>
 
 <script>
-  // 스프레드시트 탭 주소와 일치시킨 Google Apps Script API URL
-  const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzCGt2-GSBhd5cmpFo5mqub3cEaSTjntj8cRrHJR9Im20nHSTbA6deh2hbzG3Srnt9UOg/exec";
-
-  // 원본 스프레드시트 공유 링크
+  const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxYQaonUF2Oei50wcQiQ4kaNaa22WDdnsooOLikju_IeqZLDZmDzg9e1YiuEERXNcdK/exec";
   const MASTER_SHEET_URL = "https://docs.google.com/spreadsheets/d/1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk/edit?usp=sharing";
 
-  // 기본 채점 모드 (관대 판단 기본)
-  let currentGradingMode = 'lenient';
-
-  function setGradingMode(mode) {
-    currentGradingMode = mode;
-    document.getElementById('btnModeLenient').classList.toggle('active', mode === 'lenient');
-    document.getElementById('btnModeStrict').classList.toggle('active', mode === 'strict');
-  }
-
-  const sentences = [
+  // 기본 7개 문장 데이터셋
+  const defaultSentences = [
     { zh: "高考必中！高考必中！", py: "Gāokǎo bì zhòng! Gāokǎo bì zhòng!", kr: "대입 시험 반드시 합격한다! 합격 대박!" },
     { zh: "梦想成真！梦想成真！", py: "Mèngxiǎng chéng zhēn! Mèngxiǎng chéng zhēn!", kr: "꿈은 이루어진다! 소원 성취!" },
     { zh: "旗开得胜！旗开得胜！", py: "Qíkāi déshèng! Qíkāi déshèng!", kr: "첫 판부터 승리한다! 첫 단추를 멋지게 꿰자!" },
@@ -333,11 +374,32 @@
     { zh: "六七八，录取吧！", py: "Liù-qī-bā, lùqǔ ba!", kr: "678(류-치-바 / 합격해라!), 합격하자!" }
   ];
 
+  let currentSentences = [];
+  let currentGradingMode = 'lenient';
+
   window.addEventListener('DOMContentLoaded', () => {
     const inputEl = document.getElementById('teacherSheetUrl');
     const customUrl = localStorage.getItem('chinese_speech_custom_sheet');
     inputEl.value = customUrl ? customUrl : MASTER_SHEET_URL;
+
+    // 저장된 맞춤 문항 로드
+    const stored = localStorage.getItem('chinese_speech_custom_sentences');
+    if (stored) {
+      try { currentSentences = JSON.parse(stored); } catch (e) { currentSentences = defaultSentences; }
+    } else {
+      currentSentences = defaultSentences;
+    }
+
+    renderSentences();
+    buildSentenceEditor();
   });
+
+  function setGradingMode(mode) {
+    currentGradingMode = mode;
+    document.getElementById('btnModeStrict').classList.toggle('active', mode === 'strict');
+    document.getElementById('btnModeLenient').classList.toggle('active', mode === 'lenient');
+    document.getElementById('btnModeComm').classList.toggle('active', mode === 'comm');
+  }
 
   function saveCustomSheetUrl() {
     const val = document.getElementById('teacherSheetUrl').value.trim();
@@ -361,30 +423,71 @@
   function openHelpModal() { document.getElementById('helpModal').style.display = 'flex'; }
   function closeHelpModal() { document.getElementById('helpModal').style.display = 'none'; }
 
-  // 문항 카드 동적 생성
-  const container = document.getElementById('sentenceContainer');
-  sentences.forEach((item, index) => {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
-      <div class="zh">${item.zh}</div>
-      <div class="py">${item.py}</div>
-      <div class="kr">${item.kr}</div>
-      <div class="btn-group">
-        <button class="btn-play" onclick="playTTS('${item.zh}')">🔊 모범 발음</button>
-        <button class="btn-rec" id="recBtn_${index}" onclick="handleRecButtonClick(${index}, '${item.zh}')">🎙️ 녹음 시작</button>
-      </div>
-      <div class="result-box" id="resBox_${index}">
-        <div class="spoken-text" id="spoken_${index}"></div>
-        <div>
-          <span class="score-badge" id="score_${index}"></span>
-          <span class="save-status" id="status_${index}"></span>
+  // 교사 문항 편집 패널 토글
+  function toggleSentenceEditor() {
+    const p = document.getElementById('editorPanel');
+    p.style.display = p.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function buildSentenceEditor() {
+    const area = document.getElementById('editorInputs');
+    area.innerHTML = '';
+    for (let i = 0; i < 7; i++) {
+      const item = currentSentences[i] || { zh: '', py: '', kr: '' };
+      const row = document.createElement('div');
+      row.className = 'edit-item';
+      row.innerHTML = `
+        <span>${i + 1}.</span>
+        <input type="text" class="edit-zh" id="edit_zh_${i}" value="${item.zh}" placeholder="중국어 한자">
+        <input type="text" class="edit-py" id="edit_py_${i}" value="${item.py}" placeholder="한어병음">
+        <input type="text" class="edit-kr" id="edit_kr_${i}" value="${item.kr}" placeholder="한국어 뜻">
+      `;
+      area.appendChild(row);
+    }
+  }
+
+  function saveCustomSentences() {
+    const newItems = [];
+    for (let i = 0; i < 7; i++) {
+      const zh = document.getElementById(`edit_zh_${i}`).value.trim();
+      const py = document.getElementById(`edit_py_${i}`).value.trim();
+      const kr = document.getElementById(`edit_kr_${i}`).value.trim();
+      newItems.push({ zh: zh || `문항 ${i+1}`, py: py, kr: kr });
+    }
+    currentSentences = newItems;
+    localStorage.setItem('chinese_speech_custom_sentences', JSON.stringify(newItems));
+    renderSentences();
+    document.getElementById('editorPanel').style.display = 'none';
+    alert("✓ 7개 문항이 저장되어 화면에 반영되었습니다.");
+  }
+
+  // 문항 카드 렌더링
+  function renderSentences() {
+    const container = document.getElementById('sentenceContainer');
+    container.innerHTML = '';
+    currentSentences.forEach((item, index) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="zh">${item.zh}</div>
+        <div class="py">${item.py}</div>
+        <div class="kr">${item.kr}</div>
+        <div class="btn-group">
+          <button class="btn-play" onclick="playTTS('${item.zh}')">🔊 모범 발음</button>
+          <button class="btn-rec" id="recBtn_${index}" onclick="handleRecButtonClick(${index}, '${item.zh}')">🎙️ 녹음 시작</button>
         </div>
-        <div class="feedback-box" id="feedback_${index}"></div>
-      </div>
-    `;
-    container.appendChild(card);
-  });
+        <div class="result-box" id="resBox_${index}">
+          <div class="spoken-text" id="spoken_${index}"></div>
+          <div>
+            <span class="score-badge" id="score_${index}"></span>
+            <span class="save-status" id="status_${index}"></span>
+          </div>
+          <div class="feedback-box" id="feedback_${index}"></div>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
 
   function playTTS(text) {
     window.speechSynthesis.cancel();
@@ -396,7 +499,6 @@
     window.speechSynthesis.speak(utter);
   }
 
-  // 아라비아 숫자 -> 한자 수사 정규화
   function normalizeChineseDigits(str) {
     const digitMap = {
       '0': '零', '1': '一', '2': '二', '3': '三', '4': '四',
@@ -479,7 +581,7 @@
 
     activeRecognition.onerror = (e) => {
       if (e.error === 'not-allowed') {
-        alert("마이크 사용 권한이 필요합니다. 주소창 좌측의 설정/자물쇠를 눌러 마이크를 허용해주세요.");
+        alert("마이크 권한이 필요합니다. 브라우저 설정에서 마이크를 허용해주세요.");
         resetAllRecButtons();
       }
     };
@@ -497,22 +599,37 @@
       }
 
       const normalizedSpoken = normalizeChineseDigits(finalSpoken);
-      const rawScore = calculateSimilarity(targetZh, normalizedSpoken);
-      let finalScore = rawScore;
+
+      // 글자별 정오 피드백 및 맞힌 글자 수 집계
+      const evalResult = renderPronunciationDiff(targetZh, normalizedSpoken, feedbackBox);
+      
+      // 글자 수 비례 100점 만점 기본 점수 계산 (N개 중 M개 맞을 때 100점 환산)
+      const totalChars = evalResult.totalChars;
+      const matchedChars = evalResult.matchedChars;
+      const baseScore = totalChars > 0 ? Math.round((matchedChars / totalChars) * 100) : 0;
+
+      // 3단계 모드별 최종 점수 산출
+      let finalScore = baseScore;
       if (currentGradingMode === 'lenient') {
-        finalScore = Math.min(100, Math.round(rawScore * 1.15 + (rawScore > 30 ? 5 : 0)));
+        // 관대 모드: 15% 보정 가산
+        finalScore = Math.min(100, Math.round(baseScore * 1.15 + (baseScore > 20 ? 5 : 0)));
+      } else if (currentGradingMode === 'comm') {
+        // 소통가능 모드: 50% 이상 발화 시 기본 70점 보장 후 비율 가산
+        if (baseScore >= 50) {
+          finalScore = Math.min(100, Math.round(70 + (baseScore - 50) * 0.6));
+        } else {
+          finalScore = Math.round(baseScore * 1.2);
+        }
       }
 
-      const modeLabel = currentGradingMode === 'lenient' ? '관대' : '엄격';
+      const modeLabels = { strict: '엄격', lenient: '관대', comm: '소통가능' };
+      const modeLabel = modeLabels[currentGradingMode];
       const grade = getGrade(finalScore, currentGradingMode);
 
       spokenEl.innerHTML = `인식된 발음: <strong>${finalSpoken}</strong> ${finalSpoken !== normalizedSpoken ? `(변환: ${normalizedSpoken})` : ''}`;
-      scoreEl.innerHTML = `정확도: <strong>${finalScore}점</strong> (${grade}) <span style="font-size:12px; color:#cbd5e1;">[${modeLabel} 모드]</span>`;
+      scoreEl.innerHTML = `정확도: <strong>${finalScore}점</strong> (${grade}) <span style="font-size:12px; color:#cbd5e1;">[${modeLabel} 모드 | ${matchedChars}/${totalChars}자 일치]</span>`;
       statusEl.innerText = "⏳ 구글 시트 저장 중...";
 
-      renderPronunciationDiff(targetZh, normalizedSpoken, feedbackBox);
-
-      // Hidden Form 방식으로 Apps Script API에 저장 요청
       sendDataViaHiddenForm({
         sheetUrl: document.getElementById('teacherSheetUrl').value.trim(),
         studentId: id,
@@ -533,7 +650,7 @@
   }
 
   function resetAllRecButtons() {
-    sentences.forEach((_, i) => {
+    currentSentences.forEach((_, i) => {
       const b = document.getElementById(`recBtn_${i}`);
       if (b) {
         b.className = 'btn-rec';
@@ -544,11 +661,12 @@
     activeIndex = null;
   }
 
-  // 글자별 1:1 소모 피드백
+  // 글자 수 대조 및 일치 개수 반환
   function renderPronunciationDiff(target, spoken, containerEl) {
     const cleanTarget = target.replace(/[，。！？\s]/g, "");
     let spokenPool = spoken.replace(/[，。！？\s]/g, "").split("");
 
+    let matchedCount = 0;
     let html = '<div class="feedback-title">🎯 글자별 발음 피드백:</div><div class="feedback-chars">';
     
     for (let i = 0; i < cleanTarget.length; i++) {
@@ -557,6 +675,7 @@
       
       if (matchIndex !== -1) {
         spokenPool.splice(matchIndex, 1);
+        matchedCount++;
         html += `<span class="char-badge correct">${char}<span class="char-status-text">✓ 일치</span></span>`;
       } else {
         html += `<span class="char-badge wrong">${char}<span class="char-status-text">✗ 미흡</span></span>`;
@@ -569,9 +688,9 @@
     }
 
     containerEl.innerHTML = html;
+    return { totalChars: cleanTarget.length, matchedChars: matchedCount };
   }
 
-  // Hidden Form 동적 생성 및 시트 전송
   function sendDataViaHiddenForm(payload, statusEl) {
     let form = document.getElementById('temp_submit_form');
     if (form) form.remove();
@@ -599,37 +718,13 @@
     }, 1200);
   }
 
-  // 레벤슈타인 거리 기반 유사도 점수 계산
-  function calculateSimilarity(str1, str2) {
-    const s1 = str1.replace(/[，。！？\s]/g, "");
-    const s2 = str2.replace(/[，。！？\s]/g, "");
-    if (s1 === s2) return 100;
-    if (!s1.length || !s2.length) return 0;
-
-    const track = Array(s2.length + 1).fill(null).map(() =>
-      Array(s1.length + 1).fill(null));
-
-    for (let i = 0; i <= s1.length; i += 1) track[0][i] = i;
-    for (let j = 0; j <= s2.length; j += 1) track[j][0] = j;
-
-    for (let j = 1; j <= s2.length; j += 1) {
-      for (let i = 1; i <= s1.length; i += 1) {
-        const indicator = s1[i - 1] === s2[j - 1] ? 0 : 1;
-        track[j][i] = Math.min(
-          track[j][i - 1] + 1,
-          track[j - 1][i] + 1,
-          track[j - 1][i - 1] + indicator
-        );
-      }
-    }
-    const distance = track[s2.length][s1.length];
-    const maxLen = Math.max(s1.length, s2.length);
-    return Math.round(((maxLen - distance) / maxLen) * 100);
-  }
-
-  // 성취 등급 판정
   function getGrade(score, mode) {
-    if (mode === 'lenient') {
+    if (mode === 'comm') {
+      if (score >= 80) return "소통원활 (A)";
+      if (score >= 65) return "소통가능 (B)";
+      if (score >= 50) return "기본소통 (C)";
+      return "보완필요";
+    } else if (mode === 'lenient') {
       if (score >= 80) return "우수 (A)";
       if (score >= 65) return "보통 (B)";
       if (score >= 50) return "노력요함 (C)";

@@ -226,7 +226,7 @@
 </head>
 <body>
 
-<!-- 구글 시트 CORS 차단 우회용 숨김 iframe -->
+<!-- 구글 시트 CORS 우회용 숨김 iframe -->
 <iframe name="hidden_send_frame" id="hidden_send_frame" style="display:none;"></iframe>
 
 <div class="container">
@@ -273,7 +273,7 @@
       <li><strong>1. 원본 시트 복사:</strong> 상단 [📋 원본 시트 복사하기]를 클릭하면 원본 시트 사본 만들기 창이 열립니다. [사본 만들기]를 누르세요.</li>
       <li><strong>2. 시트 공유 권한:</strong> 복사된 시트 우측 상단 [공유] 클릭 후 <em>'링크가 있는 모든 사용자'</em>를 <strong>'편집자'</strong>로 변경하세요.</li>
       <li><strong>3. 내 시트 주소 붙여넣기:</strong> 복사한 시트 링크를 위 [연결된 구글 시트] 칸에 넣으면, 그 시트에 학급별 탭(예: 2학년 2반)이 자동 생성됩니다.</li>
-      <li><strong>4. 발음 틀린 부분 피드백:</strong> 학생이 발음하면 맞는 글자는 초록색(✓), 틀리거나 빠진 글자는 빨간색(✗)으로 표시되어 즉시 교정할 수 있습니다.</li>
+      <li><strong>4. 수동 녹음 종료:</strong> 학생이 말을 마친 뒤 <strong>[⏹ 녹음 완료 및 채점]</strong> 버튼을 누르면 인식이 종료되고 정확한 점수가 산출됩니다.</li>
     </ol>
     <button class="modal-close" onclick="closeHelpModal()">확인 및 닫기</button>
   </div>
@@ -335,7 +335,7 @@
       <div class="kr">${item.kr}</div>
       <div class="btn-group">
         <button class="btn-play" onclick="playTTS('${item.zh}')">🔊 모범 발음</button>
-        <button class="btn-rec" id="recBtn_${index}" onclick="toggleRecording(${index}, '${item.zh}')">🎙️ 녹음 시작</button>
+        <button class="btn-rec" id="recBtn_${index}" onclick="handleRecButtonClick(${index}, '${item.zh}')">🎙️ 녹음 시작</button>
       </div>
       <div class="result-box" id="resBox_${index}">
         <div class="spoken-text" id="spoken_${index}"></div>
@@ -360,19 +360,20 @@
     window.speechSynthesis.speak(utter);
   }
 
-  // STT 음성인식
+  // STT 음성인식 제어 변수
   let activeRecognition = null;
   let activeIndex = null;
+  let accumulatedTranscript = ""; // 연속 발화 누적 텍스트
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-  function toggleRecording(index, targetZh) {
-    const recBtn = document.getElementById(`recBtn_${index}`);
-
+  function handleRecButtonClick(index, targetZh) {
+    // 1. 이미 녹음 중인 상태에서 버튼을 다시 누르면 -> 수동 종료 및 채점 실행
     if (activeIndex === index && activeRecognition) {
       activeRecognition.stop();
       return;
     }
 
+    // 다른 문항 녹음 중이었다면 이전 녹음 취소
     if (activeRecognition) {
       activeRecognition.abort();
       resetAllRecButtons();
@@ -393,14 +394,19 @@
       return;
     }
 
+    // 2. 새로운 음성 인식 시작 (연속 녹음 모드 설정)
     activeIndex = index;
+    accumulatedTranscript = ""; // 발화 초기화
+
     activeRecognition = new SpeechRecognition();
     activeRecognition.lang = 'zh-CN';
-    activeRecognition.interimResults = false;
+    activeRecognition.continuous = true;       // ★ 중요: 잠깐 쉬어도 자동 종료되지 않고 버튼 누를 때까지 유지
+    activeRecognition.interimResults = true;    // 실시간 음성 조합
     activeRecognition.maxAlternatives = 1;
 
+    const recBtn = document.getElementById(`recBtn_${index}`);
     recBtn.className = 'btn-rec btn-stop-rec';
-    recBtn.innerHTML = '⏹ 녹음 멈춤 및 채점';
+    recBtn.innerHTML = '⏹ 녹음 완료 및 채점';
 
     const resBox = document.getElementById(`resBox_${index}`);
     const spokenEl = document.getElementById(`spoken_${index}`);
@@ -408,42 +414,69 @@
     const statusEl = document.getElementById(`status_${index}`);
     const feedbackBox = document.getElementById(`feedback_${index}`);
 
+    resBox.style.display = 'block';
+    spokenEl.innerHTML = `인식 중: <span style="color:#fef08a;">(말씀하신 후 상단 [녹음 완료] 버튼을 누르세요)</span>`;
+    scoreEl.innerHTML = '';
+    statusEl.innerHTML = '';
+    feedbackBox.innerHTML = '';
+
     activeRecognition.onresult = (event) => {
-      const spokenText = event.results[0][0].transcript;
-      const score = calculateSimilarity(targetZh, spokenText);
+      let interim = "";
+      accumulatedTranscript = "";
+      for (let i = 0; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          accumulatedTranscript += event.results[i][0].transcript;
+        } else {
+          interim += event.results[i][0].transcript;
+        }
+      }
+      const currentSpoken = accumulatedTranscript + interim;
+      if (currentSpoken.trim()) {
+        spokenEl.innerHTML = `인식 중: <strong>${currentSpoken}</strong>`;
+      }
+    };
+
+    activeRecognition.onerror = (e) => {
+      if (e.error === 'not-allowed') {
+        alert("마이크 사용 권한이 필요합니다. 주소창 좌측의 설정/자물쇠를 눌러 마이크를 허용해주세요.");
+        resetAllRecButtons();
+      }
+    };
+
+    // 학생이 수동으로 [녹음 완료 및 채점] 버튼을 눌렀을 때 실행
+    activeRecognition.onend = () => {
+      const finalSpoken = accumulatedTranscript.trim();
+      recBtn.className = 'btn-rec';
+      recBtn.innerHTML = '🎙️ 녹음 시작';
+      activeRecognition = null;
+      activeIndex = null;
+
+      if (!finalSpoken) {
+        spokenEl.innerHTML = `<span style="color:#f87171;">음성이 감지되지 않았습니다. 다시 녹음해 주세요.</span>`;
+        return;
+      }
+
+      // 점수 계산 및 피드백 렌더링
+      const score = calculateSimilarity(targetZh, finalSpoken);
       const grade = getGrade(score);
 
-      resBox.style.display = 'block';
-      spokenEl.innerHTML = `인식된 발음: <strong>${spokenText}</strong>`;
+      spokenEl.innerHTML = `인식된 발음: <strong>${finalSpoken}</strong>`;
       scoreEl.innerHTML = `정확도: <strong>${score}점</strong> (${grade})`;
       statusEl.innerText = "⏳ 구글 시트 저장 중...";
 
-      // 중복 글자 소모 방식 적용된 정오 피드백 실행
-      renderPronunciationDiff(targetZh, spokenText, feedbackBox);
+      // 글자별 1:1 소모 피드백 실행
+      renderPronunciationDiff(targetZh, finalSpoken, feedbackBox);
 
-      // Hidden Form 동적 전송
+      // 구글 시트 전송
       sendDataViaHiddenForm({
         sheetUrl: document.getElementById('teacherSheetUrl').value.trim(),
         studentId: id,
         studentName: name,
         targetText: targetZh,
-        spokenText: spokenText,
+        spokenText: finalSpoken,
         score: score,
         grade: grade
       }, statusEl);
-    };
-
-    activeRecognition.onerror = (e) => {
-      resetAllRecButtons();
-      if (e.error === 'not-allowed') {
-        alert("마이크 사용 권한이 필요합니다. 주소창 좌측의 설정/자물쇠를 눌러 마이크를 허용해주세요.");
-      } else if (e.error !== 'no-speech') {
-        alert("음성 인식 오류: " + e.error);
-      }
-    };
-
-    activeRecognition.onend = () => {
-      resetAllRecButtons();
     };
 
     try {
@@ -466,34 +499,38 @@
     activeIndex = null;
   }
 
-  // 중복 글자 소모(소멸) 방식 정오 피드백 로직
+  // 글자별 발음 피드백 (정답 글자 순서대로 1:1 매칭 후 소모)
   function renderPronunciationDiff(target, spoken, containerEl) {
     const cleanTarget = target.replace(/[，。！？\s]/g, "");
     let spokenPool = spoken.replace(/[，。！？\s]/g, "").split("");
 
     let html = '<div class="feedback-title">🎯 글자별 발음 피드백:</div><div class="feedback-chars">';
     
+    // 정답 문장의 각 글자를 순서대로 검사
     for (let i = 0; i < cleanTarget.length; i++) {
       const char = cleanTarget[i];
       const matchIndex = spokenPool.indexOf(char);
       
       if (matchIndex !== -1) {
+        // 학생이 말한 목록에서 글자를 찾아 일치 처리 후 소모(제거)
         spokenPool.splice(matchIndex, 1);
         html += `<span class="char-badge correct">${char}<span class="char-status-text">✓ 일치</span></span>`;
       } else {
+        // 이미 글자가 다 소모되었거나 말하지 않은 경우 미흡 처리
         html += `<span class="char-badge wrong">${char}<span class="char-status-text">✗ 미흡</span></span>`;
       }
     }
     html += '</div>';
 
+    // 학생이 말한 단어 중 정답에 매칭되지 않고 남은 단어 표기
     if (spokenPool.length > 0) {
-      html += `<div style="font-size:12px; color:#fdba74; margin-top:4px;">* 정답 외 추가 인식: <strong>${spokenPool.join(" ")}</strong></div>`;
+      html += `<div style="font-size:12px; color:#fdba74; margin-top:4px;">* 추가로 인식된 발음: <strong>${spokenPool.join(" ")}</strong></div>`;
     }
 
     containerEl.innerHTML = html;
   }
 
-  // Hidden Form 전송
+  // Hidden Form 동적 전송 (구글 시트 저장)
   function sendDataViaHiddenForm(payload, statusEl) {
     let form = document.getElementById('temp_submit_form');
     if (form) form.remove();
@@ -521,7 +558,7 @@
     }, 1200);
   }
 
-  // 레벤슈타인 거리 기반 유사도 계산
+  // 레벤슈타인 거리 기반 유사도 점수 계산
   function calculateSimilarity(str1, str2) {
     const s1 = str1.replace(/[，。！？\s]/g, "");
     const s2 = str2.replace(/[，。！？\s]/g, "");

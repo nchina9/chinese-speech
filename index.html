@@ -226,7 +226,7 @@
 </head>
 <body>
 
-<!-- 구글 시트 CORS 차단을 100% 우회하기 위한 숨김 iframe -->
+<!-- 구글 시트 CORS 차단 우회용 숨김 iframe -->
 <iframe name="hidden_send_frame" id="hidden_send_frame" style="display:none;"></iframe>
 
 <div class="container">
@@ -283,7 +283,7 @@
   // 배포된 구글 앱스 스크립트 웹 앱 URL
   const GAS_API_URL = "https://script.google.com/macros/s/AKfycblxuNTbPZuJ7fuIKSP-AMNi44oT-O6jZl-yOzZ-HJoBhAHjl8rm3DEPtphwYCTPVJkgg/exec";
 
-  // 선생님의 원본 스프레드시트 공유 링크
+  // 원본 스프레드시트 공유 링크
   const MASTER_SHEET_URL = "https://docs.google.com/spreadsheets/d/1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk/edit?usp=sharing";
 
   const sentences = [
@@ -343,7 +343,6 @@
           <span class="score-badge" id="score_${index}"></span>
           <span class="save-status" id="status_${index}"></span>
         </div>
-        <!-- 발음 정오 피드백 영역 -->
         <div class="feedback-box" id="feedback_${index}"></div>
       </div>
     `;
@@ -419,10 +418,10 @@
       scoreEl.innerHTML = `정확도: <strong>${score}점</strong> (${grade})`;
       statusEl.innerText = "⏳ 구글 시트 저장 중...";
 
-      // 글자별 정오 피드백 하이라이트 생성
+      // 중복 글자 소모 방식 적용된 정오 피드백 실행
       renderPronunciationDiff(targetZh, spokenText, feedbackBox);
 
-      // Hidden Form 동적 생성 및 시트 전송 (CORS 100% 우회)
+      // Hidden Form 동적 전송
       sendDataViaHiddenForm({
         sheetUrl: document.getElementById('teacherSheetUrl').value.trim(),
         studentId: id,
@@ -467,17 +466,19 @@
     activeIndex = null;
   }
 
-  // 발음 틀린 부분 글자 단위 대조 피드백 생성
+  // 중복 글자 소모(소멸) 방식 정오 피드백 로직
   function renderPronunciationDiff(target, spoken, containerEl) {
     const cleanTarget = target.replace(/[，。！？\s]/g, "");
-    const cleanSpoken = spoken.replace(/[，。！？\s]/g, "");
+    let spokenPool = spoken.replace(/[，。！？\s]/g, "").split("");
 
     let html = '<div class="feedback-title">🎯 글자별 발음 피드백:</div><div class="feedback-chars">';
     
-    // 정답 글자 순회하면서 학생 발음에 포함 여부 체크
     for (let i = 0; i < cleanTarget.length; i++) {
       const char = cleanTarget[i];
-      if (cleanSpoken.includes(char)) {
+      const matchIndex = spokenPool.indexOf(char);
+      
+      if (matchIndex !== -1) {
+        spokenPool.splice(matchIndex, 1);
         html += `<span class="char-badge correct">${char}<span class="char-status-text">✓ 일치</span></span>`;
       } else {
         html += `<span class="char-badge wrong">${char}<span class="char-status-text">✗ 미흡</span></span>`;
@@ -485,21 +486,14 @@
     }
     html += '</div>';
 
-    // 학생이 정답 외에 엉뚱하게 발음한 단어가 있을 경우 안내
-    const extraChars = [];
-    for (let j = 0; j < cleanSpoken.length; j++) {
-      if (!cleanTarget.includes(cleanSpoken[j])) {
-        extraChars.push(cleanSpoken[j]);
-      }
-    }
-    if (extraChars.length > 0) {
-      html += `<div style="font-size:12px; color:#fdba74; margin-top:4px;">* 추가로 인식된 발음: <strong>${extraChars.join(" ")}</strong></div>`;
+    if (spokenPool.length > 0) {
+      html += `<div style="font-size:12px; color:#fdba74; margin-top:4px;">* 정답 외 추가 인식: <strong>${spokenPool.join(" ")}</strong></div>`;
     }
 
     containerEl.innerHTML = html;
   }
 
-  // Hidden Form 전송 (구글 시트 저장 무조건 성공 보장)
+  // Hidden Form 전송
   function sendDataViaHiddenForm(payload, statusEl) {
     let form = document.getElementById('temp_submit_form');
     if (form) form.remove();
@@ -522,7 +516,6 @@
     document.body.appendChild(form);
     form.submit();
 
-    // 전송 후 완료 메시지 표시
     setTimeout(() => {
       statusEl.innerText = "✓ 구글 시트 저장 완료!";
     }, 1200);

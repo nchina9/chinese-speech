@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>학생 주도 다국어 연습기 & 구글 시트 연동</title>
+  <title>학생 주도 다국어 연습기</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -34,12 +34,11 @@
     .developer-tag {
       font-size: 12px;
       color: #fef08a;
-      background: rgba(0, 0, 0, 0.35);
-      padding: 4px 10px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 4px 12px;
       border-radius: 12px;
-      border: 1px solid rgba(250, 204, 21, 0.4);
+      border: 1px solid rgba(250, 204, 21, 0.5);
       font-weight: bold;
-      letter-spacing: 0.5px;
     }
     .top-header {
       display: flex;
@@ -128,7 +127,50 @@
       color: #0f172a;
       outline: none;
     }
-    .sheet-hint { font-size: 12px; color: #fed7aa; line-height: 1.4; }
+    .sheet-hint { font-size: 12px; color: #fed7aa; line-height: 1.5; }
+
+    .translate-bar {
+      background: rgba(15, 23, 42, 0.55);
+      border: 1px solid #38bdf8;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+    .translate-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .translate-row label { font-size: 13px; color: #7dd3fc; font-weight: bold; }
+    .translate-row input {
+      flex: 1;
+      min-width: 200px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #38bdf8;
+      font-size: 13px;
+      background: #fff;
+      color: #0f172a;
+      outline: none;
+    }
+    .translate-row select {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #38bdf8;
+      font-size: 13px;
+      font-weight: bold;
+    }
+    .btn-translate {
+      background: #0284c7;
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
     .editor-panel {
       display: none;
@@ -245,23 +287,24 @@
     .feedback-title {
       font-size: 13px;
       color: #fef08a;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       font-weight: bold;
     }
     .feedback-elements {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 8px;
       margin-bottom: 6px;
     }
     .item-badge {
       display: inline-flex;
       flex-direction: column;
       align-items: center;
-      padding: 4px 8px;
-      border-radius: 6px;
+      padding: 6px 10px;
+      border-radius: 8px;
       font-size: 15px;
       font-weight: bold;
+      min-width: 50px;
     }
     .item-badge.correct {
       background: rgba(34, 197, 94, 0.25);
@@ -278,6 +321,18 @@
       font-size: 10px;
       text-decoration: none !important;
       margin-top: 2px;
+      color: #cbd5e1;
+    }
+    .item-meaning-text {
+      font-size: 11px;
+      text-decoration: none !important;
+      margin-top: 3px;
+      color: #fef08a;
+      font-weight: normal;
+      background: rgba(0,0,0,0.4);
+      padding: 1px 4px;
+      border-radius: 4px;
+      white-space: nowrap;
     }
 
     .modal {
@@ -314,10 +369,7 @@
 </head>
 <body>
 
-<iframe name="hidden_send_frame" id="hidden_send_frame" style="display:none;"></iframe>
-
 <div class="container">
-  <!-- 상단 개발자 표기 -->
   <div class="top-badge-bar">
     <span class="developer-tag">개발자: 신윤기 수석</span>
   </div>
@@ -338,28 +390,46 @@
 
       <div class="mode-toggle-group">
         <button type="button" class="btn-mode" id="btnModeStrict" onclick="setGradingMode('strict')">⚖️ 엄격</button>
-        <button type="button" class="btn-mode active" id="btnModeLenient" onclick="setGradingMode('lenient')">😊 관대</button>
-        <button type="button" class="btn-mode" id="btnModeComm" onclick="setGradingMode('comm')">🗣️ 소통가능</button>
+        <button type="button" class="btn-mode" id="btnModeLenient" onclick="setGradingMode('lenient')">😊 관대</button>
+        <button type="button" class="btn-mode active" id="btnModeComm" onclick="setGradingMode('comm')">🗣️ 소통가능</button>
       </div>
       <button class="btn-tool edit" onclick="toggleSentenceEditor()">✏️ 문항 편집</button>
-      <button class="btn-tool copy" onclick="copyMasterSheet()">📋 시트 복사</button>
+      <button class="btn-tool copy" onclick="copySheetTemplate()">📋 시트 양식 복사</button>
       <button class="btn-tool" onclick="openHelpModal()">📖 안내</button>
     </div>
   </div>
 
+  <div class="translate-bar">
+    <div class="translate-row">
+      <label for="koInput">🇰🇷 우리말 문장 입력:</label>
+      <input type="text" id="koInput" placeholder="예: 오늘 날씨가 참 좋네요 (입력 후 번역 버튼 클릭)">
+      <select id="slotSelect">
+        <option value="0">1번 문항으로</option>
+        <option value="1">2번 문항으로</option>
+        <option value="2">3번 문항으로</option>
+        <option value="3">4번 문항으로</option>
+        <option value="4">5번 문항으로</option>
+        <option value="5">6번 문항으로</option>
+        <option value="6">7번 문항으로</option>
+      </select>
+      <button class="btn-translate" id="btnTranslate" onclick="translateKoreanToTarget()">🔄 번역 및 문항 교체</button>
+    </div>
+  </div>
+
   <div class="editor-panel" id="editorPanel">
-    <h3>✏️ 맞춤 문항 편집 (7개 문장 입력)</h3>
+    <h3>✏️ 맞춤 문항 직접 편집 (7개 문장 입력)</h3>
     <div id="editorInputs"></div>
     <button class="btn-save-sentences" onclick="saveCustomSentences()">💾 문항 저장 및 화면 반영</button>
   </div>
 
   <div class="sheet-config-bar">
     <div class="sheet-config-row">
-      <label for="teacherSheetUrl">📊 연결된 구글 시트:</label>
-      <input type="text" id="teacherSheetUrl" oninput="saveCustomSheetUrl()">
+      <label for="teacherSheetUrl">🔒 결과 저장 구글 시트:</label>
+      <input type="text" id="teacherSheetUrl" placeholder="🔒 개발자(신윤기 수석) 전용 시트 연결됨 (타 교사는 우측 상단 [📋 시트 양식 복사] 후 사본 주소 입력)" oninput="saveCustomSheetUrl()">
+      <button class="btn-tool copy" onclick="copySheetTemplate()" style="padding: 8px 12px;">📋 시트 복사하기</button>
     </div>
     <div class="sheet-hint">
-      * 기본값: <strong>개발 교사 원본 시트</strong> 자동 연결. (언어별 음성 인식/TTS 엔진 자동 동기화 및 학급별 시트 자동 분기 저장)
+      * <strong>보안 안내:</strong> 개발자(신윤기 수석)의 원본 구글 시트는 비공개 보호되어 다른 교사가 열람할 수 없습니다. 타 교사는 [📋 시트 복사하기]를 눌러 사본을 만든 후 주소를 붙여넣으세요.
     </div>
   </div>
 
@@ -379,15 +449,11 @@
 
 <div class="modal" id="helpModal">
   <div class="modal-content">
-    <h3>📖 학생 주도 다국어 연습기 안내</h3>
+    <h3>📖 평가 및 학습 피드백 안내</h3>
     <ol>
-      <li><strong>다국어 선택:</strong> 상단 선택창에서 중국어, 영어, 일본어, 프랑스어 등을 선택하면 모범 발음과 음성 인식 엔진이 해당 언어로 즉시 전환됩니다.</li>
-      <li><strong>평가 방식:</strong>
-        <br>- 중국어/일본어: 글자 단위 100점 비례 환산
-        <br>- 영어/유럽어: 단어 단위 100점 비례 환산
-      </li>
-      <li><strong>평가 모드:</strong> 엄격(절대기준), 관대(+15% 가산), 소통가능(50% 이상 발화 시 기본 70점 부여).</li>
-      <li><strong>문항 편집:</strong> 상단 [✏️ 문항 편집]을 눌러 원하는 7개 문장과 발음, 한국어 뜻을 언제든 자유롭게 저장해 사용할 수 있습니다.</li>
+      <li><strong>🗣️ 소통가능 평가 모드:</strong> 개별 발음의 엄격한 음소 일치보다는 문장의 전체적인 의미 전달과 표현의 완결성을 주로 평가합니다. (키워드 및 문장 골격 전달 시 80~100점 부여)</li>
+      <li><strong>단어별 우리말 뜻 피드백:</strong> 번역 기능을 통해 등록된 문장은 각 단어(글자) 아래에 한국어 의미가 함께 표시되어 어떤 단어가 맞고 틀렸는지 학습할 수 있습니다.</li>
+      <li><strong>시트 보안:</strong> 원본 시트는 보호되며, 학생 평가 결과는 학급별 시트로 안전하게 전송됩니다.</li>
     </ol>
     <button class="modal-close" onclick="closeHelpModal()">확인 및 닫기</button>
   </div>
@@ -395,47 +461,40 @@
 
 <script>
   const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxYQaonUF2Oei50wcQiQ4kaNaa22WDdnsooOLikju_IeqZLDZmDzg9e1YiuEERXNcdK/exec";
-  const MASTER_SHEET_URL = "https://docs.google.com/spreadsheets/d/1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk/edit?usp=sharing";
+  const TEMPLATE_COPY_URL = "https://docs.google.com/spreadsheets/d/1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk/copy";
 
   const defaultPresets = {
     "zh-CN": [
-      { text: "高考必中！高考必中！", sub: "Gāokǎo bì zhòng! Gāokǎo bì zhòng!", kr: "대입 시험 반드시 합격한다! 합격 대박!" },
-      { text: "梦想成真！梦想成真！", sub: "Mèngxiǎng chéng zhēn! Mèngxiǎng chéng zhēn!", kr: "꿈은 이루어진다! 소원 성취!" },
-      { text: "旗开得胜！旗开得胜！", sub: "Qíkāi déshèng! Qíkāi déshèng!", kr: "첫 판부터 승리한다! 첫 단추를 멋지게 꿰자!" },
-      { text: "考的全对，蒙的全对，加油！", sub: "Kǎo de quánduì, mēng de quánduì, jiāyóu!", kr: "푼 건 다 맞고, 찍은 것도 다 맞는다, 파이팅!" },
-      { text: "一切顺利，祝你成功，马到成功！", sub: "Yíqiè shùnlì, zhù nǐ chénggōng, mǎdàochénggōng!", kr: "모든 일이 순조롭길, 성공을 기원해, 일사천리로 성공하자!" },
-      { text: "一路绿灯，金榜题名！", sub: "Yílù lǜdēng, jīnbǎng tímíng!", kr: "가는 길마다 청신호! 합격자 명단에 이름을 올리자!" },
-      { text: "六七八，录取吧！", sub: "Liù-qī-bā, lùqǔ ba!", kr: "678(류-치-바 / 합격해라!), 합격하자!" }
+      { text: "高考必中！高考必中！", sub: "Gāokǎo bì zhòng! Gāokǎo bì zhòng!", kr: "대입 시험 반드시 합격한다! 합격 대박!", meanings: { "高": "높을 고", "考": "시험 고", "必": "반드시 필", "中": "맞힐 중" } },
+      { text: "梦想成真！梦想成真！", sub: "Mèngxiǎng chéng zhēn! Mèngxiǎng chéng zhēn!", kr: "꿈은 이루어진다! 소원 성취!", meanings: { "梦": "꿈 몽", "想": "생각 상", "成": "이룰 성", "真": "참 진" } },
+      { text: "旗开得胜！旗开得胜！", sub: "Qíkāi déshèng! Qíkāi déshèng!", kr: "첫 판부터 승리한다! 첫 단추를 멋지게 꿰자!", meanings: { "旗": "깃발 기", "开": "열 개", "得": "얻을 득", "胜": "이길 승" } },
+      { text: "考的全对，蒙的全对，加油！", sub: "Kǎo de quánduì, mēng de quánduì, jiāyóu!", kr: "푼 건 다 맞고, 찍은 것도 다 맞는다, 파이팅!", meanings: { "考": "시험", "全": "모두", "对": "맞다", "蒙": "찍다", "加": "더할 가", "油": "기름 유" } },
+      { text: "一切顺利，祝你成功，马到成功！", sub: "Yíqiè shùnlì, zhù nǐ chénggōng, mǎdàochénggōng!", kr: "모든 일이 순조롭길, 성공을 기원해, 일사천리로 성공하자!", meanings: { "一": "한 일", "切": "모두", "顺": "순할 순", "利": "이로울 리", "祝": "빌 축", "成": "이룰 성", "功": "공 공", "马": "말 마", "到": "이를 도" } },
+      { text: "一路绿灯，金榜题名！", sub: "Yílù lǜdēng, jīnbǎng tímíng!", kr: "가는 길마다 청신호! 합격자 명단에 이름을 올리자!", meanings: { "一": "한 일", "路": "길 로", "绿": "초록 록", "灯": "등 등", "金": "쇠 금", "榜": "방 방", "题": "달 제", "名": "이름 명" } },
+      { text: "六七八，录取吧！", sub: "Liù-qī-bā, lùqǔ ba!", kr: "678(류-치-바 / 합격해라!), 합격하자!", meanings: { "六": "여섯 육", "七": "일곱 칠", "八": "여덟 팔", "录": "기록할 록", "取": "취할 취", "吧": "~하자" } }
     ],
     "en-US": [
-      { text: "Nice to meet you.", sub: "[naɪs tu miːt juː]", kr: "만나서 반갑습니다." },
-      { text: "Where is the library?", sub: "[wɛər ɪz ðə ˈlaɪˌbrɛri]", kr: "도서관이 어디에 있나요?" },
-      { text: "Could you help me please?", sub: "[kʊd ju hɛlp mi pliːz]", kr: "저를 좀 도와주시겠어요?" },
-      { text: "Practice makes perfect.", sub: "[ˈpræktɪs meɪks ˈpɜrfɪkt]", kr: "연습이 완벽을 만듭니다." },
-      { text: "Have a great day today.", sub: "[hæv ə greɪt deɪ təˈdeɪ]", kr: "오늘 좋은 하루 보내세요." },
-      { text: "What is your favorite subject?", sub: "[wʌt ɪz jʊər ˈfeɪvərɪt ˈsʌbʤɪkt]", kr: "가장 좋아하는 과목이 무엇인가요?" },
-      { text: "Believe in yourself and go for it.", sub: "[bɪˈliːv ɪn jʊərˈsɛlf ænd goʊ fɔr ɪt]", kr: "자신을 믿고 도전하세요." }
+      { text: "Nice to meet you.", sub: "[naɪs tu miːt juː]", kr: "만나서 반갑습니다.", meanings: { "nice": "좋은", "to": "~에", "meet": "만나다", "you": "너를" } },
+      { text: "Where is the library?", sub: "[wɛər ɪz ðə ˈlaɪˌbrɛri]", kr: "도서관이 어디에 있나요?", meanings: { "where": "어디에", "is": "있는가", "the": "그", "library": "도서관" } },
+      { text: "Could you help me please?", sub: "[kʊd ju hɛlp mi pliːz]", kr: "저를 좀 도와주시겠어요?", meanings: { "could": "~해줄 수 있나", "you": "너는", "help": "돕다", "me": "나를", "please": "제발/부디" } },
+      { text: "Practice makes perfect.", sub: "[ˈpræktɪs meɪks ˈpɜrfɪkt]", kr: "연습이 완벽을 만듭니다.", meanings: { "practice": "연습", "makes": "만든다", "perfect": "완벽한" } },
+      { text: "Have a great day today.", sub: "[hæv ə greɪt deɪ təˈdeɪ]", kr: "오늘 좋은 하루 보내세요.", meanings: { "have": "가지다", "a": "하나의", "great": "좋은/멋진", "day": "하루", "today": "오늘" } },
+      { text: "What is your favorite subject?", sub: "[wʌt ɪz jʊər ˈfeɪvərɪt ˈsʌbʤɪkt]", kr: "가장 좋아하는 과목이 무엇인가요?", meanings: { "what": "무엇", "is": "인가", "your": "너의", "favorite": "가장 좋아하는", "subject": "과목" } },
+      { text: "Believe in yourself and go for it.", sub: "[bɪˈliːv ɪn jʊərˈsɛlf ænd goʊ fɔr ɪt]", kr: "자신을 믿고 도전하세요.", meanings: { "believe": "믿다", "in": "~을", "yourself": "너 자신", "and": "그리고", "go": "나아가다", "for": "~를 향해", "it": "그것" } }
     ],
     "ja-JP": [
-      { text: "はじめまして、よろしくおねがいします。", sub: "[하지메마시테, 요로시쿠 오네가이시마스]", kr: "처음 뵙겠습니다, 잘 부탁드립니다." },
-      { text: "きょうは とても いい てんきですね。", sub: "[쿄-와 토테모 이이 텐키데스네]", kr: "오늘은 날씨가 참 좋네요." },
-      { text: "日本語の勉強はとても楽しいです。", sub: "[니혼고노 벵쿄-와 토테모 타노시이데스]", kr: "일본어 공부는 매우 재미있습니다." },
-      { text: "これをください。", sub: "[코레오 쿠다사이]", kr: "이것을 주세요." },
-      { text: "ありがとうございます。", sub: "[아리가토- 고자이마스]", kr: "감사합니다." },
-      { text: "明日の約束を忘れないでね。", sub: "[아시타노 야쿠소쿠오 와스레나이데네]", kr: "내일 약속 잊지 마." },
-      { text: "夢を叶えるために頑張ります。", sub: "[유메오 카나에루 타메니 감바리마스]", kr: "꿈을 이루기 위해 열심히 하겠습니다." }
+      { text: "はじめまして、よろしくおねがいします。", sub: "[하지메마시테, 요로시쿠 오네가이시마스]", kr: "처음 뵙겠습니다, 잘 부탁드립니다.", meanings: { "初": "처음", "願": "바랄 원" } }
     ]
   };
 
   let currentLang = 'zh-CN';
   let currentSentences = [];
-  let currentGradingMode = 'lenient';
+  let currentGradingMode = 'comm'; // 기본 모드: 소통가능
 
   window.addEventListener('DOMContentLoaded', () => {
     const inputEl = document.getElementById('teacherSheetUrl');
-    const customUrl = localStorage.getItem('chinese_speech_custom_sheet');
-    inputEl.value = customUrl ? customUrl : MASTER_SHEET_URL;
-
+    const customUrl = localStorage.getItem('speech_custom_teacher_sheet');
+    if (customUrl) inputEl.value = customUrl;
     loadSentencesForLang(currentLang);
   });
 
@@ -460,9 +519,67 @@
     if (defaultPresets[lang]) return defaultPresets[lang];
     const list = [];
     for (let i = 1; i <= 7; i++) {
-      list.push({ text: `Sentence ${i}`, sub: `Pronunciation ${i}`, kr: `문항 ${i} 의미` });
+      list.push({ text: `Sentence ${i}`, sub: `Pronunciation ${i}`, kr: `문항 ${i} 의미`, meanings: {} });
     }
     return list;
+  }
+
+  // 우리말 입력 -> 선택 외국어 자동 번역 및 단어별 뜻 맵 생성
+  function translateKoreanToTarget() {
+    const koText = document.getElementById('koInput').value.trim();
+    const slotIdx = parseInt(document.getElementById('slotSelect').value, 10);
+    const btn = document.getElementById('btnTranslate');
+
+    if (!koText) {
+      alert("번역할 우리말 문장을 입력해주세요.");
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerText = "⏳ 번역 중...";
+
+    const callbackName = "transCallback_" + Date.now();
+    window[callbackName] = function(res) {
+      btn.disabled = false;
+      btn.innerText = "🔄 번역 및 문항 교체";
+      delete window[callbackName];
+      const scriptTag = document.getElementById(callbackName);
+      if (scriptTag) scriptTag.remove();
+
+      if (res && res.success && res.translated) {
+        // 단어별 우리말 매핑 객체 자동 구성
+        const tokens = tokenizeText(res.translated, currentLang);
+        const meaningsMap = {};
+        tokens.forEach(tok => {
+          meaningsMap[tok] = koText.length <= 10 ? koText : "문맥 의미";
+        });
+
+        currentSentences[slotIdx] = {
+          text: res.translated,
+          sub: `[자동 번역 - ${currentLang}]`,
+          kr: koText,
+          meanings: meaningsMap
+        };
+
+        localStorage.setItem(`speech_sentences_${currentLang}`, JSON.stringify(currentSentences));
+        renderSentences();
+        buildSentenceEditor();
+        document.getElementById('koInput').value = "";
+        alert(`✓ ${slotIdx + 1}번 문항이 등록되었습니다.\n- 원문: ${koText}\n- 번역: ${res.translated}`);
+      } else {
+        alert("번역 중 오류가 발생했습니다. 문항 편집에서 직접 입력해 주세요.");
+      }
+    };
+
+    const script = document.createElement('script');
+    script.id = callbackName;
+    script.src = `${GAS_API_URL}?action=translate&text=${encodeURIComponent(koText)}&targetLang=${encodeURIComponent(currentLang)}&callback=${callbackName}`;
+    script.onerror = function() {
+      btn.disabled = false;
+      btn.innerText = "🔄 번역 및 문항 교체";
+      alert("번역 서버 연결에 실패했습니다. Apps Script 배포 버전을 확인해주세요.");
+    };
+    document.body.appendChild(script);
   }
 
   function setGradingMode(mode) {
@@ -474,7 +591,7 @@
 
   function saveCustomSheetUrl() {
     const val = document.getElementById('teacherSheetUrl').value.trim();
-    localStorage.setItem('chinese_speech_custom_sheet', val);
+    localStorage.setItem('speech_custom_teacher_sheet', val);
   }
 
   function autoFormatStudentId(el) {
@@ -485,10 +602,9 @@
     }
   }
 
-  function copyMasterSheet() {
-    let copyUrl = MASTER_SHEET_URL.replace(/\/edit.*$/, '/copy');
-    if (!copyUrl.includes('/copy')) copyUrl = MASTER_SHEET_URL + "/copy";
-    window.open(copyUrl, "_blank");
+  function copySheetTemplate() {
+    alert("🔒 개발자(신윤기 수석)의 원본 시트는 보호되어 있습니다.\n\n[사본 만들기] 창이 열리면 사본을 생성한 뒤 해당 링크를 입력창에 넣어주세요.");
+    window.open(TEMPLATE_COPY_URL, "_blank");
   }
 
   function openHelpModal() { document.getElementById('helpModal').style.display = 'flex'; }
@@ -522,13 +638,14 @@
       const text = document.getElementById(`edit_target_${i}`).value.trim();
       const sub = document.getElementById(`edit_sub_${i}`).value.trim();
       const kr = document.getElementById(`edit_kr_${i}`).value.trim();
-      newItems.push({ text: text || `문항 ${i+1}`, sub: sub, kr: kr });
+      const oldMeanings = (currentSentences[i] && currentSentences[i].meanings) ? currentSentences[i].meanings : {};
+      newItems.push({ text: text || `문항 ${i+1}`, sub: sub, kr: kr, meanings: oldMeanings });
     }
     currentSentences = newItems;
     localStorage.setItem(`speech_sentences_${currentLang}`, JSON.stringify(newItems));
     renderSentences();
     document.getElementById('editorPanel').style.display = 'none';
-    alert("✓ 선택한 언어의 7개 문항이 저장 및 화면에 반영되었습니다.");
+    alert("✓ 7개 문항이 저장되었습니다.");
   }
 
   function renderSentences() {
@@ -542,8 +659,8 @@
         <div class="sub-text">${item.sub}</div>
         <div class="kr-text">${item.kr}</div>
         <div class="btn-group">
-          <button class="btn-play" onclick="playTTS('${item.text}')">🔊 모범 발음</button>
-          <button class="btn-rec" id="recBtn_${index}" onclick="handleRecButtonClick(${index}, '${item.text}')">🎙️ 녹음 시작</button>
+          <button class="btn-play" onclick="playTTS('${item.text.replace(/'/g, "\\'")}')">🔊 모범 발음</button>
+          <button class="btn-rec" id="recBtn_${index}" onclick="handleRecButtonClick(${index}, '${item.text.replace(/'/g, "\\'")}')">🎙️ 녹음 시작</button>
         </div>
         <div class="result-box" id="resBox_${index}">
           <div class="spoken-text" id="spoken_${index}"></div>
@@ -677,21 +794,32 @@
       }
 
       const normalizedSpoken = normalizeDigitsIfNeeded(finalSpoken, currentLang);
-      const evalResult = renderPronunciationDiff(targetText, normalizedSpoken, currentLang, feedbackBox);
+      const currentItemMeanings = (currentSentences[index] && currentSentences[index].meanings) ? currentSentences[index].meanings : {};
+
+      // 단어별 피드백 및 우리말 뜻 병기 렌더링
+      const evalResult = renderPronunciationDiffWithMeanings(targetText, normalizedSpoken, currentLang, currentItemMeanings, feedbackBox);
 
       const totalItems = evalResult.total;
       const matchedItems = evalResult.matched;
       const baseScore = totalItems > 0 ? Math.round((matchedItems / totalItems) * 100) : 0;
 
+      // 모드별 점수 산출 로직
       let finalScore = baseScore;
-      if (currentGradingMode === 'lenient') {
-        finalScore = Math.min(100, Math.round(baseScore * 1.15 + (baseScore > 20 ? 5 : 0)));
-      } else if (currentGradingMode === 'comm') {
-        if (baseScore >= 50) {
-          finalScore = Math.min(100, Math.round(70 + (baseScore - 50) * 0.6));
+      if (currentGradingMode === 'comm') {
+        // [🗣️ 소통가능 모드]: 문장 흐름 및 의미 통용성 중심 평가
+        // 전체 길이의 유사도와 핵심 단어 도달률을 종합하여 채점
+        const lengthRatio = Math.min(1, normalizedSpoken.length / Math.max(1, targetText.replace(/[\s，。！？,.!]/g, "").length));
+        
+        if (baseScore >= 70) {
+          finalScore = Math.min(100, Math.round(85 + (baseScore - 70) * 0.5));
+        } else if (baseScore >= 40 || lengthRatio >= 0.6) {
+          // 어휘 40% 이상 또는 문장 윤곽 발화 시 의미 전달 기본 75~84점 부여
+          finalScore = Math.round(75 + (baseScore * 0.2));
         } else {
-          finalScore = Math.round(baseScore * 1.2);
+          finalScore = Math.round(baseScore * 1.3);
         }
+      } else if (currentGradingMode === 'lenient') {
+        finalScore = Math.min(100, Math.round(baseScore * 1.15 + (baseScore > 20 ? 5 : 0)));
       }
 
       const modeLabels = { strict: '엄격', lenient: '관대', comm: '소통가능' };
@@ -699,10 +827,10 @@
       const grade = getGrade(finalScore, currentGradingMode);
 
       spokenEl.innerHTML = `인식된 발음: <strong>${finalSpoken}</strong>`;
-      scoreEl.innerHTML = `정확도: <strong>${finalScore}점</strong> (${grade}) <span style="font-size:12px; color:#cbd5e1;">[${modeLabel} 모드 | ${matchedItems}/${totalItems}개 일치]</span>`;
-      statusEl.innerText = "⏳ 구글 시트 저장 중...";
+      scoreEl.innerHTML = `평가 점수: <strong>${finalScore}점</strong> (${grade}) <span style="font-size:12px; color:#cbd5e1;">[${modeLabel} 모드 | ${matchedItems}/${totalItems}개 일치]</span>`;
+      statusEl.innerText = "⏳ 구글 시트 기록 중...";
 
-      sendDataViaHiddenForm({
+      sendRecordToGoogleSheet({
         sheetUrl: document.getElementById('teacherSheetUrl').value.trim(),
         studentId: id,
         studentName: name,
@@ -733,24 +861,38 @@
     activeIndex = null;
   }
 
-  function renderPronunciationDiff(target, spoken, lang, containerEl) {
+  // 발음 정오 피드백 및 각 단어별 우리말 뜻 병기 함수
+  function renderPronunciationDiffWithMeanings(target, spoken, lang, meaningsMap, containerEl) {
     const targetTokens = tokenizeText(target, lang);
     let spokenTokens = tokenizeText(spoken, lang);
 
     let matchedCount = 0;
     const unitLabel = (lang === 'zh-CN' || lang === 'ja-JP') ? '글자별' : '단어별';
-    let html = `<div class="feedback-title">🎯 ${unitLabel} 발음 피드백:</div><div class="feedback-elements">`;
+    let html = `<div class="feedback-title">🎯 ${unitLabel} 발음 피드백 & 단어 뜻:</div><div class="feedback-elements">`;
     
     for (let i = 0; i < targetTokens.length; i++) {
       const token = targetTokens[i];
       const matchIndex = spokenTokens.indexOf(token);
+      const meaning = meaningsMap[token] || "";
       
       if (matchIndex !== -1) {
         spokenTokens.splice(matchIndex, 1);
         matchedCount++;
-        html += `<span class="item-badge correct">${token}<span class="item-status-text">✓ 일치</span></span>`;
+        html += `
+          <span class="item-badge correct">
+            ${token}
+            <span class="item-status-text">✓ 일치</span>
+            ${meaning ? `<span class="item-meaning-text">${meaning}</span>` : ''}
+          </span>
+        `;
       } else {
-        html += `<span class="item-badge wrong">${token}<span class="item-status-text">✗ 미흡</span></span>`;
+        html += `
+          <span class="item-badge wrong">
+            ${token}
+            <span class="item-status-text">✗ 미흡</span>
+            ${meaning ? `<span class="item-meaning-text">${meaning}</span>` : ''}
+          </span>
+        `;
       }
     }
     html += '</div>';
@@ -763,39 +905,26 @@
     return { total: targetTokens.length, matched: matchedCount };
   }
 
-  function sendDataViaHiddenForm(payload, statusEl) {
-    let form = document.getElementById('temp_submit_form');
-    if (form) form.remove();
-
-    form = document.createElement('form');
-    form.id = 'temp_submit_form';
-    form.method = 'POST';
-    form.action = GAS_API_URL;
-    form.target = 'hidden_send_frame';
-    form.style.display = 'none';
-
-    for (let key in payload) {
-      let input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = key;
-      input.value = payload[key];
-      form.appendChild(input);
-    }
-
-    document.body.appendChild(form);
-    form.submit();
-
-    setTimeout(() => {
+  function sendRecordToGoogleSheet(payload, statusEl) {
+    const query = Object.keys(payload)
+      .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(payload[key]))
+      .join('&');
+    
+    const fullUrl = `${GAS_API_URL}?${query}&t=${Date.now()}`;
+    
+    const beaconImg = new Image();
+    beaconImg.onload = beaconImg.onerror = () => {
       statusEl.innerText = "✓ 구글 시트 저장 완료!";
-    }, 1200);
+    };
+    beaconImg.src = fullUrl;
   }
 
   function getGrade(score, mode) {
     if (mode === 'comm') {
-      if (score >= 80) return "소통원활 (A)";
-      if (score >= 65) return "소통가능 (B)";
-      if (score >= 50) return "기본소통 (C)";
-      return "보완필요";
+      if (score >= 85) return "의사소통 매우우수 (A)";
+      if (score >= 75) return "의사소통 원활 (B)";
+      if (score >= 60) return "기본의미 전달 (C)";
+      return "소통 보완필요";
     } else if (mode === 'lenient') {
       if (score >= 80) return "우수 (A)";
       if (score >= 65) return "보통 (B)";

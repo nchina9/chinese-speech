@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>중국어 말하기 능력 평가 & 구글 시트 연동</title>
+  <title>학생 주도 다국어 연습기 & 구글 시트 연동</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -25,6 +25,22 @@
       padding: 22px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
+    .top-badge-bar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .developer-tag {
+      font-size: 12px;
+      color: #fef08a;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 4px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(250, 204, 21, 0.4);
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
     .top-header {
       display: flex;
       justify-content: space-between;
@@ -38,7 +54,18 @@
     h2 { color: #fef08a; font-size: 22px; }
     .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     
-    /* 3단계 평가 모드 토글 */
+    .lang-selector {
+      background: #fff;
+      color: #0f172a;
+      border: 2px solid #facc15;
+      padding: 5px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 13px;
+      outline: none;
+      cursor: pointer;
+    }
+
     .mode-toggle-group {
       display: inline-flex;
       background: rgba(0,0,0,0.35);
@@ -75,7 +102,6 @@
     .btn-tool.copy { background: #10b981; }
     .btn-tool.edit { background: #eab308; color: #78350f; }
 
-    /* 시트 연동 바 */
     .sheet-config-bar {
       background: rgba(0,0,0,0.4);
       border: 1px solid #f59e0b;
@@ -104,7 +130,6 @@
     }
     .sheet-hint { font-size: 12px; color: #fed7aa; line-height: 1.4; }
 
-    /* 교사용 문장 편집 패널 */
     .editor-panel {
       display: none;
       background: rgba(0,0,0,0.45);
@@ -131,8 +156,8 @@
       color: #0f172a;
       outline: none;
     }
-    .edit-zh { flex: 2; min-width: 140px; }
-    .edit-py { flex: 2; min-width: 140px; }
+    .edit-target { flex: 2; min-width: 150px; }
+    .edit-sub { flex: 2; min-width: 150px; }
     .edit-kr { flex: 3; min-width: 180px; }
     .btn-save-sentences {
       margin-top: 8px;
@@ -146,7 +171,6 @@
       cursor: pointer;
     }
 
-    /* 학생 정보 바 */
     .student-bar {
       display: flex;
       gap: 12px;
@@ -168,7 +192,6 @@
       outline: none;
     }
 
-    /* 카드 */
     .card {
       background: rgba(0, 0, 0, 0.28);
       border: 2px solid #f59e0b;
@@ -176,9 +199,9 @@
       padding: 16px;
       margin-bottom: 16px;
     }
-    .zh { font-size: 22px; font-weight: bold; color: #fef08a; margin-bottom: 4px; }
-    .py { font-size: 14px; color: #fed7aa; margin-bottom: 4px; }
-    .kr { font-size: 13px; color: #e2e8f0; margin-bottom: 12px; }
+    .target-text { font-size: 22px; font-weight: bold; color: #fef08a; margin-bottom: 4px; }
+    .sub-text { font-size: 14px; color: #fed7aa; margin-bottom: 4px; }
+    .kr-text { font-size: 13px; color: #e2e8f0; margin-bottom: 12px; }
 
     .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
     button {
@@ -202,7 +225,6 @@
       100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
 
-    /* 결과 피드백 박스 */
     .result-box {
       display: none;
       background: rgba(0,0,0,0.55);
@@ -215,7 +237,6 @@
     .score-badge { font-size: 16px; font-weight: bold; color: #38bdf8; }
     .save-status { font-size: 12px; margin-left: 10px; color: #4ade80; font-weight: bold; }
 
-    /* 글자별 발음 피드백 */
     .feedback-box {
       margin-top: 10px;
       padding-top: 10px;
@@ -227,39 +248,38 @@
       margin-bottom: 6px;
       font-weight: bold;
     }
-    .feedback-chars {
+    .feedback-elements {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
       margin-bottom: 6px;
     }
-    .char-badge {
+    .item-badge {
       display: inline-flex;
       flex-direction: column;
       align-items: center;
       padding: 4px 8px;
       border-radius: 6px;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: bold;
     }
-    .char-badge.correct {
+    .item-badge.correct {
       background: rgba(34, 197, 94, 0.25);
       border: 1px solid #22c55e;
       color: #86efac;
     }
-    .char-badge.wrong {
+    .item-badge.wrong {
       background: rgba(239, 68, 68, 0.3);
       border: 1px solid #ef4444;
       color: #fca5a5;
       text-decoration: line-through;
     }
-    .char-status-text {
+    .item-status-text {
       font-size: 10px;
       text-decoration: none !important;
       margin-top: 2px;
     }
 
-    /* 모달 */
     .modal {
       display: none;
       position: fixed;
@@ -297,10 +317,25 @@
 <iframe name="hidden_send_frame" id="hidden_send_frame" style="display:none;"></iframe>
 
 <div class="container">
+  <!-- 상단 개발자 표기 -->
+  <div class="top-badge-bar">
+    <span class="developer-tag">개발자: 신윤기 수석</span>
+  </div>
+
   <div class="top-header">
-    <h2>🎓 중국어 말하기 능력 평가</h2>
+    <h2>🎓 학생 주도 다국어 연습기</h2>
     <div class="header-right">
-      <!-- 3단계 모드 토글 -->
+      <select class="lang-selector" id="langSelect" onchange="changeLanguage()">
+        <option value="zh-CN">🇨🇳 중국어 (Chinese)</option>
+        <option value="en-US">🇺🇸 영어 (English)</option>
+        <option value="ja-JP">🇯🇵 일본어 (Japanese)</option>
+        <option value="fr-FR">🇫🇷 프랑스어 (French)</option>
+        <option value="de-DE">🇩🇪 독일어 (German)</option>
+        <option value="es-ES">🇪🇸 스페인어 (Spanish)</option>
+        <option value="ru-RU">🇷🇺 러시아어 (Russian)</option>
+        <option value="vi-VN">🇻🇳 베트남어 (Vietnamese)</option>
+      </select>
+
       <div class="mode-toggle-group">
         <button type="button" class="btn-mode" id="btnModeStrict" onclick="setGradingMode('strict')">⚖️ 엄격</button>
         <button type="button" class="btn-mode active" id="btnModeLenient" onclick="setGradingMode('lenient')">😊 관대</button>
@@ -312,9 +347,8 @@
     </div>
   </div>
 
-  <!-- 교사용 문항 수정 공간 (7개 항목) -->
   <div class="editor-panel" id="editorPanel">
-    <h3>✏️ 교사 맞춤 문항 편집 (7개 문장 입력)</h3>
+    <h3>✏️ 맞춤 문항 편집 (7개 문장 입력)</h3>
     <div id="editorInputs"></div>
     <button class="btn-save-sentences" onclick="saveCustomSentences()">💾 문항 저장 및 화면 반영</button>
   </div>
@@ -325,7 +359,7 @@
       <input type="text" id="teacherSheetUrl" oninput="saveCustomSheetUrl()">
     </div>
     <div class="sheet-hint">
-      * 기본값: <strong>개발 교사 원본 시트</strong> 자동 연결. (글자 수 비례 100점 만점 환산 및 학급별 시트 자동 분기 저장)
+      * 기본값: <strong>개발 교사 원본 시트</strong> 자동 연결. (언어별 음성 인식/TTS 엔진 자동 동기화 및 학급별 시트 자동 분기 저장)
     </div>
   </div>
 
@@ -345,15 +379,15 @@
 
 <div class="modal" id="helpModal">
   <div class="modal-content">
-    <h3>📖 평가 모드 및 채점 기준 안내</h3>
+    <h3>📖 학생 주도 다국어 연습기 안내</h3>
     <ol>
-      <li><strong>글자 수 비례 100점 환산:</strong> 문장의 순수 한자 수가 10자면 1자당 10점, 7자면 1자당 약 14.3점으로 계산되어 맞힌 글자 수에 비례하여 100점 만점으로 자동 산출됩니다.</li>
-      <li><strong>평가 모드 구분:</strong>
-        <br>- <strong>⚖️ 엄격:</strong> 글자 비례 점수를 그대로 반영 (90점 A, 80점 B, 60점 C).
-        <br>- <strong>😊 관대:</strong> 획득 점수에 15% 보정 가산 (80점 A, 65점 B, 50점 C).
-        <br>- <strong>🗣️ 소통가능:</strong> 기본 의미 전달 여부 중심 평가로, 50% 이상 발화 시 기본 70점 부여 후 유연하게 채점.
+      <li><strong>다국어 선택:</strong> 상단 선택창에서 중국어, 영어, 일본어, 프랑스어 등을 선택하면 모범 발음과 음성 인식 엔진이 해당 언어로 즉시 전환됩니다.</li>
+      <li><strong>평가 방식:</strong>
+        <br>- 중국어/일본어: 글자 단위 100점 비례 환산
+        <br>- 영어/유럽어: 단어 단위 100점 비례 환산
       </li>
-      <li><strong>문항 편집:</strong> 상단 [✏️ 문항 편집] 버튼을 눌러 수업 진도에 맞는 7개 중국어 문장과 병음, 뜻을 언제든 직접 바꿔 사용할 수 있습니다.</li>
+      <li><strong>평가 모드:</strong> 엄격(절대기준), 관대(+15% 가산), 소통가능(50% 이상 발화 시 기본 70점 부여).</li>
+      <li><strong>문항 편집:</strong> 상단 [✏️ 문항 편집]을 눌러 원하는 7개 문장과 발음, 한국어 뜻을 언제든 자유롭게 저장해 사용할 수 있습니다.</li>
     </ol>
     <button class="modal-close" onclick="closeHelpModal()">확인 및 닫기</button>
   </div>
@@ -363,17 +397,37 @@
   const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxYQaonUF2Oei50wcQiQ4kaNaa22WDdnsooOLikju_IeqZLDZmDzg9e1YiuEERXNcdK/exec";
   const MASTER_SHEET_URL = "https://docs.google.com/spreadsheets/d/1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk/edit?usp=sharing";
 
-  // 기본 7개 문장 데이터셋
-  const defaultSentences = [
-    { zh: "高考必中！高考必中！", py: "Gāokǎo bì zhòng! Gāokǎo bì zhòng!", kr: "대입 시험 반드시 합격한다! 합격 대박!" },
-    { zh: "梦想成真！梦想成真！", py: "Mèngxiǎng chéng zhēn! Mèngxiǎng chéng zhēn!", kr: "꿈은 이루어진다! 소원 성취!" },
-    { zh: "旗开得胜！旗开得胜！", py: "Qíkāi déshèng! Qíkāi déshèng!", kr: "첫 판부터 승리한다! 첫 단추를 멋지게 꿰자!" },
-    { zh: "考的全对，蒙的全对，加油！", py: "Kǎo de quánduì, mēng de quánduì, jiāyóu!", kr: "푼 건 다 맞고, 찍은 것도 다 맞는다, 파이팅!" },
-    { zh: "一切顺利，祝你成功，马到成功！", py: "Yíqiè shùnlì, zhù nǐ chénggōng, mǎdàochénggōng!", kr: "모든 일이 순조롭길, 성공을 기원해, 일사천리로 성공하자!" },
-    { zh: "一路绿灯，金榜题名！", py: "Yílù lǜdēng, jīnbǎng tímíng!", kr: "가는 길마다 청신호! 합격자 명단에 이름을 올리자!" },
-    { zh: "六七八，录取吧！", py: "Liù-qī-bā, lùqǔ ba!", kr: "678(류-치-바 / 합격해라!), 합격하자!" }
-  ];
+  const defaultPresets = {
+    "zh-CN": [
+      { text: "高考必中！高考必中！", sub: "Gāokǎo bì zhòng! Gāokǎo bì zhòng!", kr: "대입 시험 반드시 합격한다! 합격 대박!" },
+      { text: "梦想成真！梦想成真！", sub: "Mèngxiǎng chéng zhēn! Mèngxiǎng chéng zhēn!", kr: "꿈은 이루어진다! 소원 성취!" },
+      { text: "旗开得胜！旗开得胜！", sub: "Qíkāi déshèng! Qíkāi déshèng!", kr: "첫 판부터 승리한다! 첫 단추를 멋지게 꿰자!" },
+      { text: "考的全对，蒙的全对，加油！", sub: "Kǎo de quánduì, mēng de quánduì, jiāyóu!", kr: "푼 건 다 맞고, 찍은 것도 다 맞는다, 파이팅!" },
+      { text: "一切顺利，祝你成功，马到成功！", sub: "Yíqiè shùnlì, zhù nǐ chénggōng, mǎdàochénggōng!", kr: "모든 일이 순조롭길, 성공을 기원해, 일사천리로 성공하자!" },
+      { text: "一路绿灯，金榜题名！", sub: "Yílù lǜdēng, jīnbǎng tímíng!", kr: "가는 길마다 청신호! 합격자 명단에 이름을 올리자!" },
+      { text: "六七八，录取吧！", sub: "Liù-qī-bā, lùqǔ ba!", kr: "678(류-치-바 / 합격해라!), 합격하자!" }
+    ],
+    "en-US": [
+      { text: "Nice to meet you.", sub: "[naɪs tu miːt juː]", kr: "만나서 반갑습니다." },
+      { text: "Where is the library?", sub: "[wɛər ɪz ðə ˈlaɪˌbrɛri]", kr: "도서관이 어디에 있나요?" },
+      { text: "Could you help me please?", sub: "[kʊd ju hɛlp mi pliːz]", kr: "저를 좀 도와주시겠어요?" },
+      { text: "Practice makes perfect.", sub: "[ˈpræktɪs meɪks ˈpɜrfɪkt]", kr: "연습이 완벽을 만듭니다." },
+      { text: "Have a great day today.", sub: "[hæv ə greɪt deɪ təˈdeɪ]", kr: "오늘 좋은 하루 보내세요." },
+      { text: "What is your favorite subject?", sub: "[wʌt ɪz jʊər ˈfeɪvərɪt ˈsʌbʤɪkt]", kr: "가장 좋아하는 과목이 무엇인가요?" },
+      { text: "Believe in yourself and go for it.", sub: "[bɪˈliːv ɪn jʊərˈsɛlf ænd goʊ fɔr ɪt]", kr: "자신을 믿고 도전하세요." }
+    ],
+    "ja-JP": [
+      { text: "はじめまして、よろしくおねがいします。", sub: "[하지메마시테, 요로시쿠 오네가이시마스]", kr: "처음 뵙겠습니다, 잘 부탁드립니다." },
+      { text: "きょうは とても いい てんきですね。", sub: "[쿄-와 토테모 이이 텐키데스네]", kr: "오늘은 날씨가 참 좋네요." },
+      { text: "日本語の勉強はとても楽しいです。", sub: "[니혼고노 벵쿄-와 토테모 타노시이데스]", kr: "일본어 공부는 매우 재미있습니다." },
+      { text: "これをください。", sub: "[코레오 쿠다사이]", kr: "이것을 주세요." },
+      { text: "ありがとうございます。", sub: "[아리가토- 고자이마스]", kr: "감사합니다." },
+      { text: "明日の約束を忘れないでね。", sub: "[아시타노 야쿠소쿠오 와스레나이데네]", kr: "내일 약속 잊지 마." },
+      { text: "夢を叶えるために頑張ります。", sub: "[유메오 카나에루 타메니 감바리마스]", kr: "꿈을 이루기 위해 열심히 하겠습니다." }
+    ]
+  };
 
+  let currentLang = 'zh-CN';
   let currentSentences = [];
   let currentGradingMode = 'lenient';
 
@@ -382,17 +436,34 @@
     const customUrl = localStorage.getItem('chinese_speech_custom_sheet');
     inputEl.value = customUrl ? customUrl : MASTER_SHEET_URL;
 
-    // 저장된 맞춤 문항 로드
-    const stored = localStorage.getItem('chinese_speech_custom_sentences');
-    if (stored) {
-      try { currentSentences = JSON.parse(stored); } catch (e) { currentSentences = defaultSentences; }
-    } else {
-      currentSentences = defaultSentences;
-    }
+    loadSentencesForLang(currentLang);
+  });
 
+  function changeLanguage() {
+    currentLang = document.getElementById('langSelect').value;
+    loadSentencesForLang(currentLang);
+  }
+
+  function loadSentencesForLang(lang) {
+    const key = `speech_sentences_${lang}`;
+    const stored = localStorage.getItem(key);
+    if (stored) {
+      try { currentSentences = JSON.parse(stored); } catch (e) { currentSentences = getFallbackPreset(lang); }
+    } else {
+      currentSentences = getFallbackPreset(lang);
+    }
     renderSentences();
     buildSentenceEditor();
-  });
+  }
+
+  function getFallbackPreset(lang) {
+    if (defaultPresets[lang]) return defaultPresets[lang];
+    const list = [];
+    for (let i = 1; i <= 7; i++) {
+      list.push({ text: `Sentence ${i}`, sub: `Pronunciation ${i}`, kr: `문항 ${i} 의미` });
+    }
+    return list;
+  }
 
   function setGradingMode(mode) {
     currentGradingMode = mode;
@@ -423,7 +494,6 @@
   function openHelpModal() { document.getElementById('helpModal').style.display = 'flex'; }
   function closeHelpModal() { document.getElementById('helpModal').style.display = 'none'; }
 
-  // 교사 문항 편집 패널 토글
   function toggleSentenceEditor() {
     const p = document.getElementById('editorPanel');
     p.style.display = p.style.display === 'block' ? 'none' : 'block';
@@ -433,13 +503,13 @@
     const area = document.getElementById('editorInputs');
     area.innerHTML = '';
     for (let i = 0; i < 7; i++) {
-      const item = currentSentences[i] || { zh: '', py: '', kr: '' };
+      const item = currentSentences[i] || { text: '', sub: '', kr: '' };
       const row = document.createElement('div');
       row.className = 'edit-item';
       row.innerHTML = `
         <span>${i + 1}.</span>
-        <input type="text" class="edit-zh" id="edit_zh_${i}" value="${item.zh}" placeholder="중국어 한자">
-        <input type="text" class="edit-py" id="edit_py_${i}" value="${item.py}" placeholder="한어병음">
+        <input type="text" class="edit-target" id="edit_target_${i}" value="${item.text}" placeholder="외국어 문장">
+        <input type="text" class="edit-sub" id="edit_sub_${i}" value="${item.sub}" placeholder="발음/병음/독음">
         <input type="text" class="edit-kr" id="edit_kr_${i}" value="${item.kr}" placeholder="한국어 뜻">
       `;
       area.appendChild(row);
@@ -449,19 +519,18 @@
   function saveCustomSentences() {
     const newItems = [];
     for (let i = 0; i < 7; i++) {
-      const zh = document.getElementById(`edit_zh_${i}`).value.trim();
-      const py = document.getElementById(`edit_py_${i}`).value.trim();
+      const text = document.getElementById(`edit_target_${i}`).value.trim();
+      const sub = document.getElementById(`edit_sub_${i}`).value.trim();
       const kr = document.getElementById(`edit_kr_${i}`).value.trim();
-      newItems.push({ zh: zh || `문항 ${i+1}`, py: py, kr: kr });
+      newItems.push({ text: text || `문항 ${i+1}`, sub: sub, kr: kr });
     }
     currentSentences = newItems;
-    localStorage.setItem('chinese_speech_custom_sentences', JSON.stringify(newItems));
+    localStorage.setItem(`speech_sentences_${currentLang}`, JSON.stringify(newItems));
     renderSentences();
     document.getElementById('editorPanel').style.display = 'none';
-    alert("✓ 7개 문항이 저장되어 화면에 반영되었습니다.");
+    alert("✓ 선택한 언어의 7개 문항이 저장 및 화면에 반영되었습니다.");
   }
 
-  // 문항 카드 렌더링
   function renderSentences() {
     const container = document.getElementById('sentenceContainer');
     container.innerHTML = '';
@@ -469,12 +538,12 @@
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `
-        <div class="zh">${item.zh}</div>
-        <div class="py">${item.py}</div>
-        <div class="kr">${item.kr}</div>
+        <div class="target-text">${item.text}</div>
+        <div class="sub-text">${item.sub}</div>
+        <div class="kr-text">${item.kr}</div>
         <div class="btn-group">
-          <button class="btn-play" onclick="playTTS('${item.zh}')">🔊 모범 발음</button>
-          <button class="btn-rec" id="recBtn_${index}" onclick="handleRecButtonClick(${index}, '${item.zh}')">🎙️ 녹음 시작</button>
+          <button class="btn-play" onclick="playTTS('${item.text}')">🔊 모범 발음</button>
+          <button class="btn-rec" id="recBtn_${index}" onclick="handleRecButtonClick(${index}, '${item.text}')">🎙️ 녹음 시작</button>
         </div>
         <div class="result-box" id="resBox_${index}">
           <div class="spoken-text" id="spoken_${index}"></div>
@@ -493,18 +562,27 @@
     window.speechSynthesis.cancel();
     window.speechSynthesis.resume();
     const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'zh-CN';
-    utter.rate = 0.70;
-    utter.pitch = 1.30;
+    utter.lang = currentLang;
+    utter.rate = 0.75;
+    utter.pitch = 1.15;
     window.speechSynthesis.speak(utter);
   }
 
-  function normalizeChineseDigits(str) {
-    const digitMap = {
-      '0': '零', '1': '一', '2': '二', '3': '三', '4': '四',
-      '5': '五', '6': '六', '7': '七', '8': '八', '9': '九'
-    };
-    return str.replace(/[0-9]/g, ch => digitMap[ch] || ch);
+  function normalizeDigitsIfNeeded(str, lang) {
+    if (lang === 'zh-CN') {
+      const digitMap = { '0':'零', '1':'一', '2':'二', '3':'三', '4':'四', '5':'五', '6':'六', '7':'七', '8':'八', '9':'九' };
+      return str.replace(/[0-9]/g, ch => digitMap[ch] || ch);
+    }
+    return str;
+  }
+
+  function tokenizeText(str, lang) {
+    const clean = str.replace(/[，。！？,.!?;:()\[\]"'\n\r]/g, " ").trim();
+    if (lang === 'zh-CN' || lang === 'ja-JP') {
+      return clean.replace(/\s+/g, "").split("");
+    } else {
+      return clean.split(/\s+/).filter(w => w.length > 0).map(w => w.toLowerCase());
+    }
   }
 
   let activeRecognition = null;
@@ -512,7 +590,7 @@
   let accumulatedTranscript = "";
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-  function handleRecButtonClick(index, targetZh) {
+  function handleRecButtonClick(index, targetText) {
     if (activeIndex === index && activeRecognition) {
       activeRecognition.stop();
       return;
@@ -542,7 +620,7 @@
     accumulatedTranscript = "";
 
     activeRecognition = new SpeechRecognition();
-    activeRecognition.lang = 'zh-CN';
+    activeRecognition.lang = currentLang;
     activeRecognition.continuous = true;
     activeRecognition.interimResults = true;
     activeRecognition.maxAlternatives = 1;
@@ -598,23 +676,17 @@
         return;
       }
 
-      const normalizedSpoken = normalizeChineseDigits(finalSpoken);
+      const normalizedSpoken = normalizeDigitsIfNeeded(finalSpoken, currentLang);
+      const evalResult = renderPronunciationDiff(targetText, normalizedSpoken, currentLang, feedbackBox);
 
-      // 글자별 정오 피드백 및 맞힌 글자 수 집계
-      const evalResult = renderPronunciationDiff(targetZh, normalizedSpoken, feedbackBox);
-      
-      // 글자 수 비례 100점 만점 기본 점수 계산 (N개 중 M개 맞을 때 100점 환산)
-      const totalChars = evalResult.totalChars;
-      const matchedChars = evalResult.matchedChars;
-      const baseScore = totalChars > 0 ? Math.round((matchedChars / totalChars) * 100) : 0;
+      const totalItems = evalResult.total;
+      const matchedItems = evalResult.matched;
+      const baseScore = totalItems > 0 ? Math.round((matchedItems / totalItems) * 100) : 0;
 
-      // 3단계 모드별 최종 점수 산출
       let finalScore = baseScore;
       if (currentGradingMode === 'lenient') {
-        // 관대 모드: 15% 보정 가산
         finalScore = Math.min(100, Math.round(baseScore * 1.15 + (baseScore > 20 ? 5 : 0)));
       } else if (currentGradingMode === 'comm') {
-        // 소통가능 모드: 50% 이상 발화 시 기본 70점 보장 후 비율 가산
         if (baseScore >= 50) {
           finalScore = Math.min(100, Math.round(70 + (baseScore - 50) * 0.6));
         } else {
@@ -626,18 +698,18 @@
       const modeLabel = modeLabels[currentGradingMode];
       const grade = getGrade(finalScore, currentGradingMode);
 
-      spokenEl.innerHTML = `인식된 발음: <strong>${finalSpoken}</strong> ${finalSpoken !== normalizedSpoken ? `(변환: ${normalizedSpoken})` : ''}`;
-      scoreEl.innerHTML = `정확도: <strong>${finalScore}점</strong> (${grade}) <span style="font-size:12px; color:#cbd5e1;">[${modeLabel} 모드 | ${matchedChars}/${totalChars}자 일치]</span>`;
+      spokenEl.innerHTML = `인식된 발음: <strong>${finalSpoken}</strong>`;
+      scoreEl.innerHTML = `정확도: <strong>${finalScore}점</strong> (${grade}) <span style="font-size:12px; color:#cbd5e1;">[${modeLabel} 모드 | ${matchedItems}/${totalItems}개 일치]</span>`;
       statusEl.innerText = "⏳ 구글 시트 저장 중...";
 
       sendDataViaHiddenForm({
         sheetUrl: document.getElementById('teacherSheetUrl').value.trim(),
         studentId: id,
         studentName: name,
-        targetText: targetZh,
+        targetText: targetText,
         spokenText: finalSpoken,
         score: finalScore,
-        grade: `${grade} [${modeLabel}]`
+        grade: `${grade} [${modeLabel} / ${currentLang}]`
       }, statusEl);
     };
 
@@ -661,34 +733,34 @@
     activeIndex = null;
   }
 
-  // 글자 수 대조 및 일치 개수 반환
-  function renderPronunciationDiff(target, spoken, containerEl) {
-    const cleanTarget = target.replace(/[，。！？\s]/g, "");
-    let spokenPool = spoken.replace(/[，。！？\s]/g, "").split("");
+  function renderPronunciationDiff(target, spoken, lang, containerEl) {
+    const targetTokens = tokenizeText(target, lang);
+    let spokenTokens = tokenizeText(spoken, lang);
 
     let matchedCount = 0;
-    let html = '<div class="feedback-title">🎯 글자별 발음 피드백:</div><div class="feedback-chars">';
+    const unitLabel = (lang === 'zh-CN' || lang === 'ja-JP') ? '글자별' : '단어별';
+    let html = `<div class="feedback-title">🎯 ${unitLabel} 발음 피드백:</div><div class="feedback-elements">`;
     
-    for (let i = 0; i < cleanTarget.length; i++) {
-      const char = cleanTarget[i];
-      const matchIndex = spokenPool.indexOf(char);
+    for (let i = 0; i < targetTokens.length; i++) {
+      const token = targetTokens[i];
+      const matchIndex = spokenTokens.indexOf(token);
       
       if (matchIndex !== -1) {
-        spokenPool.splice(matchIndex, 1);
+        spokenTokens.splice(matchIndex, 1);
         matchedCount++;
-        html += `<span class="char-badge correct">${char}<span class="char-status-text">✓ 일치</span></span>`;
+        html += `<span class="item-badge correct">${token}<span class="item-status-text">✓ 일치</span></span>`;
       } else {
-        html += `<span class="char-badge wrong">${char}<span class="char-status-text">✗ 미흡</span></span>`;
+        html += `<span class="item-badge wrong">${token}<span class="item-status-text">✗ 미흡</span></span>`;
       }
     }
     html += '</div>';
 
-    if (spokenPool.length > 0) {
-      html += `<div style="font-size:12px; color:#fdba74; margin-top:4px;">* 추가로 인식된 발음: <strong>${spokenPool.join(" ")}</strong></div>`;
+    if (spokenTokens.length > 0) {
+      html += `<div style="font-size:12px; color:#fdba74; margin-top:4px;">* 추가로 인식된 발음: <strong>${spokenTokens.join(" ")}</strong></div>`;
     }
 
     containerEl.innerHTML = html;
-    return { totalChars: cleanTarget.length, matchedChars: matchedCount };
+    return { total: targetTokens.length, matched: matchedCount };
   }
 
   function sendDataViaHiddenForm(payload, statusEl) {

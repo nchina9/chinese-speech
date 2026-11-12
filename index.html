@@ -27,7 +27,7 @@
       box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
 
-    /* 인앱 브라우저(카카오톡/네이버 등) 크롬 전환 안내 배너 */
+    /* 인앱 브라우저 크롬 전환 안내 배너 */
     .inapp-warning-banner {
       display: none;
       background: #fef08a;
@@ -311,6 +311,22 @@
       padding: 16px;
       margin-bottom: 16px;
     }
+    .card-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .item-best-score {
+      font-size: 12px;
+      background: rgba(250, 204, 21, 0.2);
+      border: 1px solid #facc15;
+      color: #fef08a;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
     .target-text { font-size: 22px; font-weight: bold; color: #fef08a; margin-bottom: 4px; }
     .sub-text { font-size: 14px; color: #fed7aa; margin-bottom: 4px; }
     .kr-text { font-size: 13px; color: #e2e8f0; margin-bottom: 12px; }
@@ -414,6 +430,39 @@
       white-space: nowrap;
     }
 
+    /* 700점 만점 종합 점수 합계 카드 */
+    .total-summary-card {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 3px solid #facc15;
+      border-radius: 14px;
+      padding: 20px;
+      margin-top: 20px;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+    }
+    .total-summary-title {
+      font-size: 16px;
+      color: #fef08a;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .total-score-display {
+      font-size: 32px;
+      font-weight: 900;
+      color: #38bdf8;
+      letter-spacing: 0.5px;
+    }
+    .total-score-display span {
+      font-size: 18px;
+      color: #cbd5e1;
+      font-weight: normal;
+    }
+    .total-sub-info {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 6px;
+    }
+
     .modal {
       display: none;
       position: fixed;
@@ -468,7 +517,7 @@
   </div>
 
   <div class="top-badge-bar">
-    <div id="teacherPresetWrapper">
+    <div id="teacherPresetWrapper" class="teacher-only">
       <label style="font-size: 12px; color: #fef08a; margin-right: 4px;">📂 문항 세트:</label>
       <select class="preset-history-select" id="historySelect" onchange="loadPresetFromHistory()">
         <option value="default">[기본] 1. 수험생 응원 문구</option>
@@ -503,7 +552,7 @@
     </div>
   </div>
 
-  <!-- 교사용 문장 입력 및 번역 바 (학생 QR 접속 시 숨김) -->
+  <!-- 교사용 문장 입력 및 번역 바 (학생 QR 접속 시 완전 숨김) -->
   <div class="translate-bar teacher-only" id="teacherTranslateBar">
     <div class="translate-row">
       <label for="koInput">✍️ 문장 입력 (우리말 또는 외국어 원문):</label>
@@ -521,14 +570,14 @@
     </div>
   </div>
 
-  <!-- 교사용 문항 편집 패널 -->
-  <div class="editor-panel" id="editorPanel">
+  <!-- 교사용 문항 편집 패널 (학생 QR 접속 시 완전 숨김) -->
+  <div class="editor-panel teacher-only" id="editorPanel">
     <h3>✏️ 맞춤 문항 직접 편집 (7개 문장 입력)</h3>
     <div id="editorInputs"></div>
     <button class="btn-save-sentences" onclick="saveCustomSentences()">💾 문항 저장 및 세트 등록</button>
   </div>
 
-  <!-- 교사용 구글 시트 설정 바 (학생 QR 접속 시 자동 숨김) -->
+  <!-- 교사용 구글 시트 설정 바 (학생 QR 접속 시 완전 숨김) -->
   <div class="sheet-config-bar teacher-only" id="teacherSheetConfigBar">
     <div class="sheet-config-row">
       <label for="teacherSheetUrl">📊 결과 구글 시트 (필수):</label>
@@ -544,7 +593,7 @@
 
   <!-- 학생 QR 접속 시 표시되는 연결 상태 배지 -->
   <div class="student-connected-badge" id="studentConnectedBadge">
-    ✅ 선생님 평가 시트와 안전하게 연결되었습니다. 학번과 이름을 입력하고 연습을 시작하세요!
+    ✅ 선생님 평가 시트와 안전하게 연결되었습니다. 학번과 이름을 입력하고 7개 문항을 연습해 보세요!
   </div>
 
   <div class="student-bar">
@@ -559,13 +608,20 @@
   </div>
 
   <div id="sentenceContainer"></div>
+
+  <!-- 화면 최하단 700점 만점 종합 점수판 -->
+  <div class="total-summary-card">
+    <div class="total-summary-title">🏆 나의 종합 말하기 점수 (7개 문항 최고점 합계)</div>
+    <div class="total-score-display" id="totalScoreText">0 <span>/ 700점 만점</span></div>
+    <div class="total-sub-info" id="completedCountText">완료된 문항: 0 / 7개 (각 문항 연습 시 자동 합산됩니다)</div>
+  </div>
 </div>
 
 <!-- 학생 배포용 QR코드 모달 -->
 <div class="modal" id="qrModal">
   <div class="modal-content" style="text-align: center;">
     <h3>📱 학생 연습용 QR코드</h3>
-    <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 10px;">교실 TV 화면에 띄워 학생들이 스캔하면 시트 입력창 없이 깔끔한 학생 화면으로 자동 연결됩니다.</p>
+    <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 10px;">교실 TV 화면에 띄워 학생들이 스캔하면 교사용 버튼과 시트 입력창이 모두 숨겨진 학생 전용 화면으로 연결됩니다.</p>
     <div id="qrcodeWrapper">
       <div id="qrcode"></div>
     </div>
@@ -583,14 +639,15 @@
     <h3>📖 학생 주도 다국어 연습기 사용 안내</h3>
     <ol>
       <li><strong>크롬(Chrome) 브라우저 권장:</strong> 스마트폰이나 PC에서 음성인식(STT)과 원어민 발음(TTS)을 원활하게 이용하려면 <strong>크롬(Chrome)</strong> 브라우저를 사용해 주세요.</li>
-      <li><strong>학생 QR 접속:</strong> 선생님이 띄워준 QR코드를 찍으면 시트 설정창 없이 간편하게 학번과 이름만 넣고 바로 연습할 수 있습니다.</li>
-      <li><strong>단어 카드 소리 듣기:</strong> 녹음 후 결과창의 단어 배지를 누르면 해당 단어만의 원어민 발음을 즉시 들을 수 있습니다.</li>
+      <li><strong>학생 QR 접속:</strong> 선생님이 띄워준 QR코드를 찍으면 교사용 설정창 없이 간편하게 학번과 이름만 넣고 바로 연습할 수 있습니다.</li>
+      <li><strong>700점 만점 종합 점수:</strong> 7개 문항을 연습할 때마다 문항별 최고 점수가 합산되어 화면 맨 아래에 표시됩니다.</li>
     </ol>
     <button class="modal-close" onclick="closeHelpModal()">확인 및 닫기</button>
   </div>
 </div>
 
 <script>
+  // 구글 Apps Script 웹 앱 URL
   const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxYQaonUF2Oei50wcQiQ4kaNaa22WDdnsooOLikju_IeqZLDZmDzg9e1YiuEERXNcdK/exec";
   const DEV_MASTER_SHEET_URL = "https://docs.google.com/spreadsheets/d/1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk/edit";
   const TEMPLATE_COPY_URL = "https://docs.google.com/spreadsheets/d/1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk/copy";
@@ -610,6 +667,9 @@
   let currentGradingMode = 'comm';
   let latestGeneratedShareUrl = "";
   let isStudentMode = false;
+  // 7개 문항별 최고 점수 배열 (700점 만점 합산용)
+  let itemScores = [0, 0, 0, 0, 0, 0, 0];
+  let itemAttempted = [false, false, false, false, false, false, false];
 
   window.addEventListener('DOMContentLoaded', () => {
     detectInAppBrowser();
@@ -654,6 +714,7 @@
     }
   }
 
+  // QR 파라미터(?s=시트ID&l=언어&q=문항) 확인 및 학생 전용 UI 모드 전환
   function checkUrlQueryParameters() {
     const urlParams = new URLSearchParams(window.location.search);
     const sheetParam = urlParams.get('s');
@@ -665,11 +726,10 @@
       const fullSheet = `https://docs.google.com/spreadsheets/d/${sheetParam}/edit`;
       document.getElementById('teacherSheetUrl').value = fullSheet;
 
+      // 학생 폰에서는 모든 교사용 버튼 및 설정 패널 완전 숨김
       document.querySelectorAll('.teacher-only').forEach(el => {
         el.style.display = 'none';
       });
-      const presetWrapper = document.getElementById('teacherPresetWrapper');
-      if (presetWrapper) presetWrapper.style.display = 'none';
 
       document.getElementById('studentConnectedBadge').style.display = 'block';
     }
@@ -744,8 +804,23 @@
         currentSentences = JSON.parse(JSON.stringify(history[idx].sentences));
       }
     }
+    resetAllScores();
     renderSentences();
     buildSentenceEditor();
+  }
+
+  function resetAllScores() {
+    itemScores = [0, 0, 0, 0, 0, 0, 0];
+    itemAttempted = [false, false, false, false, false, false, false];
+    updateTotalScoreBoard();
+  }
+
+  // 700점 만점 종합 점수 업데이트 함수
+  function updateTotalScoreBoard() {
+    const total = itemScores.reduce((acc, cur) => acc + cur, 0);
+    const doneCount = itemAttempted.filter(Boolean).length;
+    document.getElementById('totalScoreText').innerHTML = `${total}점 <span>/ 700점 만점</span>`;
+    document.getElementById('completedCountText').innerText = `완료된 문항: ${doneCount} / 7개 (각 문항 최고 점수가 합산됩니다)`;
   }
 
   async function processInputAndApply() {
@@ -863,7 +938,7 @@
       correctLevel: QRCode.CorrectLevel.L
     });
 
-    qrUrlText.innerText = "학생들에게 기본 카메라 앱 또는 크롬(Chrome) 브라우저로 스캔하도록 안내해 주세요.";
+    qrUrlText.innerText = "학생들이 QR을 찍으면 교사용 버튼 없이 깔끔한 학생 화면과 선생님 구글 시트가 자동 연결됩니다.";
     modal.style.display = 'flex';
   }
 
@@ -947,6 +1022,7 @@
       newItems.push({ text: text || `문항 ${i+1}`, sub: sub, kr: kr, meanings: oldMeanings });
     }
     currentSentences = newItems;
+    resetAllScores();
     renderSentences();
     document.getElementById('editorPanel').style.display = 'none';
     savePresetToHistory(`교사 직접 편집 (${newItems[0].text.substring(0, 6)}...)`, newItems);
@@ -959,8 +1035,12 @@
     currentSentences.forEach((item, index) => {
       const card = document.createElement('div');
       card.className = 'card';
+      const bestScoreVal = itemScores[index] || 0;
       card.innerHTML = `
-        <div class="target-text">${item.text}</div>
+        <div class="card-header-row">
+          <div class="target-text">${index + 1}. ${item.text}</div>
+          <span class="item-best-score" id="bestBadge_${index}">최고: ${bestScoreVal}점</span>
+        </div>
         <div class="sub-text">${item.sub}</div>
         <div class="kr-text">${item.kr}</div>
         <div class="btn-group">
@@ -1154,6 +1234,15 @@
         finalScore = Math.min(100, Math.round(baseScore * 1.12 + (baseScore > 20 ? 5 : 0)));
       }
 
+      // 문항 최고점 갱신 및 700점 만점 합계판 반영
+      itemAttempted[index] = true;
+      if (finalScore > itemScores[index]) {
+        itemScores[index] = finalScore;
+        const badgeEl = document.getElementById(`bestBadge_${index}`);
+        if (badgeEl) badgeEl.innerText = `최고: ${finalScore}점`;
+      }
+      updateTotalScoreBoard();
+
       const modeLabels = { strict: '엄격', lenient: '관대', comm: '소통가능' };
       const modeLabel = modeLabels[currentGradingMode];
       const grade = getGrade(finalScore, currentGradingMode);
@@ -1256,7 +1345,7 @@
     return { total: targetTokens.length, matched: matchedCount };
   }
 
-  // 모바일 다중 구글 계정 리다이렉트 차단을 완벽히 우회하는 이중 전송 함수
+  // 모바일/PC 계정 쿠키 충돌을 우회하는 이중 전송 함수
   function saveToSheetViaJsonp(payload, statusEl) {
     const callbackName = "saveCallback_" + Math.floor(Math.random() * 1000000);
     const basePayload = Object.assign({}, payload);
@@ -1289,7 +1378,6 @@
       }
     };
 
-    // 모바일 크롬에서 JSONP 차단 시 credentials: 'omit' 옵션으로 쿠키 없이 강제 전송
     script.onerror = function() {
       if (isDone) return;
       delete window[callbackName];

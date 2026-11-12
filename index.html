@@ -26,6 +26,35 @@
       padding: 22px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
+
+    /* 인앱 브라우저(카카오톡/네이버 등) 크롬 전환 안내 배너 */
+    .inapp-warning-banner {
+      display: none;
+      background: #fef08a;
+      color: #78350f;
+      border: 2px solid #f59e0b;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      line-height: 1.5;
+      font-weight: bold;
+    }
+    .inapp-warning-banner .btn-open-chrome {
+      margin-top: 8px;
+      background: #2563eb;
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     .top-badge-bar {
       display: flex;
       justify-content: space-between;
@@ -54,6 +83,7 @@
       border-radius: 12px;
       border: 1px solid rgba(250, 204, 21, 0.5);
       font-weight: bold;
+      margin-left: auto;
     }
     .top-header {
       display: flex;
@@ -261,6 +291,19 @@
       outline: none;
     }
 
+    .student-connected-badge {
+      display: none;
+      background: rgba(16, 185, 129, 0.25);
+      border: 1px solid #10b981;
+      color: #a7f3d0;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+
     .card {
       background: rgba(0, 0, 0, 0.28);
       border: 2px solid #f59e0b;
@@ -417,8 +460,15 @@
 <body>
 
 <div class="container">
+  <!-- 인앱 브라우저 감지 시 크롬 접속 안내 배너 -->
+  <div class="inapp-warning-banner" id="inappBanner">
+    <div>⚠️ 현재 카카오톡·네이버 등 인앱 브라우저로 접속되었습니다!</div>
+    <div style="font-weight: normal; margin-top: 4px;">원활한 마이크 녹음과 채점 결과 전송을 위해 반드시 <strong>크롬(Chrome)</strong> 또는 <strong>사파리(Safari)</strong> 브라우저로 열어주세요.</div>
+    <button type="button" class="btn-open-chrome" id="btnOpenChrome" onclick="openInExternalBrowser()">🌐 크롬(Chrome) 브라우저로 바로 열기</button>
+  </div>
+
   <div class="top-badge-bar">
-    <div>
+    <div id="teacherPresetWrapper">
       <label style="font-size: 12px; color: #fef08a; margin-right: 4px;">📂 문항 세트:</label>
       <select class="preset-history-select" id="historySelect" onchange="loadPresetFromHistory()">
         <option value="default">[기본] 1. 수험생 응원 문구</option>
@@ -446,14 +496,15 @@
         <button type="button" class="btn-mode" id="btnModeLenient" onclick="setGradingMode('lenient')">😊 관대</button>
         <button type="button" class="btn-mode active" id="btnModeComm" onclick="setGradingMode('comm')">🗣️ 소통가능</button>
       </div>
-      <button class="btn-tool qr" onclick="openQrModal()">📱 학생 배포용 QR</button>
-      <button class="btn-tool edit" onclick="toggleSentenceEditor()">✏️ 문항 편집</button>
-      <button class="btn-tool copy" onclick="copySheetTemplate()">📋 시트 양식 복사</button>
+      <button class="btn-tool qr teacher-only" onclick="openQrModal()">📱 학생 배포용 QR</button>
+      <button class="btn-tool edit teacher-only" onclick="toggleSentenceEditor()">✏️ 문항 편집</button>
+      <button class="btn-tool copy teacher-only" onclick="copySheetTemplate()">📋 시트 양식 복사</button>
       <button class="btn-tool" onclick="openHelpModal()">📖 안내</button>
     </div>
   </div>
 
-  <div class="translate-bar">
+  <!-- 교사용 문장 입력 및 번역 바 (학생 QR 접속 시 숨김) -->
+  <div class="translate-bar teacher-only" id="teacherTranslateBar">
     <div class="translate-row">
       <label for="koInput">✍️ 문장 입력 (우리말 또는 외국어 원문):</label>
       <input type="text" id="koInput" placeholder="예: 좋은 아침 또는 早上好 (입력 후 버튼 클릭)">
@@ -470,14 +521,15 @@
     </div>
   </div>
 
+  <!-- 교사용 문항 편집 패널 -->
   <div class="editor-panel" id="editorPanel">
     <h3>✏️ 맞춤 문항 직접 편집 (7개 문장 입력)</h3>
     <div id="editorInputs"></div>
     <button class="btn-save-sentences" onclick="saveCustomSentences()">💾 문항 저장 및 세트 등록</button>
   </div>
 
-  <!-- 1. 타 교사 원본 기록 차단 및 시트 복사 필수 안내 바 -->
-  <div class="sheet-config-bar">
+  <!-- 교사용 구글 시트 설정 바 (학생 QR 접속 시 자동 숨김) -->
+  <div class="sheet-config-bar teacher-only" id="teacherSheetConfigBar">
     <div class="sheet-config-row">
       <label for="teacherSheetUrl">📊 결과 구글 시트 (필수):</label>
       <input type="text" id="teacherSheetUrl" placeholder="⚠️ 먼저 우측 [📋 시트 양식 복사] 후 본인 시트 주소를 붙여넣으세요!" oninput="saveCustomSheetUrl()">
@@ -485,9 +537,14 @@
       <button class="btn-tool copy" onclick="copySheetTemplate()">📋 시트 양식 복사</button>
     </div>
     <div class="sheet-hint">
-      * <strong>필수 절차:</strong> 타 교사가 원본 시트에 학생 기록을 섞어 넣는 것을 방지하기 위해 시트 주소가 필수입니다. <strong>[📋 시트 양식 복사]</strong>로 사본을 만든 후 주소를 입력하세요. (사본 시트의 공유 설정은 <em>'링크가 있는 모든 사용자 - 편집자'</em> 권장)
+      * <strong>필수 절차:</strong> 타 교사가 원본 시트에 학생 기록을 섞어 넣는 것을 방지하기 위해 시트 주소가 필수입니다. <strong>[📋 시트 양식 복사]</strong>로 사본을 만든 후 주소를 입력하세요. (사본 시트 공유 설정: <em>'링크가 있는 모든 사용자 - 편집자'</em> 권장)
       <span class="dev-quick-link" onclick="connectDeveloperSheet()">[개발자 본인용 빠른 연결]</span>
     </div>
+  </div>
+
+  <!-- 학생 QR 접속 시 표시되는 연결 상태 배지 -->
+  <div class="student-connected-badge" id="studentConnectedBadge">
+    ✅ 선생님 평가 시트와 안전하게 연결되었습니다. 학번과 이름을 입력하고 연습을 시작하세요!
   </div>
 
   <div class="student-bar">
@@ -504,11 +561,11 @@
   <div id="sentenceContainer"></div>
 </div>
 
-<!-- 3. 학생 배포용 QR코드 모달 -->
+<!-- 학생 배포용 QR코드 모달 -->
 <div class="modal" id="qrModal">
   <div class="modal-content" style="text-align: center;">
     <h3>📱 학생 연습용 QR코드</h3>
-    <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 10px;">교실 TV 화면에 띄워 학생들이 스캔하면 현재 문항과 선생님 시트가 자동 연결됩니다.</p>
+    <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 10px;">교실 TV 화면에 띄워 학생들이 스캔하면 시트 입력창 없이 깔끔한 학생 화면으로 자동 연결됩니다.</p>
     <div id="qrcodeWrapper">
       <div id="qrcode"></div>
     </div>
@@ -523,11 +580,11 @@
 <!-- 안내 모달 -->
 <div class="modal" id="helpModal">
   <div class="modal-content">
-    <h3>📖 학생 주도 다국어 연습기 기능 안내</h3>
+    <h3>📖 학생 주도 다국어 연습기 사용 안내</h3>
     <ol>
-      <li><strong>시트 복사 및 보호:</strong> 타 교사는 반드시 [📋 시트 양식 복사]를 통해 생성한 본인 시트 주소를 입력해야 결과가 저장됩니다. QR코드 생성 시 해당 시트 주소가 자동 포함되므로 학생들은 따로 입력할 필요가 없습니다.</li>
-      <li><strong>문맥·음절 유사도 유창성 평가:</strong> <code>考的全对，蒙的全对</code>처럼 연음이나 성조 변화로 동음이의어가 인식되어도 전체 회화 흐름과 의미 전달력을 종합 판정하여 소통 능력을 정확히 평가합니다.</li>
-      <li><strong>단어 카드 발음 듣기:</strong> 결과창의 단어 배지를 누르면 원어민 발음을 즉시 들을 수 있습니다.</li>
+      <li><strong>크롬(Chrome) 브라우저 권장:</strong> 스마트폰이나 PC에서 음성인식(STT)과 원어민 발음(TTS)을 원활하게 이용하려면 <strong>크롬(Chrome)</strong> 브라우저를 사용해 주세요.</li>
+      <li><strong>학생 QR 접속:</strong> 선생님이 띄워준 QR코드를 찍으면 시트 설정창 없이 간편하게 학번과 이름만 넣고 바로 연습할 수 있습니다.</li>
+      <li><strong>단어 카드 소리 듣기:</strong> 녹음 후 결과창의 단어 배지를 누르면 해당 단어만의 원어민 발음을 즉시 들을 수 있습니다.</li>
     </ol>
     <button class="modal-close" onclick="closeHelpModal()">확인 및 닫기</button>
   </div>
@@ -552,36 +609,88 @@
   let currentSentences = JSON.parse(JSON.stringify(IMMUTABLE_DEFAULT_PRESET));
   let currentGradingMode = 'comm';
   let latestGeneratedShareUrl = "";
+  let isStudentMode = false;
 
   window.addEventListener('DOMContentLoaded', () => {
+    detectInAppBrowser();
+
     const inputEl = document.getElementById('teacherSheetUrl');
     const customUrl = localStorage.getItem('speech_custom_teacher_sheet');
     if (customUrl) inputEl.value = customUrl;
 
-    // QR 접속 시 URL 해시(#d=...)에서 문항 세트 및 교사 시트 주소 자동 복원
-    checkUrlHashData();
+    // QR 파라미터 확인 및 학생 전용 모드 전환
+    checkUrlQueryParameters();
 
     updateHistoryDropdownUI();
     renderSentences();
     buildSentenceEditor();
   });
 
-  function checkUrlHashData() {
-    if (window.location.hash && window.location.hash.startsWith('#d=')) {
+  // 인앱 브라우저(카카오톡, 네이버, 라인, 인스타그램 등) 감지 및 크롬 안내
+  function detectInAppBrowser() {
+    const ua = navigator.userAgent.toLowerCase();
+    const isInApp = /kakaotalk|naver|line|instagram|fbav|fban|wv/.test(ua);
+    if (isInApp) {
+      const banner = document.getElementById('inappBanner');
+      banner.style.display = 'block';
+      // iOS인 경우 인텐트 스킴 대신 사파리 안내 표시
+      if (/iphone|ipad|ipod/.test(ua)) {
+        const btn = document.getElementById('btnOpenChrome');
+        btn.style.display = 'none';
+        const iosTip = document.createElement('div');
+        iosTip.style.marginTop = '6px';
+        iosTip.style.color = '#991b1b';
+        iosTip.innerText = "👉 아이폰 사용자는 화면 우측 하단 [점 세개(⋯) 또는 공유 아이콘]을 눌러 'Safari로 열기'를 선택해 주세요.";
+        banner.appendChild(iosTip);
+      }
+    }
+  }
+
+  // 안드로이드 기기에서 즉시 크롬(Chrome) 앱으로 전환 실행
+  function openInExternalBrowser() {
+    const currentUrl = window.location.href;
+    const ua = navigator.userAgent.toLowerCase();
+    if (/android/.test(ua)) {
+      const noScheme = currentUrl.replace(/^https?:\/\//, '');
+      window.location.href = `intent://${noScheme}#Intent;scheme=https;package=com.android.chrome;end`;
+    } else {
+      alert("브라우저 메뉴에서 '다른 브라우저(Chrome/Safari)로 열기'를 선택해 주세요.");
+    }
+  }
+
+  // 쿼리 파라미터(?s=...&l=...&q=...) 복원 및 학생 화면 UI 깔끔 정리
+  function checkUrlQueryParameters() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sheetParam = urlParams.get('s');
+    const langParam = urlParams.get('l');
+    const qParam = urlParams.get('q');
+
+    if (sheetParam) {
+      isStudentMode = true;
+      const fullSheet = `https://docs.google.com/spreadsheets/d/${sheetParam}/edit`;
+      document.getElementById('teacherSheetUrl').value = fullSheet;
+
+      // 학생 폰에서는 교사용 시트 입력창, 편집창, QR 버튼, 문항 세트 목록을 깔끔하게 숨김
+      document.querySelectorAll('.teacher-only').forEach(el => {
+        el.style.display = 'none';
+      });
+      const presetWrapper = document.getElementById('teacherPresetWrapper');
+      if (presetWrapper) presetWrapper.style.display = 'none';
+
+      // 연결 확인 배지 표시
+      document.getElementById('studentConnectedBadge').style.display = 'block';
+    }
+
+    if (langParam) {
+      currentLang = langParam;
+      document.getElementById('langSelect').value = currentLang;
+    }
+
+    if (qParam) {
       try {
-        const jsonStr = decodeURIComponent(escape(atob(window.location.hash.substring(3))));
-        const payload = JSON.parse(jsonStr);
-        if (payload.l) {
-          currentLang = payload.l;
-          document.getElementById('langSelect').value = currentLang;
-        }
-        if (payload.s) {
-          const fullSheet = `https://docs.google.com/spreadsheets/d/${payload.s}/edit`;
-          document.getElementById('teacherSheetUrl').value = fullSheet;
-          localStorage.setItem('speech_custom_teacher_sheet', fullSheet);
-        }
-        if (Array.isArray(payload.q) && payload.q.length > 0) {
-          currentSentences = payload.q.map((txt, idx) => ({
+        const parsedQ = JSON.parse(decodeURIComponent(escape(atob(qParam))));
+        if (Array.isArray(parsedQ) && parsedQ.length > 0) {
+          currentSentences = parsedQ.map((txt, idx) => ({
             text: txt,
             sub: (IMMUTABLE_DEFAULT_PRESET[idx] && IMMUTABLE_DEFAULT_PRESET[idx].text === txt) ? IMMUTABLE_DEFAULT_PRESET[idx].sub : "",
             kr: (IMMUTABLE_DEFAULT_PRESET[idx] && IMMUTABLE_DEFAULT_PRESET[idx].text === txt) ? IMMUTABLE_DEFAULT_PRESET[idx].kr : "",
@@ -727,7 +836,6 @@
     savePresetToHistory(`${slotIdx + 1}번 수정: ${titleText.substring(0, 8)}`, currentSentences);
   }
 
-  // 3. 경량 데이터 압축 방식의 무오류 QR코드 생성 함수
   function openQrModal() {
     const sheetUrl = document.getElementById('teacherSheetUrl').value.trim();
     if (!sheetUrl || sheetUrl.indexOf('http') !== 0) {
@@ -740,41 +848,29 @@
     const qrUrlText = document.getElementById('qrUrlText');
     qrContainer.innerHTML = '';
 
-    // 시트 ID만 추출하여 용량 대폭 축소
     const idMatch = sheetUrl.match(/[-\w]{25,}/);
     const sheetId = idMatch ? idMatch[0] : "";
 
-    const compactData = {
-      l: currentLang,
-      s: sheetId,
-      q: currentSentences.map(item => item.text)
-    };
+    const isDefault = JSON.stringify(currentSentences.map(i => i.text)) === JSON.stringify(IMMUTABLE_DEFAULT_PRESET.map(i => i.text));
+    const baseUrl = window.location.href.split('?')[0].split('#')[0];
 
-    const rawJson = JSON.stringify(compactData);
-    const encodedData = btoa(unescape(encodeURIComponent(rawJson)));
-    const baseUrl = window.location.href.split('#')[0];
-    latestGeneratedShareUrl = `${baseUrl}#d=${encodedData}`;
-
-    try {
-      new QRCode(qrContainer, {
-        text: latestGeneratedShareUrl,
-        width: 220,
-        height: 220,
-        colorDark: "#0f172a",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.L // 데이터 수용량 극대화 (Low Error Correction)
-      });
-    } catch (err) {
-      // 만약 텍스트가 극단적으로 길 경우 기본 URL 기반 QR로 폴백
-      latestGeneratedShareUrl = baseUrl;
-      new QRCode(qrContainer, {
-        text: baseUrl,
-        width: 220,
-        height: 220
-      });
+    if (isDefault) {
+      latestGeneratedShareUrl = `${baseUrl}?s=${sheetId}&l=${currentLang}`;
+    } else {
+      const encodedQ = btoa(unescape(encodeURIComponent(JSON.stringify(currentSentences.map(i => i.text)))));
+      latestGeneratedShareUrl = `${baseUrl}?s=${sheetId}&l=${currentLang}&q=${encodeURIComponent(encodedQ)}`;
     }
 
-    qrUrlText.innerText = "학생이 이 QR을 스캔하면 현재 7개 문항과 선생님 구글 시트가 자동으로 연결됩니다.";
+    new QRCode(qrContainer, {
+      text: latestGeneratedShareUrl,
+      width: 220,
+      height: 220,
+      colorDark: "#0f172a",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.L
+    });
+
+    qrUrlText.innerText = "학생들에게 기본 카메라 앱 또는 크롬(Chrome) 브라우저로 스캔하도록 안내해 주세요.";
     modal.style.display = 'flex';
   }
 
@@ -909,39 +1005,19 @@
     return str;
   }
 
-  // 2. 문맥 기반 중국어 동음이의어·유사발음 음절 그룹 매칭 함수
   function isContextuallyEquivalent(targetToken, spokenToken, lang) {
     if (targetToken === spokenToken) return true;
     if (lang === 'zh-CN') {
-      // 중국어 연음 및 성조 변조로 STT가 자주 치환하는 동음이의어/유사음 그룹
       const homophoneGroups = [
-        ["考", "烤", "靠"],
-        ["的", "得", "地"],
-        ["全", "圈", "泉", "拳"],
-        ["对", "队", "兑"],
-        ["蒙", "梦", "萌", "猛", "孟"],
-        ["必", "毕", "币", "闭", "壁"],
-        ["中", "众", "重", "钟", "忠"],
-        ["旗", "期", "奇", "齐", "其"],
-        ["开", "凯"],
-        ["胜", "盛", "圣", "剩"],
-        ["成", "程", "城", "诚", "乘"],
-        ["真", "珍", "针", "阵"],
-        ["顺", "瞬"],
-        ["利", "力", "立", "丽"],
-        ["祝", "住", "注", "助"],
-        ["功", "工", "公", "攻"],
-        ["马", "码", "妈", "吗"],
-        ["到", "道", "倒"],
-        ["绿", "律", "虑", "率"],
-        ["灯", "登", "等"],
-        ["金", "今", "斤", "进"],
-        ["榜", "帮", "棒", "绑"],
-        ["题", "提", "体"],
-        ["名", "明", "鸣"],
-        ["录", "路", "露", "鹿"],
-        ["取", "去", "趣", "曲"],
-        ["吧", "八", "把", "爸"]
+        ["考", "烤", "靠"], ["的", "得", "地"], ["全", "圈", "泉", "拳"],
+        ["对", "队", "兑"], ["蒙", "梦", "萌", "猛", "孟"], ["必", "毕", "币", "闭", "壁"],
+        ["中", "众", "重", "钟", "忠"], ["旗", "期", "奇", "齐", "其"], ["开", "凯"],
+        ["胜", "盛", "圣", "剩"], ["成", "程", "城", "诚", "乘"], ["真", "珍", "针", "阵"],
+        ["顺", "瞬"], ["利", "力", "立", "丽"], ["祝", "住", "注", "助"],
+        ["功", "工", "公", "攻"], ["马", "码", "妈", "吗"], ["到", "道", "倒"],
+        ["绿", "律", "虑", "率"], ["灯", "登", "等"], ["金", "今", "斤", "进"],
+        ["榜", "帮", "棒", "绑"], ["题", "提", "体"], ["名", "明", "鸣"],
+        ["录", "路", "露", "鹿"], ["取", "去", "趣", "曲"], ["吧", "八", "把", "爸"]
       ];
       for (let g = 0; g < homophoneGroups.length; g++) {
         if (homophoneGroups[g].includes(targetToken) && homophoneGroups[g].includes(spokenToken)) {
@@ -977,10 +1053,9 @@
       resetAllRecButtons();
     }
 
-    // 1. 타 교사 원본 시트 무단 저장 원천 차단 검증
     const targetSheetUrl = document.getElementById('teacherSheetUrl').value.trim();
     if (!targetSheetUrl || targetSheetUrl.indexOf('http') !== 0) {
-      alert("⚠️ 연결된 구글 시트가 없습니다!\n\n타 교사 선생님은 상단 [📋 시트 양식 복사]를 눌러 사본을 만든 뒤, 사본 주소를 [결과 구글 시트] 칸에 먼저 입력해 주세요.");
+      alert("⚠️ 연결된 구글 시트가 없습니다!\n\n교사 화면에서 [📋 시트 양식 복사] 후 사본 주소를 먼저 등록하거나, 선생님의 QR코드로 다시 접속해 주세요.");
       return;
     }
 
@@ -1062,7 +1137,6 @@
       const normalizedSpoken = normalizeDigitsIfNeeded(finalSpoken, currentLang);
       const currentItemMeanings = (currentSentences[index] && currentSentences[index].meanings) ? currentSentences[index].meanings : {};
 
-      // 문맥 및 동음이의어 보정이 적용된 채점 및 피드백
       const isContextualMode = (currentGradingMode === 'comm' || currentGradingMode === 'lenient');
       const evalResult = renderPronunciationDiffWithContext(targetText, normalizedSpoken, currentLang, currentItemMeanings, feedbackBox, isContextualMode);
 
@@ -1070,7 +1144,6 @@
       const matchedItems = evalResult.matched;
       const baseScore = totalItems > 0 ? Math.round((matchedItems / totalItems) * 100) : 0;
 
-      // 2. 회화문 문맥 유창성 & 의사소통 능력 종합 산출
       let finalScore = baseScore;
       if (currentGradingMode === 'comm') {
         const cleanT = targetText.replace(/[\s，。！？,.!]/g, "");
@@ -1080,7 +1153,6 @@
         if (baseScore >= 75) {
           finalScore = Math.min(100, Math.round(88 + (baseScore - 75) * 0.48));
         } else if (baseScore >= 45 || (fluencyRatio >= 0.75 && baseScore >= 30)) {
-          // 유창하게 전체 흐름을 읽었을 경우 소통 능력 점수 가산
           finalScore = Math.min(95, Math.round(78 + (baseScore * 0.25)));
         } else {
           finalScore = Math.round(baseScore * 1.25);
@@ -1128,7 +1200,6 @@
     activeIndex = null;
   }
 
-  // 문맥 및 동음이의어 보정 피드백 렌더링
   function renderPronunciationDiffWithContext(target, spoken, lang, meaningsMap, containerEl, allowContextual) {
     const targetTokens = tokenizeText(target, lang);
     let spokenTokens = tokenizeText(spoken, lang);
@@ -1139,11 +1210,9 @@
     
     for (let i = 0; i < targetTokens.length; i++) {
       const token = targetTokens[i];
-      // 1차: 완전 일치 탐색
       let matchIndex = spokenTokens.indexOf(token);
       let isHomophoneMatch = false;
 
-      // 2차: 소통가능/관대 모드일 경우 문맥상 동음이의어·유사음절 탐색
       if (matchIndex === -1 && allowContextual) {
         for (let k = 0; k < spokenTokens.length; k++) {
           if (isContextuallyEquivalent(token, spokenTokens[k], lang)) {

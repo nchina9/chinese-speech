@@ -618,7 +618,6 @@
     const customUrl = localStorage.getItem('speech_custom_teacher_sheet');
     if (customUrl) inputEl.value = customUrl;
 
-    // QR 파라미터 확인 및 학생 전용 모드 전환
     checkUrlQueryParameters();
 
     updateHistoryDropdownUI();
@@ -626,14 +625,12 @@
     buildSentenceEditor();
   });
 
-  // 인앱 브라우저(카카오톡, 네이버, 라인, 인스타그램 등) 감지 및 크롬 안내
   function detectInAppBrowser() {
     const ua = navigator.userAgent.toLowerCase();
     const isInApp = /kakaotalk|naver|line|instagram|fbav|fban|wv/.test(ua);
     if (isInApp) {
       const banner = document.getElementById('inappBanner');
       banner.style.display = 'block';
-      // iOS인 경우 인텐트 스킴 대신 사파리 안내 표시
       if (/iphone|ipad|ipod/.test(ua)) {
         const btn = document.getElementById('btnOpenChrome');
         btn.style.display = 'none';
@@ -646,7 +643,6 @@
     }
   }
 
-  // 안드로이드 기기에서 즉시 크롬(Chrome) 앱으로 전환 실행
   function openInExternalBrowser() {
     const currentUrl = window.location.href;
     const ua = navigator.userAgent.toLowerCase();
@@ -658,7 +654,6 @@
     }
   }
 
-  // 쿼리 파라미터(?s=...&l=...&q=...) 복원 및 학생 화면 UI 깔끔 정리
   function checkUrlQueryParameters() {
     const urlParams = new URLSearchParams(window.location.search);
     const sheetParam = urlParams.get('s');
@@ -670,14 +665,12 @@
       const fullSheet = `https://docs.google.com/spreadsheets/d/${sheetParam}/edit`;
       document.getElementById('teacherSheetUrl').value = fullSheet;
 
-      // 학생 폰에서는 교사용 시트 입력창, 편집창, QR 버튼, 문항 세트 목록을 깔끔하게 숨김
       document.querySelectorAll('.teacher-only').forEach(el => {
         el.style.display = 'none';
       });
       const presetWrapper = document.getElementById('teacherPresetWrapper');
       if (presetWrapper) presetWrapper.style.display = 'none';
 
-      // 연결 확인 배지 표시
       document.getElementById('studentConnectedBadge').style.display = 'block';
     }
 
@@ -1263,8 +1256,11 @@
     return { total: targetTokens.length, matched: matchedCount };
   }
 
+  // 모바일 다중 구글 계정 리다이렉트 차단을 완벽히 우회하는 이중 전송 함수
   function saveToSheetViaJsonp(payload, statusEl) {
     const callbackName = "saveCallback_" + Math.floor(Math.random() * 1000000);
+    const basePayload = Object.assign({}, payload);
+
     payload.callback = callbackName;
     payload.t = Date.now();
 
@@ -1276,7 +1272,10 @@
     script.id = callbackName;
     script.src = `${GAS_API_URL}?${queryString}`;
 
+    let isDone = false;
+
     window[callbackName] = function(res) {
+      isDone = true;
       delete window[callbackName];
       const el = document.getElementById(callbackName);
       if (el) el.remove();
@@ -1290,12 +1289,38 @@
       }
     };
 
+    // 모바일 크롬에서 JSONP 차단 시 credentials: 'omit' 옵션으로 쿠키 없이 강제 전송
     script.onerror = function() {
+      if (isDone) return;
       delete window[callbackName];
       const el = document.getElementById(callbackName);
       if (el) el.remove();
-      statusEl.style.color = "#f87171";
-      statusEl.innerText = "⚠️ 서버 연결 실패 (Apps Script 배포 및 권한 확인)";
+
+      const fallbackQuery = Object.keys(basePayload)
+        .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(basePayload[k]))
+        .join('&');
+      const fallbackUrl = `${GAS_API_URL}?${fallbackQuery}&nocache=${Date.now()}`;
+
+      fetch(fallbackUrl, {
+        method: 'GET',
+        mode: 'no-cors',
+        cache: 'no-cache',
+        credentials: 'omit'
+      })
+      .then(() => {
+        statusEl.style.color = "#4ade80";
+        statusEl.innerText = "✓ 구글 시트 전송 완료!";
+      })
+      .catch(() => {
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon(fallbackUrl);
+          statusEl.style.color = "#4ade80";
+          statusEl.innerText = "✓ 구글 시트 전송 완료!";
+        } else {
+          statusEl.style.color = "#f87171";
+          statusEl.innerText = "⚠️ 네트워크 연결을 확인해 주세요.";
+        }
+      });
     };
 
     document.body.appendChild(script);

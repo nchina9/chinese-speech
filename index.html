@@ -676,8 +676,8 @@
       <a class="btn-tool" style="background:#475569;" href="https://docs.google.com/spreadsheets/d/14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI/copy" target="_blank" rel="noopener noreferrer" onclick="_0xEngine.notifyManualCopy()">📋 수동 양식 복사(/copy)</a>
     </div>
     <div class="sheet-hint">
-      * <strong>가장 쉬운 방법 (권장):</strong> <strong>[⚡ 새 시트 자동생성 (주소칸 자동입력)]</strong> 버튼을 누르면 새 시트가 만들어지고 <strong>위 주소칸에 자동으로 입력·인증</strong>되어 공유 설정 없이도 학생 결과가 100% 전송됩니다.<br>
-      * <strong>수동 양식 복사(/copy) 이용 시 주의:</strong> 수동으로 사본을 만든 경우, 반드시 사본 시트 우측 상단 <code>[공유]</code> → <em>'링크가 있는 모든 사용자 - <strong>편집자</strong>'</em>로 변경한 뒤 주소를 붙여넣고 <strong>[🔑 비밀번호 설정/인증]</strong>을 눌러야 학생 기록이 전송됩니다.
+      * <strong>타 교사 방법 1 (가장 쉬움):</strong> <strong>[⚡ 새 시트 자동생성 (주소칸 자동입력)]</strong>을 누르면 새 시트가 만들어지고 <strong>위 주소칸에 자동으로 입력·인증</strong>되어 공유 설정 없이도 학생 결과가 즉시 전송됩니다.<br>
+      * <strong>타 교사 방법 2 (수동 복사):</strong> <strong>[📋 수동 양식 복사(/copy)]</strong> 클릭 후 <code>[사본 만들기]</code> $\rightarrow$ 사본 시트 우측 상단 <code>[공유]</code>를 <em>'링크가 있는 모든 사용자 - <strong>편집자</strong>'</em>로 설정 $\rightarrow$ 사본 주소를 위 칸에 붙여넣고 <strong>[🔑 비밀번호 설정/인증]</strong>을 클릭하세요.
       <span class="dev-quick-link" onclick="_0xEngine.connDev()">[개발자 본인용 빠른 연결]</span>
     </div>
   </div>
@@ -778,9 +778,10 @@
   }, 2500);
 
   const _0xDec = (_0xS) => decodeURIComponent(escape(atob(_0xS)));
+  // ★ 개발자(신윤기 수석)님의 실제 원본 시트(14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI)로 정확히 교체 완료
   const _0xCfg = {
     api: _0xDec("aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J6Q0d0Mi1HU0JoZDVjbXBGbzVtcXViM2NFYVNUam50ajhjUnJISlI5SW0yMG5IU1RiQTZkZWgyYmh6RzNTcm50OVVPZy9leGVj"),
-    devSheet: _0xDec("aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvMVBreVFHQnJLa3pRbE56T1NoTndNNkRpX2ktODlIRDNHUUlNTTJCVkEyVWsvZWRpdA=="),
+    devSheet: "https://docs.google.com/spreadsheets/d/14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI/edit?gid=0#gid=0",
     blankTemplateCopyUrl: "https://docs.google.com/spreadsheets/d/14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI/copy"
   };
 
@@ -1389,7 +1390,7 @@
     } catch (e) {}
   }
 
-  // 수동 복사(/copy) 후 탭으로 돌아왔을 때 클립보드에 복사된 구글 시트 주소 자동 감지 및 입력
+  // 수동 복사(/copy) 후 돌아왔을 때 클립보드의 사본 주소 자동 감지 및 입력칸 채우기
   _0xW.addEventListener('focus', async function() {
     if (!_0xWaitingManualCopy) return;
     try {
@@ -1401,7 +1402,7 @@
             inp.value = clipText;
             localStorage.setItem('speech_custom_teacher_sheet', clipText);
             _0xWaitingManualCopy = false;
-            alert("📋 복사하신 사본 시트 주소가 주소칸에 자동으로 입력되었습니다!\n\n※ 주의: 사본 시트의 우측 상단 [공유]를 '링크가 있는 모든 사용자 - 편집자'로 설정한 뒤 [🔑 비밀번호 설정/인증]을 눌러주세요.");
+            alert("📋 복사하신 사본 시트 주소가 주소칸에 자동으로 입력되었습니다!\n\n※ 필수: 사본 시트의 우측 상단 [공유]를 '링크가 있는 모든 사용자 - 편집자'로 설정한 뒤 [🔑 비밀번호 설정/인증]을 눌러주세요.");
           }
         }
       }
@@ -1454,7 +1455,7 @@
         }
       } catch (e) {}
     },
-    // 버튼 클릭 시 새 시트를 서버에서 즉시 생성하고 위 주소칸에 자동 입력 + 인증 완료
+    // [이중 안전장치] 자동 생성 시도 후 서버 미응답 시 즉시 /copy 사본 창으로 자동 폴백
     autoCreateAndFillSheet: function() {
       const teacherName = prompt("👩‍🏫 선생님 성함(또는 학교/학급명)을 입력해 주세요 (예: 홍길동 선생님):");
       if (!teacherName) return;
@@ -1475,7 +1476,10 @@
       sc.id = cb;
       sc.src = `${_0xCfg.api}?action=autoCreateSheet&title=${encodeURIComponent(teacherName.trim())}&pin=${encodeURIComponent(pin.trim())}&callback=${cb}&t=${Date.now()}`;
 
+      let isHandled = false;
+
       _0xW[cb] = function(res) {
+        isHandled = true;
         if (btnTop) { btnTop.disabled = false; btnTop.innerText = "⚡ 새 시트 자동생성(주소 자동입력)"; }
         if (btnSub) { btnSub.disabled = false; btnSub.innerText = "⚡ 새 시트 자동생성 (주소칸 자동입력)"; }
         delete _0xW[cb];
@@ -1491,14 +1495,20 @@
           alert(`✅ 새 시트가 생성되어 위 주소칸에 자동 입력 및 인증 완료되었습니다!\n\n- 설정 비밀번호: ${pin.trim()}\n- 이제 별도의 공유 설정 없이도 학생들의 학습 결과가 100% 자동 전송됩니다.`);
           _0xW.open(res.url, "_blank");
         } else {
-          alert("⚠️ 자동 생성 실패: " + (res ? res.message : "Apps Script에서 [새 버전] 배포를 확인해 주세요."));
+          _0xWaitingManualCopy = true;
+          alert("📋 서버 자동 생성 대신 구글 시트 사본 만들기 창을 엽니다.\n\n1. 새 창에서 [사본 만들기] 클릭\n2. 우측 상단 [공유] -> '링크가 있는 모든 사용자 - 편집자'로 변경\n3. 주소를 복사해 돌아오시면 주소칸에 자동 입력됩니다!");
+          _0xW.open(_0xCfg.blankTemplateCopyUrl, "_blank");
         }
       };
 
       sc.onerror = function() {
+        if (isHandled) return;
+        isHandled = true;
         if (btnTop) { btnTop.disabled = false; btnTop.innerText = "⚡ 새 시트 자동생성(주소 자동입력)"; }
         if (btnSub) { btnSub.disabled = false; btnSub.innerText = "⚡ 새 시트 자동생성 (주소칸 자동입력)"; }
-        alert("⚠️ 서버 연결 오류: Apps Script 배포 상태를 확인해 주세요.");
+        _0xWaitingManualCopy = true;
+        alert("📋 구글 시트 사본 만들기 창을 엽니다.\n\n1. 새 창에서 [사본 만들기] 클릭\n2. 우측 상단 [공유] -> '링크가 있는 모든 사용자 - 편집자'로 변경\n3. 주소를 복사해 돌아오시면 주소칸에 자동 입력됩니다!");
+        _0xW.open(_0xCfg.blankTemplateCopyUrl, "_blank");
       };
 
       _0xD.body.appendChild(sc);
@@ -1507,10 +1517,6 @@
       const u = _0xD.getElementById('teacherSheetUrl').value.trim();
       if (!u || u.indexOf('http') !== 0) {
         alert("먼저 [⚡ 새 시트 자동생성]을 누르거나 사본 구글 시트 주소를 입력창에 붙여넣어 주세요.");
-        return;
-      }
-      if (u.indexOf('14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI') !== -1) {
-        alert("⚠️ 입력하신 주소는 배포용 원본 템플릿 주소입니다!\n\n사본 만들기 후 생성된 본인 사본 시트의 주소를 넣거나, 아래 [⚡ 새 시트 자동생성] 버튼을 눌러주세요.");
         return;
       }
 
@@ -1544,6 +1550,7 @@
       };
       _0xD.body.appendChild(sc);
     },
+    // 개발자(신윤기 수석) 본인용 빠른 연결 -> 14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI 즉시 연결
     connDev: function() {
       const pin = prompt("🔑 개발자(신윤기 수석) 마스터 비밀번호를 입력하세요:");
       if (!pin) return;

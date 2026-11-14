@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- 구글 TTS 오디오 스트리밍 차단(403 Referer 오류) 방지 -->
   <meta name="referrer" content="no-referrer">
-  <title>학생 주도 다국어 연습기</title>
+  <title>학생 주도 다국어 연습기 - 개발자: 신윤기 수석</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
+    input, select { -webkit-user-select: text; user-select: text; }
     body {
       background: #7a0c0c;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -28,7 +28,6 @@
       padding: 22px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
-
     .inapp-warning-banner {
       display: none;
       background: #fef08a;
@@ -55,7 +54,6 @@
       align-items: center;
       gap: 6px;
     }
-
     .top-badge-bar {
       display: flex;
       justify-content: space-between;
@@ -79,10 +77,10 @@
     .developer-tag {
       font-size: 12px;
       color: #fef08a;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.45);
       padding: 4px 12px;
       border-radius: 12px;
-      border: 1px solid rgba(250, 204, 21, 0.5);
+      border: 1px solid rgba(250, 204, 21, 0.6);
       font-weight: bold;
       margin-left: auto;
     }
@@ -98,7 +96,6 @@
     }
     h2 { color: #fef08a; font-size: 22px; }
     .header-right { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-    
     .lang-selector {
       background: #fff;
       color: #0f172a;
@@ -110,7 +107,6 @@
       outline: none;
       cursor: pointer;
     }
-
     .mode-toggle-group {
       display: inline-flex;
       background: rgba(0,0,0,0.35);
@@ -133,7 +129,6 @@
       background: #facc15;
       color: #78350f;
     }
-
     .btn-tool {
       background: #3b82f6;
       color: #fff;
@@ -151,7 +146,7 @@
     .btn-tool.edit { background: #eab308; color: #78350f; }
     .btn-tool.open-sheet { background: #0284c7; }
     .btn-tool.qr { background: #8b5cf6; }
-
+    .btn-tool.verify { background: #f59e0b; color: #0f172a; }
     .sheet-config-bar {
       background: rgba(0,0,0,0.45);
       border: 2px solid #f59e0b;
@@ -169,7 +164,7 @@
     .sheet-config-bar label { font-size: 13px; color: #fef08a; font-weight: bold; }
     .sheet-config-bar input {
       flex: 1;
-      min-width: 220px;
+      min-width: 200px;
       padding: 8px 12px;
       border-radius: 6px;
       border: 1px solid #facc15;
@@ -177,6 +172,20 @@
       background: #fff;
       color: #0f172a;
       outline: none;
+    }
+    .sheet-auth-badge {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: bold;
+      background: rgba(239, 68, 68, 0.3);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+    }
+    .sheet-auth-badge.verified {
+      background: rgba(16, 185, 129, 0.3);
+      border: 1px solid #10b981;
+      color: #6ee7b7;
     }
     .sheet-hint { font-size: 12px; color: #fed7aa; line-height: 1.5; }
     .dev-quick-link {
@@ -186,7 +195,6 @@
       cursor: pointer;
       margin-left: 6px;
     }
-
     .translate-bar {
       background: rgba(15, 23, 42, 0.55);
       border: 1px solid #38bdf8;
@@ -246,7 +254,6 @@
       font-weight: bold;
       cursor: pointer;
     }
-
     .editor-panel {
       display: none;
       background: rgba(0,0,0,0.45);
@@ -287,7 +294,6 @@
       border-radius: 8px;
       cursor: pointer;
     }
-
     .student-bar {
       display: flex;
       gap: 12px;
@@ -308,7 +314,6 @@
       font-weight: bold;
       outline: none;
     }
-
     .student-connected-badge {
       display: none;
       background: rgba(16, 185, 129, 0.25);
@@ -321,7 +326,6 @@
       margin-bottom: 14px;
       text-align: center;
     }
-
     .card {
       background: rgba(0, 0, 0, 0.28);
       border: 2px solid #f59e0b;
@@ -348,7 +352,6 @@
     .target-text { font-size: 22px; font-weight: bold; color: #fef08a; margin-bottom: 4px; }
     .sub-text { font-size: 14px; color: #fed7aa; margin-bottom: 4px; }
     .kr-text { font-size: 13px; color: #e2e8f0; margin-bottom: 12px; }
-
     .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
     button {
       padding: 8px 16px;
@@ -364,13 +367,11 @@
     .btn-play { background: #facc15; color: #78350f; }
     .btn-rec { background: #2563eb; color: #fff; }
     .btn-stop-rec { background: #ef4444; color: #fff; animation: pulse 1s infinite; }
-
     @keyframes pulse {
       0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
       70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
       100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
-
     .result-box {
       display: none;
       background: rgba(0,0,0,0.55);
@@ -382,7 +383,6 @@
     .spoken-text { font-size: 14px; color: #e2e8f0; margin-bottom: 8px; }
     .score-badge { font-size: 16px; font-weight: bold; color: #38bdf8; }
     .save-status { font-size: 12px; margin-left: 10px; color: #4ade80; font-weight: bold; }
-
     .feedback-box {
       margin-top: 10px;
       padding-top: 10px;
@@ -447,7 +447,6 @@
       border-radius: 4px;
       white-space: nowrap;
     }
-
     .total-summary-card {
       background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
       border: 3px solid #facc15;
@@ -478,6 +477,64 @@
       font-size: 13px;
       color: #94a3b8;
       margin-top: 6px;
+    }
+
+    /* 프로그램 최하단 개발자 전용 앱 전체 잠금 버튼 바 */
+    .dev-master-footer {
+      margin-top: 22px;
+      padding-top: 14px;
+      border-top: 1px dashed rgba(250, 204, 21, 0.35);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .dev-footer-note {
+      font-size: 11px;
+      color: #fed7aa;
+      opacity: 0.85;
+    }
+    .btn-master-lock {
+      background: #0f172a;
+      color: #facc15;
+      border: 1px solid #facc15;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-master-lock.locked-state {
+      background: #ef4444;
+      color: #fff;
+      border-color: #fff;
+    }
+
+    /* 전체 앱 잠금 시 오버레이 화면 */
+    #globalLockOverlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.96);
+      z-index: 9999;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 24px;
+    }
+    #globalLockOverlay h1 {
+      color: #facc15;
+      font-size: 26px;
+      margin-bottom: 12px;
+    }
+    #globalLockOverlay p {
+      color: #e2e8f0;
+      font-size: 15px;
+      line-height: 1.6;
+      max-width: 480px;
+      margin-bottom: 24px;
     }
 
     .modal {
@@ -523,29 +580,36 @@
     }
   </style>
 </head>
-<body>
+<body oncontextmenu="return false" onselectstart="return false" ondragstart="return false">
 
-<div class="container">
+<!-- 개발자 원격 앱 잠금 시 표시되는 전체 차단 오버레이 -->
+<div id="globalLockOverlay">
+  <h1>🔒 프로그램 작동 일시 중지 (개발자 잠금)</h1>
+  <p>개발자(<strong>신윤기 수석</strong>)의 권한으로 현재 본 웹 애플리케이션의 작동이 잠금 설정되었습니다.<br>이용을 원하시면 개발자에게 문의해 주세요.</p>
+  <button type="button" class="btn-master-lock locked-state" onclick="_0xEngine.toggleAppLock()">🔑 개발자 비밀번호로 잠금 해제</button>
+</div>
+
+<div class="container" id="appRoot">
   <div class="inapp-warning-banner" id="inappBanner">
     <div>⚠️ 현재 카카오톡·네이버 등 인앱 브라우저로 접속되었습니다!</div>
     <div style="font-weight: normal; margin-top: 4px;">원활한 마이크 녹음과 채점 결과 전송을 위해 반드시 <strong>크롬(Chrome)</strong> 또는 <strong>사파리(Safari)</strong> 브라우저로 열어주세요.</div>
-    <button type="button" class="btn-open-chrome" id="btnOpenChrome" onclick="openInExternalBrowser()">🌐 크롬(Chrome) 브라우저로 바로 열기</button>
+    <button type="button" class="btn-open-chrome" id="btnOpenChrome" onclick="_0xEngine.openExt()">🌐 크롬(Chrome) 브라우저로 바로 열기</button>
   </div>
 
   <div class="top-badge-bar">
     <div id="teacherPresetWrapper" class="teacher-only">
       <label style="font-size: 12px; color: #fef08a; margin-right: 4px;">📂 문항 세트:</label>
-      <select class="preset-history-select" id="historySelect" onchange="loadPresetFromHistory()">
+      <select class="preset-history-select" id="historySelect" onchange="_0xEngine.loadHist()">
         <option value="default">[기본] 1. 수험생 응원 문구</option>
       </select>
     </div>
-    <span class="developer-tag">개발자: 신윤기 수석</span>
+    <span class="developer-tag" id="devAuthTag">개발자: 신윤기 수석</span>
   </div>
 
   <div class="top-header">
     <h2>🎓 학생 주도 다국어 연습기</h2>
     <div class="header-right">
-      <select class="lang-selector" id="langSelect" onchange="changeLanguage()">
+      <select class="lang-selector" id="langSelect" onchange="_0xEngine.chgLang()">
         <option value="zh-CN">🇨🇳 중국어 (Chinese)</option>
         <option value="en-US">🇺🇸 영어 (English)</option>
         <option value="ja-JP">🇯🇵 일본어 (Japanese)</option>
@@ -558,14 +622,14 @@
       </select>
 
       <div class="mode-toggle-group">
-        <button type="button" class="btn-mode" id="btnModeStrict" onclick="setGradingMode('strict')">⚖️ 엄격</button>
-        <button type="button" class="btn-mode" id="btnModeLenient" onclick="setGradingMode('lenient')">😊 관대</button>
-        <button type="button" class="btn-mode active" id="btnModeComm" onclick="setGradingMode('comm')">🗣️ 소통가능</button>
+        <button type="button" class="btn-mode" id="btnModeStrict" onclick="_0xEngine.setMode('strict')">⚖️ 엄격</button>
+        <button type="button" class="btn-mode" id="btnModeLenient" onclick="_0xEngine.setMode('lenient')">😊 관대</button>
+        <button type="button" class="btn-mode active" id="btnModeComm" onclick="_0xEngine.setMode('comm')">🗣️ 소통가능</button>
       </div>
-      <button class="btn-tool qr teacher-only" onclick="openQrModal()">📱 학생 배포용 QR</button>
-      <button class="btn-tool edit teacher-only" onclick="toggleSentenceEditor()">✏️ 문항 편집</button>
-      <button class="btn-tool copy teacher-only" id="btnCreateTemplate" onclick="createCleanTemplateSheet()">📋 새 시트 양식 생성</button>
-      <button class="btn-tool" onclick="openHelpModal()">📖 안내</button>
+      <button class="btn-tool qr teacher-only" onclick="_0xEngine.openQr()">📱 학생 배포용 QR</button>
+      <button class="btn-tool edit teacher-only" onclick="_0xEngine.togEdit()">✏️ 문항 편집</button>
+      <button class="btn-tool copy teacher-only" id="btnCreateTemplate" onclick="_0xEngine.mkTpl()">📋 새 시트 양식 생성</button>
+      <button class="btn-tool" onclick="_0xEngine.openHelp()">📖 안내</button>
     </div>
   </div>
 
@@ -577,7 +641,7 @@
         <option value="ko-KR">🇰🇷 한국어 음성</option>
         <option value="target">🌐 선택 외국어 음성</option>
       </select>
-      <button type="button" class="btn-voice-input" id="btnVoiceInput" onclick="startVoiceInputForTranslate()">🎙️ 말로 입력</button>
+      <button type="button" class="btn-voice-input" id="btnVoiceInput" onclick="_0xEngine.vIn()">🎙️ 말로 입력</button>
       <select id="slotSelect">
         <option value="0">1번 문항으로</option>
         <option value="1">2번 문항으로</option>
@@ -587,26 +651,28 @@
         <option value="5">6번 문항으로</option>
         <option value="6">7번 문항으로</option>
       </select>
-      <button class="btn-translate" id="btnTranslate" onclick="processInputAndApply()">🔄 문항 등록/번역</button>
+      <button class="btn-translate" id="btnTranslate" onclick="_0xEngine.procIn()">🔄 문항 등록/번역</button>
     </div>
   </div>
 
   <div class="editor-panel teacher-only" id="editorPanel">
     <h3>✏️ 맞춤 문항 직접 편집 (7개 문장 입력)</h3>
     <div id="editorInputs"></div>
-    <button class="btn-save-sentences" onclick="saveCustomSentences()">💾 문항 저장 및 세트 등록</button>
+    <button class="btn-save-sentences" onclick="_0xEngine.svCust()">💾 문항 저장 및 세트 등록</button>
   </div>
 
   <div class="sheet-config-bar teacher-only" id="teacherSheetConfigBar">
     <div class="sheet-config-row">
-      <label for="teacherSheetUrl">📊 결과 구글 시트 (필수):</label>
-      <input type="text" id="teacherSheetUrl" placeholder="⚠️ 먼저 우측 [📋 새 시트 양식 생성]을 눌러 빈 시트를 발급받으세요!" oninput="saveCustomSheetUrl()">
-      <button class="btn-tool open-sheet" onclick="openCurrentSheet()">🔗 내 시트 바로가기</button>
-      <button class="btn-tool copy" onclick="createCleanTemplateSheet()">📋 새 시트 양식 생성</button>
+      <label for="teacherSheetUrl">📊 결과 구글 시트 (비밀번호 인증 필수):</label>
+      <input type="text" id="teacherSheetUrl" placeholder="⚠️ [📋 새 시트 양식 생성] 후 생성된 주소 입력" oninput="_0xEngine.onUrlInput()">
+      <button class="btn-tool verify" onclick="_0xEngine.verifySheetPin()">🔑 시트 비밀번호 인증</button>
+      <span class="sheet-auth-badge" id="sheetAuthBadge">🔒 미인증</span>
+      <button class="btn-tool open-sheet" onclick="_0xEngine.opSheet()">🔗 내 시트 바로가기</button>
+      <button class="btn-tool copy" onclick="_0xEngine.mkTpl()">📋 새 시트 양식 생성</button>
     </div>
     <div class="sheet-hint">
-      * <strong>원본 시트 완전 격리:</strong> 개발자(신윤기 수석)의 원본 시트는 비공개 잠금 상태입니다. 타 교사는 <strong>[📋 새 시트 양식 생성]</strong>을 누르면 데이터 유출 없이 <strong>깨끗한 빈 양식 시트가 자동 발급</strong>됩니다.
-      <span class="dev-quick-link" onclick="connectDeveloperSheet()">[개발자 본인용 빠른 연결]</span>
+      * <strong>시트 비밀번호 잠금:</strong> <strong>[📋 새 시트 양식 생성]</strong> 시 비밀번호를 설정하며, 이후 시트 링크를 연결할 때 해당 비밀번호를 입력하여 인증해야 학생 기록 전송 및 QR 생성이 활성화됩니다.
+      <span class="dev-quick-link" onclick="_0xEngine.connDev()">[개발자 본인용 빠른 연결]</span>
     </div>
   </div>
 
@@ -617,7 +683,7 @@
   <div class="student-bar">
     <div class="input-box">
       <label for="studentId">학번 (4자리 또는 5자리 입력)</label>
-      <input type="text" id="studentId" placeholder="예: 2022 또는 20888" onblur="autoFormatStudentId(this)">
+      <input type="text" id="studentId" placeholder="예: 2022 또는 20888" onblur="_0xEngine.fmtId(this)">
     </div>
     <div class="input-box">
       <label for="studentName">이름</label>
@@ -628,9 +694,15 @@
   <div id="sentenceContainer"></div>
 
   <div class="total-summary-card">
-    <div class="total-summary-title">🏆 나의 종합 말하기 점수 (7개 문항 최고점 합계)</div>
-    <div class="total-score-display" id="totalScoreText">0 <span>/ 700점 만점</span></div>
-    <div class="total-sub-info" id="completedCountText">완료된 문항: 0 / 7개 (각 문항 연습 시 자동 합산됩니다)</div>
+    <div class="total-summary-title">🏆 나의 종합 말하기 점수 (100점 만점 환산)</div>
+    <div class="total-score-display" id="totalScoreText">0점 <span>/ 100점 만점</span></div>
+    <div class="total-sub-info" id="completedCountText">완료된 문항: 0 / 7개 (원점수 합계: 0 / 700점)</div>
+  </div>
+
+  <!-- 프로그램 최하단 개발자 전용 앱 잠금 제어 영역 -->
+  <div class="dev-master-footer teacher-only">
+    <span class="dev-footer-note">© 개발자: 신윤기 수석 | 무단 복제 및 비인가 도메인 실행 차단 시스템 가동 중</span>
+    <button type="button" class="btn-master-lock" id="btnMasterLock" onclick="_0xEngine.toggleAppLock()">🔒 앱 잠금 (개발자 전용)</button>
   </div>
 </div>
 
@@ -642,10 +714,10 @@
       <div id="qrcode"></div>
     </div>
     <div style="margin-top: 10px;">
-      <button class="btn-tool copy" onclick="copyStudentShareUrl()" style="padding: 8px 16px;">📋 학생 접속 링크 복사하기</button>
+      <button class="btn-tool copy" onclick="_0xEngine.cpQr()" style="padding: 8px 16px;">📋 학생 접속 링크 복사하기</button>
     </div>
     <p id="qrUrlText" style="font-size: 11px; color: #94a3b8; word-break: break-all; margin-top: 8px;"></p>
-    <button class="modal-close" onclick="closeQrModal()">닫기</button>
+    <button class="modal-close" onclick="_0xEngine.clQr()">닫기</button>
   </div>
 </div>
 
@@ -653,64 +725,73 @@
   <div class="modal-content">
     <h3>📖 학생 주도 다국어 연습기 사용 안내</h3>
     <ol>
+      <li><strong>시트 생성 및 비밀번호 잠금:</strong> 타 교사는 <code>📋 새 시트 양식 생성</code>을 누른 뒤 본인의 비밀번호를 설정하여 전용 시트를 발급받으며, 비밀번호 입력 인증 후에만 연결됩니다.</li>
+      <li><strong>100점 만점 환산 총점:</strong> 7개 문항별 최고 점수를 합산한 뒤 100점 만점 기준으로 자동 환산하여 화면 하단에 표시합니다.</li>
       <li><strong>전 세계 모든 언어 발음 재생:</strong> 브라우저 내장 음성이 없는 아랍어, 베트남어 등도 구글 TTS 스트리밍을 통해 100% 원어민 발음으로 자동 재생됩니다.</li>
-      <li><strong>음성 인식 입력 번역:</strong> 타자 입력 외에 <code>🎙️ 말로 입력</code> 버튼을 눌러 우리말이나 외국어를 말씀하시면 자동 입력되어 즉시 번역·등록할 수 있습니다.</li>
       <li><strong>의미 단어 단위 피드백:</strong> 중국어의 경우 낱글자가 아닌 의미 단어(예: <code>大家</code>, <code>好</code>) 단위로 끊어 피드백과 한국어 뜻을 함께 보여줍니다.</li>
-      <li><strong>원본 시트 보호:</strong> 타 교사는 [📋 새 시트 양식 생성]을 통해 깨끗한 빈 시트를 새로 발급받아 사용하므로 원본 시트의 내용이 외부에 노출되지 않습니다.</li>
     </ol>
-    <button class="modal-close" onclick="closeHelpModal()">확인 및 닫기</button>
+    <button class="modal-close" onclick="_0xEngine.clHelp()">확인 및 닫기</button>
   </div>
 </div>
 
 <script>
-  const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzCGt2-GSBhd5cmpFo5mqub3cEaSTjntj8cRrHJR9Im20nHSTbA6deh2hbzG3Srnt9UOg/exec";
-  const DEV_MASTER_SHEET_URL = "https://docs.google.com/spreadsheets/d/1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk/edit";
+(function(_0xW, _0xD) {
+  'use strict';
 
-  const CHINESE_WORD_DICT = {
-    "大家好": "여러분 안녕하세요",
-    "大家": "여러분/모두",
-    "你好": "안녕하세요",
-    "您好": "안녕하세요(존칭)",
-    "早上好": "좋은 아침입니다",
-    "晚上好": "좋은 저녁입니다",
-    "谢谢": "감사합니다",
-    "再见": "안녕히 가세요",
-    "高考": "대입시험",
-    "必中": "반드시 합격",
-    "梦想": "꿈/이상",
-    "成真": "현실로 이루어지다",
-    "旗开得胜": "첫 판부터 승리하다",
-    "考的": "푼 것은",
-    "全对": "모두 맞다",
-    "蒙的": "찍은 것도",
-    "加油": "파이팅/힘내라",
-    "一切": "모든 일",
-    "顺利": "순조롭다",
-    "祝你": "너를 기원해",
-    "成功": "성공하다",
-    "马到成功": "일사천리로 성공하다",
-    "一路": "가는 길 내내",
-    "绿灯": "청신호(파란불)",
-    "金榜题名": "합격자 명단에 이름을 올리다",
-    "六七八": "678(합격해라 해음)",
-    "录取": "합격하다/선발되다",
-    "吧": "~하자(청유)",
-    "好": "좋다/안녕",
-    "我": "나",
-    "你": "너",
-    "爱": "사랑하다",
-    "中国": "중국",
-    "韩国": "한국",
-    "学习": "공부하다",
-    "汉语": "중국어",
-    "老师": "선생님",
-    "学生": "학생",
-    "非常": "매우",
-    "开心": "기쁘다",
-    "快乐": "즐겁다"
+  // [보안 1] 단축키 및 개발자 도구 원천 차단
+  _0xD.addEventListener('keydown', function(_0xE) {
+    if (
+      _0xE.key === 'F12' ||
+      _0xE.keyCode === 123 ||
+      (_0xE.ctrlKey && _0xE.shiftKey && ['I', 'J', 'C', 'i', 'j', 'c'].includes(_0xE.key)) ||
+      (_0xE.ctrlKey && ['U', 'S', 'u', 's'].includes(_0xE.key)) ||
+      (_0xE.metaKey && _0xE.altKey && ['I', 'J', 'U', 'i', 'j', 'u'].includes(_0xE.key))
+    ) {
+      _0xE.preventDefault();
+      _0xE.stopPropagation();
+      return false;
+    }
+  }, true);
+
+  // [보안 2] 도메인 잠금 검증
+  const _0xHost = _0xW.location.hostname.toLowerCase();
+  const _0xAllowed = ['nchina9.github.io', 'localhost', '127.0.0.1', ''];
+  const _0xIsValidHost = _0xAllowed.some(h => _0xHost === h || _0xHost.endsWith('.' + h));
+
+  if (!_0xIsValidHost) {
+    _0xD.body.innerHTML = '<div style="margin-top:80px;text-align:center;color:#fef08a;font-family:sans-serif;"><h1>⛔ 무단 복제 및 비인가 도메인 실행 차단</h1><p style="margin-top:12px;">본 프로그램의 저작권은 <strong>신윤기 수석</strong>에게 있습니다.<br>허가되지 않은 도메인에서는 작동하지 않습니다.</p></div>';
+    throw new Error('SECURITY_VIOLATION');
+  }
+
+  // [보안 3] 개발자 도구 오픈 감지 디버거 트랩
+  setInterval(function() {
+    const _0xT0 = performance.now();
+    (function(){}).constructor('debugger')();
+    if (performance.now() - _0xT0 > 120) {
+      console.clear();
+    }
+  }, 2500);
+
+  const _0xDec = (_0xS) => decodeURIComponent(escape(atob(_0xS)));
+  const _0xCfg = {
+    api: _0xDec("aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J6Q0d0Mi1HU0JoZDVjbXBGbzVtcXViM2NFYVNUam50ajhjUnJISlI5SW0yMG5IU1RiQTZkZWgyYmh6RzNTcm50OVVPZy9leGVj"),
+    devSheet: _0xDec("aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvMVBreVFHQnJLa3pRbE56T1NoTndNNkRpX2ktODlIRDNHUUlNTTJCVkEyVWsvZWRpdA==")
   };
 
-  const MULTI_WORD_DICT = {
+  const _0xDictZh = {
+    "大家好": "여러분 안녕하세요", "大家": "여러분/모두", "你好": "안녕하세요", "您好": "안녕하세요(존칭)",
+    "早上好": "좋은 아침입니다", "晚上好": "좋은 저녁입니다", "谢谢": "감사합니다", "再见": "안녕히 가세요",
+    "高考": "대입시험", "必中": "반드시 합격", "梦想": "꿈/이상", "成真": "현실로 이루어지다",
+    "旗开得胜": "첫 판부터 승리하다", "考的": "푼 것은", "全对": "모두 맞다", "蒙的": "찍은 것도",
+    "加油": "파이팅/힘내라", "一切": "모든 일", "顺利": "순조롭다", "祝你": "너를 기원해",
+    "成功": "성공하다", "马到成功": "일사천리로 성공하다", "一路": "가는 길 내내", "绿灯": "청신호(파란불)",
+    "金榜题名": "합격자 명단에 이름을 올리다", "六七八": "678(합격해라 해음)", "录取": "합격하다/선발되다",
+    "吧": "~하자(청유)", "好": "좋다/안녕", "我": "나", "你": "너", "爱": "사랑하다",
+    "中国": "중국", "韩国": "한국", "学习": "공부하다", "汉语": "중국어", "老师": "선생님",
+    "学生": "학생", "非常": "매우", "开心": "기쁘다", "快乐": "즐겁다"
+  };
+
+  const _0xDictMulti = {
     "nice": "좋은", "to": "~에", "meet": "만나다", "you": "너를",
     "where": "어디에", "is": "인가", "the": "그", "library": "도서관",
     "could": "~해줄 수 있나", "help": "돕다", "me": "나를", "please": "부디",
@@ -721,7 +802,7 @@
     "hello": "안녕하세요", "good": "좋은", "morning": "아침", "thank": "감사하다"
   };
 
-  const IMMUTABLE_DEFAULT_PRESET = [
+  const _0xDefPreset = [
     { text: "高考必中！高考必中！", sub: "Gāokǎo bì zhòng! Gāokǎo bì zhòng!", kr: "대입 시험 반드시 합격한다! 합격 대박!" },
     { text: "梦想成真！梦想成真！", sub: "Mèngxiǎng chéng zhēn! Mèngxiǎng chéng zhēn!", kr: "꿈은 이루어진다! 소원 성취!" },
     { text: "旗开得胜！旗开得胜！", sub: "Qíkāi déshèng! Qíkāi déshèng!", kr: "첫 판부터 승리한다! 첫 단추를 멋지게 꿰자!" },
@@ -731,890 +812,294 @@
     { text: "六七八，录取吧！", sub: "Liù-qī-bā, lùqǔ ba!", kr: "678(류-치-바 / 합격해라!), 합격하자!" }
   ];
 
-  let currentLang = 'zh-CN';
-  let currentSentences = JSON.parse(JSON.stringify(IMMUTABLE_DEFAULT_PRESET));
-  let currentGradingMode = 'comm';
-  let latestGeneratedShareUrl = "";
-  let isStudentMode = false;
-  let itemScores = [0, 0, 0, 0, 0, 0, 0];
-  let itemAttempted = [false, false, false, false, false, false, false];
-  let inputVoiceRec = null;
-  let activeAudio = null;
+  let _0xLang = 'zh-CN';
+  let _0xList = JSON.parse(JSON.stringify(_0xDefPreset));
+  let _0xMode = 'comm';
+  let _0xQrUrl = "";
+  let _0xScores = [0, 0, 0, 0, 0, 0, 0];
+  let _0xDone = [false, false, false, false, false, false, false];
+  let _0xInRec = null;
+  let _0xAudio = null;
+  let _0xRec = null;
+  let _0xRecIdx = null;
+  let _0xTrans = "";
+  let _0xSheetVerified = false;
+  let _0xIsStudentMode = false;
+  const _0xSR = _0xW.SpeechRecognition || _0xW.webkitSpeechRecognition;
 
-  if (typeof window !== 'undefined' && window.speechSynthesis) {
-    window.speechSynthesis.getVoices();
-    window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
+  if (_0xW.speechSynthesis) {
+    _0xW.speechSynthesis.getVoices();
+    _0xW.speechSynthesis.onvoiceschanged = () => { _0xW.speechSynthesis.getVoices(); };
   }
 
-  window.addEventListener('DOMContentLoaded', () => {
-    detectInAppBrowser();
+  function _0xCheckDevWatermark() {
+    const tag = _0xD.getElementById('devAuthTag');
+    if (!tag || tag.innerText.indexOf('신윤기') === -1) {
+      _0xD.body.innerHTML = '';
+      throw new Error('TAMPER_DETECTED');
+    }
+  }
 
-    const inputEl = document.getElementById('teacherSheetUrl');
-    const customUrl = localStorage.getItem('speech_custom_teacher_sheet');
-    if (customUrl) inputEl.value = customUrl;
+  // 앱 시작 시 서버의 전역 앱 잠금 상태 확인
+  function _0xCheckGlobalLockStatus() {
+    const cb = "lk_" + Math.floor(Math.random() * 1000000);
+    const sc = _0xD.createElement('script');
+    sc.id = cb;
+    sc.src = `${_0xCfg.api}?action=checkLock&callback=${cb}&t=${Date.now()}`;
+    _0xW[cb] = function(res) {
+      delete _0xW[cb];
+      const el = _0xD.getElementById(cb);
+      if (el) el.remove();
+      if (res && res.locked) {
+        _0xD.getElementById('globalLockOverlay').style.display = 'flex';
+      } else {
+        _0xD.getElementById('globalLockOverlay').style.display = 'none';
+      }
+    };
+    sc.onerror = function() {
+      delete _0xW[cb];
+      const el = _0xD.getElementById(cb);
+      if (el) el.remove();
+    };
+    _0xD.body.appendChild(sc);
+  }
 
-    checkUrlQueryParameters();
+  function _0xSetVerifiedUI(verified) {
+    _0xSheetVerified = verified;
+    const badge = _0xD.getElementById('sheetAuthBadge');
+    if (!badge) return;
+    if (verified) {
+      badge.className = 'sheet-auth-badge verified';
+      badge.innerText = '✅ 시트 인증됨';
+    } else {
+      badge.className = 'sheet-auth-badge';
+      badge.innerText = '🔒 미인증';
+    }
+  }
 
-    updateHistoryDropdownUI();
-    renderSentences();
-    buildSentenceEditor();
-  });
-
-  function detectInAppBrowser() {
+  function _0xDetectInApp() {
     const ua = navigator.userAgent.toLowerCase();
-    const isInApp = /kakaotalk|naver|line|instagram|fbav|fban|wv/.test(ua);
-    if (isInApp) {
-      const banner = document.getElementById('inappBanner');
+    if (/kakaotalk|naver|line|instagram|fbav|fban|wv/.test(ua)) {
+      const banner = _0xD.getElementById('inappBanner');
       banner.style.display = 'block';
       if (/iphone|ipad|ipod/.test(ua)) {
-        const btn = document.getElementById('btnOpenChrome');
-        btn.style.display = 'none';
-        const iosTip = document.createElement('div');
-        iosTip.style.marginTop = '6px';
-        iosTip.style.color = '#991b1b';
-        iosTip.innerText = "👉 아이폰 사용자는 화면 우측 하단 [점 세개(⋯) 또는 공유 아이콘]을 눌러 'Safari로 열기'를 선택해 주세요.";
-        banner.appendChild(iosTip);
+        _0xD.getElementById('btnOpenChrome').style.display = 'none';
+        const tip = _0xD.createElement('div');
+        tip.style.marginTop = '6px';
+        tip.style.color = '#991b1b';
+        tip.innerText = "👉 아이폰 사용자는 화면 우측 하단 [점 세개(⋯) 또는 공유 아이콘]을 눌러 'Safari로 열기'를 선택해 주세요.";
+        banner.appendChild(tip);
       }
     }
   }
 
-  function openInExternalBrowser() {
-    const currentUrl = window.location.href;
-    const ua = navigator.userAgent.toLowerCase();
-    if (/android/.test(ua)) {
-      const noScheme = currentUrl.replace(/^https?:\/\//, '');
-      window.location.href = `intent://${noScheme}#Intent;scheme=https;package=com.android.chrome;end`;
-    } else {
-      alert("브라우저 메뉴에서 '다른 브라우저(Chrome/Safari)로 열기'를 선택해 주세요.");
+  function _0xParseQuery() {
+    const params = new URLSearchParams(_0xW.location.search);
+    const s = params.get('s');
+    const l = params.get('l');
+    const q = params.get('q');
+
+    if (s) {
+      _0xIsStudentMode = true;
+      _0xSheetVerified = true; // 교사가 인증 후 생성한 QR로 접속한 학생은 자동 인증 처리
+      _0xD.getElementById('teacherSheetUrl').value = `https://docs.google.com/spreadsheets/d/${s}/edit`;
+      _0xD.querySelectorAll('.teacher-only').forEach(el => { el.style.display = 'none'; });
+      _0xD.getElementById('studentConnectedBadge').style.display = 'block';
     }
-  }
-
-  function checkUrlQueryParameters() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const sheetParam = urlParams.get('s');
-    const langParam = urlParams.get('l');
-    const qParam = urlParams.get('q');
-
-    if (sheetParam) {
-      isStudentMode = true;
-      const fullSheet = `https://docs.google.com/spreadsheets/d/${sheetParam}/edit`;
-      document.getElementById('teacherSheetUrl').value = fullSheet;
-
-      document.querySelectorAll('.teacher-only').forEach(el => {
-        el.style.display = 'none';
-      });
-      document.getElementById('studentConnectedBadge').style.display = 'block';
+    if (l) {
+      _0xLang = l;
+      _0xD.getElementById('langSelect').value = _0xLang;
     }
-
-    if (langParam) {
-      currentLang = langParam;
-      document.getElementById('langSelect').value = currentLang;
-    }
-
-    if (qParam) {
+    if (q) {
       try {
-        const parsedQ = JSON.parse(decodeURIComponent(escape(atob(qParam))));
-        if (Array.isArray(parsedQ) && parsedQ.length > 0) {
-          currentSentences = parsedQ.map((txt, idx) => ({
+        const parsed = JSON.parse(_0xDec(q));
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          _0xList = parsed.map((txt, idx) => ({
             text: txt,
-            sub: (IMMUTABLE_DEFAULT_PRESET[idx] && IMMUTABLE_DEFAULT_PRESET[idx].text === txt) ? IMMUTABLE_DEFAULT_PRESET[idx].sub : "",
-            kr: (IMMUTABLE_DEFAULT_PRESET[idx] && IMMUTABLE_DEFAULT_PRESET[idx].text === txt) ? IMMUTABLE_DEFAULT_PRESET[idx].kr : ""
+            sub: (_0xDefPreset[idx] && _0xDefPreset[idx].text === txt) ? _0xDefPreset[idx].sub : "",
+            kr: (_0xDefPreset[idx] && _0xDefPreset[idx].text === txt) ? _0xDefPreset[idx].kr : ""
           }));
         }
       } catch (e) {}
     }
   }
 
-  function startVoiceInputForTranslate() {
-    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRec) {
-      alert("음성 인식을 지원하는 크롬(Chrome) 브라우저를 이용해 주세요.");
-      return;
-    }
-
-    const btn = document.getElementById('btnVoiceInput');
-    const inputEl = document.getElementById('koInput');
-
-    if (inputVoiceRec) {
-      inputVoiceRec.stop();
-      return;
-    }
-
-    const voiceLangChoice = document.getElementById('voiceInputLang').value;
-    const recLang = (voiceLangChoice === 'target') ? currentLang : 'ko-KR';
-
-    inputVoiceRec = new SpeechRec();
-    inputVoiceRec.lang = recLang;
-    inputVoiceRec.continuous = false;
-    inputVoiceRec.interimResults = true;
-
-    btn.classList.add('recording');
-    btn.innerText = "🛑 듣는 중...";
-    inputEl.placeholder = "말씀해 주세요...";
-
-    inputVoiceRec.onresult = (event) => {
-      let transcript = "";
-      for (let i = 0; i < event.results.length; i++) {
-        transcript += event.results[i][0].transcript;
-      }
-      inputEl.value = transcript;
-    };
-
-    inputVoiceRec.onerror = (e) => {
-      if (e.error === 'not-allowed') {
-        alert("마이크 권한을 허용해 주세요.");
-      }
-    };
-
-    inputVoiceRec.onend = () => {
-      btn.classList.remove('recording');
-      btn.innerText = "🎙️ 말로 입력";
-      inputEl.placeholder = "타자 입력 또는 우측 [🎙️ 말로 입력] 클릭";
-      inputVoiceRec = null;
-    };
-
-    try {
-      inputVoiceRec.start();
-    } catch (err) {
-      btn.classList.remove('recording');
-      btn.innerText = "🎙️ 말로 입력";
-      inputVoiceRec = null;
-    }
+  function _0xUpdBoard() {
+    const raw = _0xScores.reduce((a, b) => a + b, 0);
+    const c100 = Math.round(raw / 7);
+    const cnt = _0xDone.filter(Boolean).length;
+    _0xD.getElementById('totalScoreText').innerHTML = `${c100}점 <span>/ 100점 만점</span>`;
+    _0xD.getElementById('completedCountText').innerText = `완료된 문항: ${cnt} / 7개 (원점수 합계: ${raw} / 700점)`;
   }
 
-  function createCleanTemplateSheet() {
-    const btn = document.getElementById('btnCreateTemplate');
-    if (btn) {
-      btn.disabled = true;
-      btn.innerText = "⏳ 빈 시트 생성 중...";
-    }
-
-    const cbName = "tplCb_" + Math.floor(Math.random() * 1000000);
-    const script = document.createElement('script');
-    script.id = cbName;
-    script.src = `${GAS_API_URL}?action=createTemplate&callback=${cbName}&t=${Date.now()}`;
-
-    window[cbName] = function(res) {
-      if (btn) {
-        btn.disabled = false;
-        btn.innerText = "📋 새 시트 양식 생성";
-      }
-      delete window[cbName];
-      const el = document.getElementById(cbName);
-      if (el) el.remove();
-
-      if (res && res.success && res.url) {
-        document.getElementById('teacherSheetUrl').value = res.url;
-        saveCustomSheetUrl();
-        alert("✓ 선생님 전용 깨끗한 새 결과 시트가 생성되어 자동 연결되었습니다!\n\n새 탭에서 열린 스프레드시트를 확인해 주세요.");
-        window.open(res.url, "_blank");
-      } else {
-        alert("⚠️ 시트 자동 생성 오류: " + (res ? res.message : "Apps Script 새 버전 배포를 확인해 주세요."));
-      }
-    };
-
-    script.onerror = function() {
-      if (btn) {
-        btn.disabled = false;
-        btn.innerText = "📋 새 시트 양식 생성";
-      }
-      alert("⚠️ 서버 연결에 실패했습니다. Apps Script 배포 상태를 확인해 주세요.");
-    };
-
-    document.body.appendChild(script);
-  }
-
-  function connectDeveloperSheet() {
-    document.getElementById('teacherSheetUrl').value = DEV_MASTER_SHEET_URL;
-    saveCustomSheetUrl();
-    alert("✓ 개발자(신윤기 수석) 원본 구글 시트가 연결되었습니다.");
-  }
-
-  function changeLanguage() {
-    currentLang = document.getElementById('langSelect').value;
-    renderSentences();
-    buildSentenceEditor();
-  }
-
-  function getCustomHistory() {
-    try {
-      const h = localStorage.getItem('speech_custom_preset_history');
-      return h ? JSON.parse(h) : [];
-    } catch (e) { return []; }
-  }
-
-  function savePresetToHistory(name, sentences) {
-    let history = getCustomHistory();
-    history.unshift({ name: name, time: new Date().toLocaleTimeString(), sentences: sentences });
-    if (history.length > 10) history = history.slice(0, 10);
-    localStorage.setItem('speech_custom_preset_history', JSON.stringify(history));
-    updateHistoryDropdownUI();
-  }
-
-  function updateHistoryDropdownUI() {
-    const sel = document.getElementById('historySelect');
-    sel.innerHTML = '<option value="default">[기본] 1. 수험생 응원 문구</option>';
-    const history = getCustomHistory();
-    history.forEach((item, idx) => {
-      const opt = document.createElement('option');
-      opt.value = idx;
-      opt.innerText = `[저장 ${idx + 1}] ${item.name} (${item.time})`;
-      sel.appendChild(opt);
-    });
-  }
-
-  function loadPresetFromHistory() {
-    const val = document.getElementById('historySelect').value;
-    if (val === 'default') {
-      currentSentences = JSON.parse(JSON.stringify(IMMUTABLE_DEFAULT_PRESET));
-    } else {
-      const history = getCustomHistory();
-      const idx = parseInt(val, 10);
-      if (history[idx]) {
-        currentSentences = JSON.parse(JSON.stringify(history[idx].sentences));
-      }
-    }
-    resetAllScores();
-    renderSentences();
-    buildSentenceEditor();
-  }
-
-  function resetAllScores() {
-    itemScores = [0, 0, 0, 0, 0, 0, 0];
-    itemAttempted = [false, false, false, false, false, false, false];
-    updateTotalScoreBoard();
-  }
-
-  function updateTotalScoreBoard() {
-    const total = itemScores.reduce((acc, cur) => acc + cur, 0);
-    const doneCount = itemAttempted.filter(Boolean).length;
-    document.getElementById('totalScoreText').innerHTML = `${total}점 <span>/ 700점 만점</span>`;
-    document.getElementById('completedCountText').innerText = `완료된 문항: ${doneCount} / 7개 (각 문항 최고 점수가 합산됩니다)`;
-  }
-
-  async function processInputAndApply() {
-    const inputVal = document.getElementById('koInput').value.trim();
-    const slotIdx = parseInt(document.getElementById('slotSelect').value, 10);
-    const btn = document.getElementById('btnTranslate');
-
-    if (!inputVal) {
-      alert("문장을 입력하거나 음성으로 말씀해 주세요.");
-      return;
-    }
-
-    btn.disabled = true;
-    btn.innerText = "⏳ 처리 중...";
-
-    const isHanzi = /[\u4e00-\u9fa5]/.test(inputVal);
-    if (currentLang === 'zh-CN' && isHanzi) {
-      currentSentences[slotIdx] = {
-        text: inputVal,
-        sub: `[zh-CN 직접 입력]`,
-        kr: inputVal
-      };
-      finalizeItemUpdate(slotIdx, inputVal);
-      btn.disabled = false;
-      btn.innerText = "🔄 문항 등록/번역";
-      return;
-    }
-
-    const langCodeMap = {
-      "zh-CN": "zh-CN", "en-US": "en", "ja-JP": "ja",
-      "ar-SA": "ar", "fr-FR": "fr", "de-DE": "de",
-      "es-ES": "es", "ru-RU": "ru", "vi-VN": "vi"
-    };
-    const tl = langCodeMap[currentLang] || "zh-CN";
-
-    try {
-      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${tl}&dt=t&q=${encodeURIComponent(inputVal)}`;
-      const response = await fetch(url);
-      const data = await response.json();
-
-      let translatedText = "";
-      if (data && data[0]) {
-        for (let i = 0; i < data[0].length; i++) {
-          if (data[0][i][0]) translatedText += data[0][i][0];
-        }
-      }
-
-      if (!translatedText) throw new Error("번역 실패");
-
-      currentSentences[slotIdx] = {
-        text: translatedText,
-        sub: `[${currentLang} 번역]`,
-        kr: inputVal
-      };
-
-      finalizeItemUpdate(slotIdx, translatedText);
-      alert(`✓ ${slotIdx + 1}번 문항으로 등록되었습니다!\n- 입력: ${inputVal}\n- 적용: ${translatedText}`);
-    } catch (e) {
-      alert("번역 처리 오류가 발생했습니다.");
-    } finally {
-      btn.disabled = false;
-      btn.innerText = "🔄 문항 등록/번역";
-    }
-  }
-
-  function finalizeItemUpdate(slotIdx, titleText) {
-    document.getElementById('koInput').value = "";
-    renderSentences();
-    buildSentenceEditor();
-    savePresetToHistory(`${slotIdx + 1}번 수정: ${titleText.substring(0, 8)}`, currentSentences);
-  }
-
-  function openQrModal() {
-    const sheetUrl = document.getElementById('teacherSheetUrl').value.trim();
-    if (!sheetUrl || sheetUrl.indexOf('http') !== 0) {
-      alert("⚠️ 먼저 [결과 구글 시트] 칸에 선생님의 시트 주소를 입력해 주세요.\n\n그래야 학생들이 QR을 스캔했을 때 선생님 시트로 결과가 자동 연결됩니다.");
-      return;
-    }
-
-    const modal = document.getElementById('qrModal');
-    const qrContainer = document.getElementById('qrcode');
-    const qrUrlText = document.getElementById('qrUrlText');
-    qrContainer.innerHTML = '';
-
-    const idMatch = sheetUrl.match(/[-\w]{25,}/);
-    const sheetId = idMatch ? idMatch[0] : "";
-
-    const isDefault = JSON.stringify(currentSentences.map(i => i.text)) === JSON.stringify(IMMUTABLE_DEFAULT_PRESET.map(i => i.text));
-    const baseUrl = window.location.href.split('?')[0].split('#')[0];
-
-    if (isDefault) {
-      latestGeneratedShareUrl = `${baseUrl}?s=${sheetId}&l=${currentLang}`;
-    } else {
-      const encodedQ = btoa(unescape(encodeURIComponent(JSON.stringify(currentSentences.map(i => i.text)))));
-      latestGeneratedShareUrl = `${baseUrl}?s=${sheetId}&l=${currentLang}&q=${encodeURIComponent(encodedQ)}`;
-    }
-
-    new QRCode(qrContainer, {
-      text: latestGeneratedShareUrl,
-      width: 220,
-      height: 220,
-      colorDark: "#0f172a",
-      colorLight: "#ffffff",
-      correctLevel: QRCode.CorrectLevel.L
-    });
-
-    qrUrlText.innerText = "학생들이 QR을 찍으면 교사용 버튼 없이 깔끔한 학생 화면과 선생님 구글 시트가 자동 연결됩니다.";
-    modal.style.display = 'flex';
-  }
-
-  function copyStudentShareUrl() {
-    if (!latestGeneratedShareUrl) return;
-    navigator.clipboard.writeText(latestGeneratedShareUrl).then(() => {
-      alert("✓ 학생 접속용 링크가 클립보드에 복사되었습니다.");
-    });
-  }
-
-  function closeQrModal() {
-    document.getElementById('qrModal').style.display = 'none';
-  }
-
-  function openCurrentSheet() {
-    const inputUrl = document.getElementById('teacherSheetUrl').value.trim();
-    if (inputUrl && inputUrl.indexOf('http') === 0) {
-      window.open(inputUrl, '_blank');
-    } else {
-      alert("먼저 연결된 구글 시트 주소를 입력하거나 [새 시트 양식 생성]을 진행해 주세요.");
-    }
-  }
-
-  function saveCustomSheetUrl() {
-    const val = document.getElementById('teacherSheetUrl').value.trim();
-    localStorage.setItem('speech_custom_teacher_sheet', val);
-  }
-
-  function setGradingMode(mode) {
-    currentGradingMode = mode;
-    document.getElementById('btnModeStrict').classList.toggle('active', mode === 'strict');
-    document.getElementById('btnModeLenient').classList.toggle('active', mode === 'lenient');
-    document.getElementById('btnModeComm').classList.toggle('active', mode === 'comm');
-  }
-
-  function autoFormatStudentId(el) {
-    let val = el.value.trim().replace(/[^0-9]/g, "");
-    if (val.length === 4) {
-      val = val.substring(0, 1) + "0" + val.substring(1, 2) + val.substring(2, 4);
-      el.value = val;
-    }
-  }
-
-  function openHelpModal() { document.getElementById('helpModal').style.display = 'flex'; }
-  function closeHelpModal() { document.getElementById('helpModal').style.display = 'none'; }
-
-  function toggleSentenceEditor() {
-    const p = document.getElementById('editorPanel');
-    p.style.display = p.style.display === 'block' ? 'none' : 'block';
-  }
-
-  function buildSentenceEditor() {
-    const area = document.getElementById('editorInputs');
-    area.innerHTML = '';
-    for (let i = 0; i < 7; i++) {
-      const item = currentSentences[i] || { text: '', sub: '', kr: '' };
-      const row = document.createElement('div');
-      row.className = 'edit-item';
-      row.innerHTML = `
-        <span>${i + 1}.</span>
-        <input type="text" class="edit-target" id="edit_target_${i}" value="${item.text}" placeholder="외국어 문장">
-        <input type="text" class="edit-sub" id="edit_sub_${i}" value="${item.sub}" placeholder="발음/병음/독음">
-        <input type="text" class="edit-kr" id="edit_kr_${i}" value="${item.kr}" placeholder="한국어 뜻">
-      `;
-      area.appendChild(row);
-    }
-  }
-
-  function saveCustomSentences() {
-    const newItems = [];
-    for (let i = 0; i < 7; i++) {
-      const text = document.getElementById(`edit_target_${i}`).value.trim();
-      const sub = document.getElementById(`edit_sub_${i}`).value.trim();
-      const kr = document.getElementById(`edit_kr_${i}`).value.trim();
-      newItems.push({ text: text || `문항 ${i+1}`, sub: sub, kr: kr });
-    }
-    currentSentences = newItems;
-    resetAllScores();
-    renderSentences();
-    document.getElementById('editorPanel').style.display = 'none';
-    savePresetToHistory(`교사 직접 편집 (${newItems[0].text.substring(0, 6)}...)`, newItems);
-    alert("✓ 7개 문항이 저장되었으며 최근 세트 목록에 보관되었습니다.");
-  }
-
-  function renderSentences() {
-    const container = document.getElementById('sentenceContainer');
-    container.innerHTML = '';
-    const dirAttr = (currentLang === 'ar-SA') ? 'dir="rtl"' : '';
-
-    currentSentences.forEach((item, index) => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      const bestScoreVal = itemScores[index] || 0;
-      card.innerHTML = `
-        <div class="card-header-row">
-          <div class="target-text" ${dirAttr}>${index + 1}. ${item.text}</div>
-          <span class="item-best-score" id="bestBadge_${index}">최고: ${bestScoreVal}점</span>
-        </div>
-        <div class="sub-text">${item.sub}</div>
-        <div class="kr-text">${item.kr}</div>
-        <div class="btn-group">
-          <button class="btn-play" onclick="playTTS('${item.text.replace(/'/g, "\\'")}')">🔊 모범 발음</button>
-          <button class="btn-rec" id="recBtn_${index}" onclick="handleRecButtonClick(${index}, '${item.text.replace(/'/g, "\\'")}')">🎙️ 녹음 시작</button>
-        </div>
-        <div class="result-box" id="resBox_${index}">
-          <div class="spoken-text" id="spoken_${index}"></div>
-          <div>
-            <span class="score-badge" id="score_${index}"></span>
-            <span class="save-status" id="status_${index}"></span>
-          </div>
-          <div class="feedback-box" id="feedback_${index}"></div>
-        </div>
-      `;
-      container.appendChild(card);
-    });
-  }
-
-  // 모든 언어(아랍어·베트남어 포함) 100% 원어민 발음 출력 함수 (리퍼러 차단 + 구글 TTS 다중 엔드포인트 폴백)
-  function playTTS(text) {
+  function _0xPlayTTS(text) {
     if (!text) return;
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
-    if (activeAudio) {
-      activeAudio.pause();
-      activeAudio = null;
-    }
+    if (_0xW.speechSynthesis) _0xW.speechSynthesis.cancel();
+    if (_0xAudio) { _0xAudio.pause(); _0xAudio = null; }
 
-    const voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
-    const langPrefix = currentLang.split('-')[0].toLowerCase();
-    const hasNativeVoice = voices.some(v => v.lang.toLowerCase().startsWith(langPrefix));
+    const voices = _0xW.speechSynthesis ? _0xW.speechSynthesis.getVoices() : [];
+    const prefix = _0xLang.split('-')[0].toLowerCase();
+    const hasNative = voices.some(v => v.lang.toLowerCase().startsWith(prefix));
 
-    if (hasNativeVoice) {
-      window.speechSynthesis.resume();
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = currentLang;
-      utter.rate = 0.75;
-      utter.pitch = 1.10;
-      window.speechSynthesis.speak(utter);
+    if (hasNative) {
+      _0xW.speechSynthesis.resume();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = _0xLang;
+      u.rate = 0.75;
+      u.pitch = 1.10;
+      _0xW.speechSynthesis.speak(u);
     } else {
-      const tlMap = {
-        "zh-CN": "zh-CN", "en-US": "en", "ja-JP": "ja",
-        "ar-SA": "ar", "fr-FR": "fr", "de-DE": "de",
-        "es-ES": "es", "ru-RU": "ru", "vi-VN": "vi"
-      };
-      const tl = tlMap[currentLang] || langPrefix;
-      
-      // 1차 시도: client=gtx 엔드포인트 (Referer 없음 정책과 결합 시 차단 우회)
-      const primaryUrl = `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=${tl}&q=${encodeURIComponent(text)}`;
-      // 2차 폴백: client=tw-ob 엔드포인트
-      const backupUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${tl}&q=${encodeURIComponent(text)}`;
-
-      activeAudio = new Audio(primaryUrl);
-      activeAudio.play().catch(() => {
-        activeAudio = new Audio(backupUrl);
-        activeAudio.play().catch(() => {
-          if (window.speechSynthesis) {
-            const fallbackUtter = new SpeechSynthesisUtterance(text);
-            fallbackUtter.lang = currentLang;
-            window.speechSynthesis.speak(fallbackUtter);
+      const map = { "zh-CN":"zh-CN", "en-US":"en", "ja-JP":"ja", "ar-SA":"ar", "fr-FR":"fr", "de-DE":"de", "es-ES":"es", "ru-RU":"ru", "vi-VN":"vi" };
+      const tl = map[_0xLang] || prefix;
+      const u1 = `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=${tl}&q=${encodeURIComponent(text)}`;
+      const u2 = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${tl}&q=${encodeURIComponent(text)}`;
+      _0xAudio = new Audio(u1);
+      _0xAudio.play().catch(() => {
+        _0xAudio = new Audio(u2);
+        _0xAudio.play().catch(() => {
+          if (_0xW.speechSynthesis) {
+            const fu = new SpeechSynthesisUtterance(text);
+            fu.lang = _0xLang;
+            _0xW.speechSynthesis.speak(fu);
           }
         });
       });
     }
   }
 
-  function normalizeDigitsIfNeeded(str, lang) {
-    if (lang === 'zh-CN') {
-      const digitMap = { '0':'零', '1':'一', '2':'二', '3':'三', '4':'四', '5':'五', '6':'六', '7':'七', '8':'八', '9':'九' };
-      return str.replace(/[0-9]/g, ch => digitMap[ch] || ch);
-    }
-    return str;
-  }
-
-  function tokenizeMeaningfulWords(str, lang) {
+  function _0xTokWords(str, lang) {
     const clean = str.replace(/[，。！？、,.!?;:()\[\]"'؟،؛\n\r]/g, " ").trim();
     if (!clean) return [];
-
     if (lang === 'zh-CN') {
-      const noSpace = clean.replace(/\s+/g, "");
-      const words = [];
+      const ns = clean.replace(/\s+/g, "");
+      const out = [];
       let i = 0;
-
-      const dictKeys = Object.keys(CHINESE_WORD_DICT)
-        .filter(k => k !== "大家好")
-        .sort((a, b) => b.length - a.length);
-
-      while (i < noSpace.length) {
-        let matchedWord = null;
-        for (let k = 0; k < dictKeys.length; k++) {
-          const w = dictKeys[k];
-          if (noSpace.startsWith(w, i)) {
-            matchedWord = w;
-            break;
-          }
+      const keys = Object.keys(_0xDictZh).filter(k => k !== "大家好").sort((a, b) => b.length - a.length);
+      while (i < ns.length) {
+        let m = null;
+        for (let k = 0; k < keys.length; k++) {
+          if (ns.startsWith(keys[k], i)) { m = keys[k]; break; }
         }
-        if (matchedWord) {
-          words.push(matchedWord);
-          i += matchedWord.length;
-        } else if (typeof Intl !== 'undefined' && Intl.Segmenter) {
-          const segmenter = new Intl.Segmenter('zh-CN', { granularity: 'word' });
-          const remaining = noSpace.slice(i);
-          const iter = segmenter.segment(remaining)[Symbol.iterator]();
-          const firstSeg = iter.next().value;
-          if (firstSeg && firstSeg.segment) {
-            words.push(firstSeg.segment);
-            i += firstSeg.segment.length;
-          } else {
-            words.push(noSpace[i]);
-            i += 1;
-          }
-        } else {
-          words.push(noSpace[i]);
-          i += 1;
-        }
+        if (m) { out.push(m); i += m.length; }
+        else if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+          const seg = new Intl.Segmenter('zh-CN', { granularity: 'word' });
+          const it = seg.segment(ns.slice(i))[Symbol.iterator]().next().value;
+          if (it && it.segment) { out.push(it.segment); i += it.segment.length; }
+          else { out.push(ns[i]); i += 1; }
+        } else { out.push(ns[i]); i += 1; }
       }
-      return words;
+      return out;
     } else if (lang === 'ja-JP') {
       if (typeof Intl !== 'undefined' && Intl.Segmenter) {
-        const segmenter = new Intl.Segmenter('ja-JP', { granularity: 'word' });
-        return Array.from(segmenter.segment(clean.replace(/\s+/g, "")))
-          .filter(s => s.isWordLike)
-          .map(s => s.segment);
+        return Array.from(new Intl.Segmenter('ja-JP', { granularity: 'word' }).segment(clean.replace(/\s+/g, ""))).filter(s => s.isWordLike).map(s => s.segment);
       }
       return clean.replace(/\s+/g, "").split("");
-    } else {
-      return clean.split(/\s+/).filter(w => w.length > 0).map(w => w.toLowerCase());
     }
+    return clean.split(/\s+/).filter(w => w.length > 0).map(w => w.toLowerCase());
   }
 
-  function getWordKoreanMeaning(word, lang) {
+  function _0xGetMean(w, lang) {
     if (lang === 'zh-CN') {
-      if (CHINESE_WORD_DICT[word]) return CHINESE_WORD_DICT[word];
-      if (word.length > 1) {
-        const subMeanings = word.split("").map(ch => CHINESE_WORD_DICT[ch] || "").filter(Boolean);
-        if (subMeanings.length > 0) return subMeanings.join("·");
+      if (_0xDictZh[w]) return _0xDictZh[w];
+      if (w.length > 1) {
+        const sub = w.split("").map(c => _0xDictZh[c] || "").filter(Boolean);
+        if (sub.length > 0) return sub.join("·");
       }
       return "";
     }
-    const lower = word.toLowerCase();
-    return MULTI_WORD_DICT[lower] || "";
+    return _0xDictMulti[w.toLowerCase()] || "";
   }
 
-  function isWordContextuallyEquivalent(targetWord, spokenFullText, spokenWords, lang) {
-    if (spokenWords.includes(targetWord)) return { matched: true, exact: true };
-    if (spokenFullText.includes(targetWord)) return { matched: true, exact: true };
-
+  function _0xWordMatch(tw, sFull, sWords, lang) {
+    if (sWords.includes(tw) || sFull.includes(tw)) return { matched: true, exact: true };
     if (lang === 'zh-CN') {
-      const wordHomophones = {
-        "大家": ["大驾", "打架"],
-        "好": ["号", "浩", "豪"],
-        "高考": ["高烤", "高靠"],
-        "必中": ["必众", "必重", "毕中"],
-        "梦想": ["梦响", "孟想"],
-        "成真": ["程真", "诚真", "城真"],
-        "旗开得胜": ["奇怪得胜", "其开得胜", "期待得胜"],
-        "考的": ["烤的", "靠的", "考得"],
-        "全对": ["圈对", "全队", "泉对"],
-        "蒙的": ["梦的", "萌的", "蒙得"],
-        "加油": ["家有", "佳友"],
-        "顺利": ["瞬利", "顺力"],
-        "成功": ["程功", "成工"],
-        "马到成功": ["码到成功", "马道成功"],
-        "一路": ["一录", "一露"],
-        "绿灯": ["律灯", "虑灯"],
-        "金榜题名": ["金帮题名", "今榜题名"],
+      const hm = {
+        "大家": ["大驾", "打架"], "好": ["号", "浩", "豪"], "高考": ["高烤", "高靠"],
+        "必中": ["必众", "必重", "毕中"], "梦想": ["梦响", "孟想"], "成真": ["程真", "诚真", "城真"],
+        "旗开得胜": ["奇怪得胜", "其开得胜", "期待得胜"], "考的": ["烤的", "靠的", "考得"],
+        "全对": ["圈对", "全队", "泉对"], "蒙的": ["梦的", "萌的", "蒙得"], "加油": ["家有", "佳友"],
+        "顺利": ["瞬利", "顺力"], "成功": ["程功", "成工"], "马到成功": ["码到成功", "马道成功"],
+        "一路": ["一录", "一露"], "绿灯": ["律灯", "虑灯"], "金榜题名": ["金帮题名", "今榜题名"],
         "录取": ["路取", "录去", "露取"]
       };
-      const alts = wordHomophones[targetWord] || [];
+      const alts = hm[tw] || [];
       for (let i = 0; i < alts.length; i++) {
-        if (spokenFullText.includes(alts[i])) {
-          return { matched: true, exact: false };
-        }
+        if (sFull.includes(alts[i])) return { matched: true, exact: false };
       }
     }
     return { matched: false, exact: false };
   }
 
-  let activeRecognition = null;
-  let activeIndex = null;
-  let accumulatedTranscript = "";
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  function _0xRenderCards() {
+    _0xCheckDevWatermark();
+    const box = _0xD.getElementById('sentenceContainer');
+    box.innerHTML = '';
+    const dir = (_0xLang === 'ar-SA') ? 'dir="rtl"' : '';
+    _0xList.forEach((item, idx) => {
+      const card = _0xD.createElement('div');
+      card.className = 'card';
+      const safe = item.text.replace(/'/g, "\\'");
+      card.innerHTML = `
+        <div class="card-header-row">
+          <div class="target-text" ${dir}>${idx + 1}. ${item.text}</div>
+          <span class="item-best-score" id="bestBadge_${idx}">최고: ${_0xScores[idx] || 0}점</span>
+        </div>
+        <div class="sub-text">${item.sub}</div>
+        <div class="kr-text">${item.kr}</div>
+        <div class="btn-group">
+          <button class="btn-play" onclick="_0xEngine.tts('${safe}')">🔊 모범 발음</button>
+          <button class="btn-rec" id="recBtn_${idx}" onclick="_0xEngine.rec(${idx}, '${safe}')">🎙️ 녹음 시작</button>
+        </div>
+        <div class="result-box" id="resBox_${idx}">
+          <div class="spoken-text" id="spoken_${idx}"></div>
+          <div>
+            <span class="score-badge" id="score_${idx}"></span>
+            <span class="save-status" id="status_${idx}"></span>
+          </div>
+          <div class="feedback-box" id="feedback_${idx}"></div>
+        </div>
+      `;
+      box.appendChild(card);
+    });
+  }
 
-  function handleRecButtonClick(index, targetText) {
-    if (activeIndex === index && activeRecognition) {
-      activeRecognition.stop();
-      return;
+  function _0xBuildEd() {
+    const area = _0xD.getElementById('editorInputs');
+    area.innerHTML = '';
+    for (let i = 0; i < 7; i++) {
+      const it = _0xList[i] || { text: '', sub: '', kr: '' };
+      const row = _0xD.createElement('div');
+      row.className = 'edit-item';
+      row.innerHTML = `
+        <span>${i + 1}.</span>
+        <input type="text" class="edit-target" id="edit_target_${i}" value="${it.text}" placeholder="외국어 문장">
+        <input type="text" class="edit-sub" id="edit_sub_${i}" value="${it.sub}" placeholder="발음/병음/독음">
+        <input type="text" class="edit-kr" id="edit_kr_${i}" value="${it.kr}" placeholder="한국어 뜻">
+      `;
+      area.appendChild(row);
     }
+  }
 
-    if (activeRecognition) {
-      activeRecognition.abort();
-      resetAllRecButtons();
-    }
+  function _0xSaveSheet(payload, statusEl) {
+    const cb = "cb_" + Math.floor(Math.random() * 1000000);
+    const base = Object.assign({}, payload);
+    payload.callback = cb;
+    payload.t = Date.now();
+    const qs = Object.keys(payload).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(payload[k])).join('&');
+    const sc = _0xD.createElement('script');
+    sc.id = cb;
+    sc.src = `${_0xCfg.api}?${qs}`;
+    let done = false;
 
-    const targetSheetUrl = document.getElementById('teacherSheetUrl').value.trim();
-    if (!targetSheetUrl || targetSheetUrl.indexOf('http') !== 0) {
-      alert("⚠️ 연결된 구글 시트가 없습니다!\n\n교사 화면에서 [📋 새 시트 양식 생성]을 눌러 빈 시트를 먼저 발급받거나, 선생님의 QR코드로 다시 접속해 주세요.");
-      return;
-    }
-
-    const idInput = document.getElementById('studentId');
-    autoFormatStudentId(idInput);
-    const id = idInput.value.trim();
-    const name = document.getElementById('studentName').value.trim();
-
-    if (!id || !name) {
-      alert("먼저 학번과 이름을 입력해주세요.");
-      return;
-    }
-
-    if (!SpeechRecognition) {
-      alert("크롬(Chrome) 브라우저를 이용해주세요.");
-      return;
-    }
-
-    activeIndex = index;
-    accumulatedTranscript = "";
-
-    activeRecognition = new SpeechRecognition();
-    activeRecognition.lang = currentLang;
-    activeRecognition.continuous = true;
-    activeRecognition.interimResults = true;
-    activeRecognition.maxAlternatives = 1;
-
-    const recBtn = document.getElementById(`recBtn_${index}`);
-    recBtn.className = 'btn-rec btn-stop-rec';
-    recBtn.innerHTML = '⏹ 녹음 완료 및 채점';
-
-    const resBox = document.getElementById(`resBox_${index}`);
-    const spokenEl = document.getElementById(`spoken_${index}`);
-    const scoreEl = document.getElementById(`score_${index}`);
-    const statusEl = document.getElementById(`status_${index}`);
-    const feedbackBox = document.getElementById(`feedback_${index}`);
-
-    resBox.style.display = 'block';
-    spokenEl.innerHTML = `인식 중: <span style="color:#fef08a;">(말씀하신 후 [녹음 완료 및 채점] 버튼을 누르세요)</span>`;
-    scoreEl.innerHTML = '';
-    statusEl.innerHTML = '';
-    feedbackBox.innerHTML = '';
-
-    activeRecognition.onresult = (event) => {
-      let interim = "";
-      accumulatedTranscript = "";
-      for (let i = 0; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-          accumulatedTranscript += event.results[i][0].transcript;
-        } else {
-          interim += event.results[i][0].transcript;
-        }
-      }
-      const currentSpoken = accumulatedTranscript + interim;
-      if (currentSpoken.trim()) {
-        spokenEl.innerHTML = `인식 중: <strong>${currentSpoken}</strong>`;
-      }
-    };
-
-    activeRecognition.onerror = (e) => {
-      if (e.error === 'not-allowed') {
-        alert("마이크 권한이 필요합니다. 브라우저 설정에서 마이크를 허용해주세요.");
-        resetAllRecButtons();
-      }
-    };
-
-    activeRecognition.onend = () => {
-      const finalSpoken = accumulatedTranscript.trim();
-      recBtn.className = 'btn-rec';
-      recBtn.innerHTML = '🎙️ 녹음 시작';
-      activeRecognition = null;
-      activeIndex = null;
-
-      if (!finalSpoken) {
-        spokenEl.innerHTML = `<span style="color:#f87171;">음성이 감지되지 않았습니다. 다시 녹음해 주세요.</span>`;
+    _0xW[cb] = function(res) {
+      done = true;
+      delete _0xW[cb];
+      const el = _0xD.getElementById(cb);
+      if (el) el.remove();
+      if (res && res.locked) {
+        _0xD.getElementById('globalLockOverlay').style.display = 'flex';
         return;
       }
-
-      const normalizedSpoken = normalizeDigitsIfNeeded(finalSpoken, currentLang);
-      const isContextualMode = (currentGradingMode === 'comm' || currentGradingMode === 'lenient');
-
-      const evalResult = renderWordLevelFeedback(targetText, normalizedSpoken, currentLang, feedbackBox, isContextualMode);
-
-      const totalWords = evalResult.total;
-      const matchedWords = evalResult.matched;
-      const baseScore = totalWords > 0 ? Math.round((matchedWords / totalWords) * 100) : 0;
-
-      let finalScore = baseScore;
-      if (currentGradingMode === 'comm') {
-        const cleanT = targetText.replace(/[\s，。！？,.!؟،؛]/g, "");
-        const cleanS = normalizedSpoken.replace(/[\s，。！？,.!؟،؛]/g, "");
-        const fluencyRatio = Math.min(1.1, cleanS.length / Math.max(1, cleanT.length));
-
-        if (baseScore >= 75) {
-          finalScore = Math.min(100, Math.round(88 + (baseScore - 75) * 0.48));
-        } else if (baseScore >= 45 || (fluencyRatio >= 0.75 && baseScore >= 30)) {
-          finalScore = Math.min(95, Math.round(78 + (baseScore * 0.25)));
-        } else {
-          finalScore = Math.round(baseScore * 1.25);
-        }
-      } else if (currentGradingMode === 'lenient') {
-        finalScore = Math.min(100, Math.round(baseScore * 1.12 + (baseScore > 20 ? 5 : 0)));
-      }
-
-      itemAttempted[index] = true;
-      if (finalScore > itemScores[index]) {
-        itemScores[index] = finalScore;
-        const badgeEl = document.getElementById(`bestBadge_${index}`);
-        if (badgeEl) badgeEl.innerText = `최고: ${finalScore}점`;
-      }
-      updateTotalScoreBoard();
-
-      const modeLabels = { strict: '엄격', lenient: '관대', comm: '소통가능' };
-      const modeLabel = modeLabels[currentGradingMode];
-      const grade = getGrade(finalScore, currentGradingMode);
-
-      spokenEl.innerHTML = `인식된 발음: <strong>${finalSpoken}</strong>`;
-      scoreEl.innerHTML = `평가 점수: <strong>${finalScore}점</strong> (${grade}) <span style="font-size:12px; color:#cbd5e1;">[${modeLabel} 모드 | ${matchedWords}/${totalWords}개 단어 일치]</span>`;
-      statusEl.innerText = "⏳ 구글 시트 기록 중...";
-
-      saveToSheetViaJsonp({
-        sheetUrl: targetSheetUrl,
-        studentId: id,
-        studentName: name,
-        targetText: targetText,
-        spokenText: finalSpoken,
-        score: finalScore,
-        grade: `${grade} [${modeLabel} / ${currentLang}]`
-      }, statusEl);
-    };
-
-    try {
-      activeRecognition.start();
-    } catch (err) {
-      resetAllRecButtons();
-      alert("음성 인식을 시작할 수 없습니다: " + err.message);
-    }
-  }
-
-  function resetAllRecButtons() {
-    currentSentences.forEach((_, i) => {
-      const b = document.getElementById(`recBtn_${i}`);
-      if (b) {
-        b.className = 'btn-rec';
-        b.innerHTML = '🎙️ 녹음 시작';
-      }
-    });
-    activeRecognition = null;
-    activeIndex = null;
-  }
-
-  function renderWordLevelFeedback(target, spoken, lang, containerEl, allowContextual) {
-    const targetWords = tokenizeMeaningfulWords(target, lang);
-    const spokenWords = tokenizeMeaningfulWords(spoken, lang);
-    const cleanSpokenFull = spoken.replace(/[\s，。！？,.!؟،؛]/g, "").toLowerCase();
-
-    let matchedCount = 0;
-    let html = `<div class="feedback-title">🎯 의미 단어별 발음 피드백 & 단어 뜻 (클릭 시 발음 재생 🔊):</div><div class="feedback-elements">`;
-    
-    for (let i = 0; i < targetWords.length; i++) {
-      const word = targetWords[i];
-      const meaning = getWordKoreanMeaning(word, lang);
-      const safeWord = word.replace(/'/g, "\\'");
-
-      const check = isWordContextuallyEquivalent(word, cleanSpokenFull, spokenWords, lang);
-
-      if (check.matched && (check.exact || allowContextual)) {
-        matchedCount++;
-        const statusDesc = check.exact ? "✓ 일치" : "✓ 문맥인정";
-        html += `
-          <span class="item-badge correct" onclick="playTTS('${safeWord}')" title="클릭하여 '${word}' 발음 듣기">
-            <div class="item-word-line">
-              <span class="word-str">${word}</span>
-              <span class="speaker-mini">🔊</span>
-            </div>
-            <span class="item-status-text">${statusDesc}</span>
-            ${meaning ? `<span class="item-meaning-text">${meaning}</span>` : ''}
-          </span>
-        `;
-      } else {
-        html += `
-          <span class="item-badge wrong" onclick="playTTS('${safeWord}')" title="클릭하여 '${word}' 발음 듣기">
-            <div class="item-word-line">
-              <span class="word-str">${word}</span>
-              <span class="speaker-mini">🔊</span>
-            </div>
-            <span class="item-status-text">✗ 미흡</span>
-            ${meaning ? `<span class="item-meaning-text">${meaning}</span>` : ''}
-          </span>
-        `;
-      }
-    }
-    html += '</div>';
-
-    containerEl.innerHTML = html;
-    return { total: targetWords.length, matched: matchedCount };
-  }
-
-  function saveToSheetViaJsonp(payload, statusEl) {
-    const callbackName = "saveCallback_" + Math.floor(Math.random() * 1000000);
-    const basePayload = Object.assign({}, payload);
-
-    payload.callback = callbackName;
-    payload.t = Date.now();
-
-    const queryString = Object.keys(payload)
-      .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(payload[k]))
-      .join('&');
-
-    const script = document.createElement('script');
-    script.id = callbackName;
-    script.src = `${GAS_API_URL}?${queryString}`;
-
-    let isDone = false;
-
-    window[callbackName] = function(res) {
-      isDone = true;
-      delete window[callbackName];
-      const el = document.getElementById(callbackName);
-      if (el) el.remove();
-
       if (res && res.success) {
         statusEl.style.color = "#4ade80";
         statusEl.innerText = `✓ [${res.sheetName || '구글 시트'}] 저장 완료!`;
@@ -1624,61 +1109,467 @@
       }
     };
 
-    script.onerror = function() {
-      if (isDone) return;
-      delete window[callbackName];
-      const el = document.getElementById(callbackName);
+    sc.onerror = function() {
+      if (done) return;
+      delete _0xW[cb];
+      const el = _0xD.getElementById(cb);
       if (el) el.remove();
-
-      const fallbackQuery = Object.keys(basePayload)
-        .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(basePayload[k]))
-        .join('&');
-      const fallbackUrl = `${GAS_API_URL}?${fallbackQuery}&nocache=${Date.now()}`;
-
-      fetch(fallbackUrl, {
-        method: 'GET',
-        mode: 'no-cors',
-        cache: 'no-cache',
-        credentials: 'omit'
-      })
-      .then(() => {
-        statusEl.style.color = "#4ade80";
-        statusEl.innerText = "✓ 구글 시트 전송 완료! (새로고침하여 확인)";
-      })
-      .catch(() => {
-        if (navigator.sendBeacon) {
-          navigator.sendBeacon(fallbackUrl);
-          statusEl.style.color = "#4ade80";
-          statusEl.innerText = "✓ 구글 시트 전송 완료!";
-        } else {
-          statusEl.style.color = "#f87171";
-          statusEl.innerText = "⚠️ 네트워크 연결 또는 Apps Script 권한을 확인해 주세요.";
-        }
-      });
+      const fqs = Object.keys(base).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(base[k])).join('&');
+      const furl = `${_0xCfg.api}?${fqs}&nocache=${Date.now()}`;
+      fetch(furl, { method: 'GET', mode: 'no-cors', cache: 'no-cache', credentials: 'omit' })
+        .then(() => { statusEl.style.color = "#4ade80"; statusEl.innerText = "✓ 구글 시트 전송 완료!"; })
+        .catch(() => {
+          if (navigator.sendBeacon) {
+            navigator.sendBeacon(furl);
+            statusEl.style.color = "#4ade80";
+            statusEl.innerText = "✓ 구글 시트 전송 완료!";
+          } else {
+            statusEl.style.color = "#f87171";
+            statusEl.innerText = "⚠️ 네트워크 또는 Apps Script 배포 상태를 확인해 주세요.";
+          }
+        });
     };
-
-    document.body.appendChild(script);
+    _0xD.body.appendChild(sc);
   }
 
-  function getGrade(score, mode) {
-    if (mode === 'comm') {
-      if (score >= 85) return "의사소통 매우우수 (A)";
-      if (score >= 75) return "의사소통 원활 (B)";
-      if (score >= 60) return "기본의미 전달 (C)";
-      return "소통 보완필요";
-    } else if (mode === 'lenient') {
-      if (score >= 80) return "우수 (A)";
-      if (score >= 65) return "보통 (B)";
-      if (score >= 50) return "노력요함 (C)";
-      return "재도전 권장";
-    } else {
-      if (score >= 90) return "우수 (A)";
-      if (score >= 80) return "보통 (B)";
-      if (score >= 60) return "노력요함 (C)";
-      return "재도전 권장";
+  function _0xUpdHistUI() {
+    const sel = _0xD.getElementById('historySelect');
+    sel.innerHTML = '<option value="default">[기본] 1. 수험생 응원 문구</option>';
+    try {
+      const h = JSON.parse(localStorage.getItem('speech_custom_preset_history') || '[]');
+      h.forEach((it, i) => {
+        const opt = _0xD.createElement('option');
+        opt.value = i;
+        opt.innerText = `[저장 ${i + 1}] ${it.name} (${it.time})`;
+        sel.appendChild(opt);
+      });
+    } catch (e) {}
+  }
+
+  function _0xPushHist(name, list) {
+    try {
+      let h = JSON.parse(localStorage.getItem('speech_custom_preset_history') || '[]');
+      h.unshift({ name, time: new Date().toLocaleTimeString(), sentences: list });
+      if (h.length > 10) h = h.slice(0, 10);
+      localStorage.setItem('speech_custom_preset_history', JSON.stringify(h));
+      _0xUpdHistUI();
+    } catch (e) {}
+  }
+
+  _0xW._0xEngine = {
+    tts: _0xPlayTTS,
+    openExt: function() {
+      const u = _0xW.location.href;
+      if (/android/i.test(navigator.userAgent)) {
+        _0xW.location.href = `intent://${u.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
+      } else {
+        alert("브라우저 메뉴에서 '다른 브라우저(Chrome/Safari)로 열기'를 선택해 주세요.");
+      }
+    },
+    chgLang: function() {
+      _0xLang = _0xD.getElementById('langSelect').value;
+      _0xRenderCards();
+      _0xBuildEd();
+    },
+    setMode: function(m) {
+      _0xMode = m;
+      _0xD.getElementById('btnModeStrict').classList.toggle('active', m === 'strict');
+      _0xD.getElementById('btnModeLenient').classList.toggle('active', m === 'lenient');
+      _0xD.getElementById('btnModeComm').classList.toggle('active', m === 'comm');
+    },
+    fmtId: function(el) {
+      let v = el.value.trim().replace(/[^0-9]/g, "");
+      if (v.length === 4) { v = v.substring(0, 1) + "0" + v.substring(1, 2) + v.substring(2, 4); el.value = v; }
+    },
+    onUrlInput: function() {
+      const u = _0xD.getElementById('teacherSheetUrl').value.trim();
+      localStorage.setItem('speech_custom_teacher_sheet', u);
+      // URL이 바뀌면 재인증 필요하도록 잠금 초기화
+      _0xSetVerifiedUI(false);
+      localStorage.removeItem('speech_sheet_verified_url');
+    },
+    // 시트 링크 입력 후 교사 비밀번호 검증 인증
+    verifySheetPin: function() {
+      const u = _0xD.getElementById('teacherSheetUrl').value.trim();
+      if (!u || u.indexOf('http') !== 0) {
+        alert("먼저 연결할 구글 시트 주소를 입력해 주세요.");
+        return;
+      }
+      const pin = prompt("🔑 해당 시트를 생성할 때 설정한 교사 비밀번호를 입력하세요:");
+      if (!pin) return;
+
+      const cb = "vrf_" + Math.floor(Math.random() * 1000000);
+      const sc = _0xD.createElement('script');
+      sc.id = cb;
+      sc.src = `${_0xCfg.api}?action=verifySheet&sheetUrl=${encodeURIComponent(u)}&pin=${encodeURIComponent(pin.trim())}&callback=${cb}&t=${Date.now()}`;
+      _0xW[cb] = function(res) {
+        delete _0xW[cb];
+        const el = _0xD.getElementById(cb);
+        if (el) el.remove();
+        if (res && res.success) {
+          _0xSetVerifiedUI(true);
+          localStorage.setItem('speech_sheet_verified_url', u);
+          alert("✅ 시트 비밀번호 인증이 완료되었습니다! 이제 학생 녹음 기록 및 QR 배포가 가능합니다.");
+        } else {
+          _0xSetVerifiedUI(false);
+          alert("⛔ 인증 실패: " + (res ? res.message : "비밀번호가 일치하지 않습니다."));
+        }
+      };
+      sc.onerror = function() {
+        alert("⚠️ 서버 연결 오류: Apps Script 배포 상태를 확인해 주세요.");
+      };
+      _0xD.body.appendChild(sc);
+    },
+    connDev: function() {
+      const pin = prompt("🔑 개발자(신윤기 수석) 마스터 비밀번호를 입력하세요:");
+      if (!pin) return;
+      _0xD.getElementById('teacherSheetUrl').value = _0xCfg.devSheet;
+      localStorage.setItem('speech_custom_teacher_sheet', _0xCfg.devSheet);
+      localStorage.setItem('speech_sheet_verified_url', _0xCfg.devSheet);
+      _0xSetVerifiedUI(true);
+      alert("✓ 개발자(신윤기 수석) 원본 구글 시트가 인증 연결되었습니다.");
+    },
+    opSheet: function() {
+      const u = _0xD.getElementById('teacherSheetUrl').value.trim();
+      if (u && u.indexOf('http') === 0) _0xW.open(u, '_blank');
+      else alert("먼저 연결된 구글 시트 주소를 입력하거나 [새 시트 양식 생성]을 진행해 주세요.");
+    },
+    // 시트 생성 시 비밀번호 먼저 설정하게 유도 후 발급 및 자동 인증 완료
+    mkTpl: function() {
+      const pin = prompt("🔐 새로 생성할 교사 전용 결과 시트의 비밀번호(4자리 이상)를 설정해 주세요:\n\n(※ 추후 이 시트를 다시 연결하거나 학생 QR을 배포할 때 이 비밀번호가 필요합니다.)");
+      if (!pin) return;
+      if (pin.trim().length < 4) {
+        alert("⚠️ 비밀번호는 4자리 이상으로 설정해 주세요.");
+        return;
+      }
+
+      const btn = _0xD.getElementById('btnCreateTemplate');
+      if (btn) { btn.disabled = true; btn.innerText = "⏳ 빈 시트 생성 중..."; }
+      const cb = "tpl_" + Math.floor(Math.random() * 1000000);
+      const sc = _0xD.createElement('script');
+      sc.id = cb;
+      sc.src = `${_0xCfg.api}?action=createTemplate&pin=${encodeURIComponent(pin.trim())}&callback=${cb}&t=${Date.now()}`;
+      _0xW[cb] = function(res) {
+        if (btn) { btn.disabled = false; btn.innerText = "📋 새 시트 양식 생성"; }
+        delete _0xW[cb];
+        const el = _0xD.getElementById(cb);
+        if (el) el.remove();
+        if (res && res.success && res.url) {
+          _0xD.getElementById('teacherSheetUrl').value = res.url;
+          localStorage.setItem('speech_custom_teacher_sheet', res.url);
+          localStorage.setItem('speech_sheet_verified_url', res.url);
+          _0xSetVerifiedUI(true);
+          alert(`✅ 선생님 전용 시트가 생성되고 비밀번호 인증이 완료되었습니다!\n\n[설정된 비밀번호: ${pin.trim()}]\n잊지 않도록 메모해 두세요.`);
+          _0xW.open(res.url, "_blank");
+        } else {
+          alert("⚠️ 시트 생성 오류: " + (res ? res.message : "Apps Script 새 버전 배포 확인"));
+        }
+      };
+      sc.onerror = function() {
+        if (btn) { btn.disabled = false; btn.innerText = "📋 새 시트 양식 생성"; }
+        alert("⚠️ 서버 연결 실패: Apps Script 배포 상태를 확인해 주세요.");
+      };
+      _0xD.body.appendChild(sc);
+    },
+    // 최하단 개발자 전용 원격 앱 잠금/해제 버튼 핸들러
+    toggleAppLock: function() {
+      const pin = prompt("🔒 [개발자 전용 권한]\n앱 전체 작동을 잠그거나 해제하려면 개발자 마스터 비밀번호를 입력하세요:");
+      if (!pin) return;
+
+      const cb = "tgl_" + Math.floor(Math.random() * 1000000);
+      const sc = _0xD.createElement('script');
+      sc.id = cb;
+      sc.src = `${_0xCfg.api}?action=toggleLock&pin=${encodeURIComponent(pin.trim())}&callback=${cb}&t=${Date.now()}`;
+      _0xW[cb] = function(res) {
+        delete _0xW[cb];
+        const el = _0xD.getElementById(cb);
+        if (el) el.remove();
+        if (res && res.success) {
+          alert(res.message);
+          _0xD.getElementById('globalLockOverlay').style.display = res.locked ? 'flex' : 'none';
+        } else {
+          alert("⛔ " + (res ? res.message : "권한 인증에 실패했습니다."));
+        }
+      };
+      sc.onerror = function() {
+        alert("⚠️ 서버 연결 오류: Apps Script 배포 상태를 확인해 주세요.");
+      };
+      _0xD.body.appendChild(sc);
+    },
+    vIn: function() {
+      if (!_0xSR) { alert("크롬(Chrome) 브라우저를 이용해 주세요."); return; }
+      const btn = _0xD.getElementById('btnVoiceInput');
+      const inp = _0xD.getElementById('koInput');
+      if (_0xInRec) { _0xInRec.stop(); return; }
+      const choice = _0xD.getElementById('voiceInputLang').value;
+      _0xInRec = new _0xSR();
+      _0xInRec.lang = (choice === 'target') ? _0xLang : 'ko-KR';
+      _0xInRec.continuous = false;
+      _0xInRec.interimResults = true;
+      btn.classList.add('recording');
+      btn.innerText = "🛑 듣는 중...";
+      _0xInRec.onresult = (e) => {
+        let t = "";
+        for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript;
+        inp.value = t;
+      };
+      _0xInRec.onend = () => {
+        btn.classList.remove('recording');
+        btn.innerText = "🎙️ 말로 입력";
+        _0xInRec = null;
+      };
+      _0xInRec.start();
+    },
+    procIn: async function() {
+      const val = _0xD.getElementById('koInput').value.trim();
+      const idx = parseInt(_0xD.getElementById('slotSelect').value, 10);
+      const btn = _0xD.getElementById('btnTranslate');
+      if (!val) { alert("문장을 입력하거나 음성으로 말씀해 주세요."); return; }
+      btn.disabled = true; btn.innerText = "⏳ 처리 중...";
+
+      if (_0xLang === 'zh-CN' && /[\u4e00-\u9fa5]/.test(val)) {
+        _0xList[idx] = { text: val, sub: "[zh-CN 직접 입력]", kr: val };
+        _0xD.getElementById('koInput').value = "";
+        _0xRenderCards(); _0xBuildEd();
+        _0xPushHist(`${idx + 1}번 수정: ${val.substring(0, 8)}`, _0xList);
+        btn.disabled = false; btn.innerText = "🔄 문항 등록/번역";
+        return;
+      }
+
+      const map = { "zh-CN":"zh-CN", "en-US":"en", "ja-JP":"ja", "ar-SA":"ar", "fr-FR":"fr", "de-DE":"de", "es-ES":"es", "ru-RU":"ru", "vi-VN":"vi" };
+      const tl = map[_0xLang] || "zh-CN";
+      try {
+        const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${tl}&dt=t&q=${encodeURIComponent(val)}`);
+        const data = await res.json();
+        let tr = "";
+        if (data && data[0]) for (let i = 0; i < data[0].length; i++) if (data[0][i][0]) tr += data[0][i][0];
+        if (!tr) throw new Error();
+        _0xList[idx] = { text: tr, sub: `[${_0xLang} 번역]`, kr: val };
+        _0xD.getElementById('koInput').value = "";
+        _0xRenderCards(); _0xBuildEd();
+        _0xPushHist(`${idx + 1}번 수정: ${tr.substring(0, 8)}`, _0xList);
+        alert(`✓ ${idx + 1}번 문항으로 등록되었습니다!\n- 입력: ${val}\n- 적용: ${tr}`);
+      } catch (e) { alert("번역 처리 오류가 발생했습니다."); }
+      finally { btn.disabled = false; btn.innerText = "🔄 문항 등록/번역"; }
+    },
+    togEdit: function() {
+      const p = _0xD.getElementById('editorPanel');
+      p.style.display = p.style.display === 'block' ? 'none' : 'block';
+    },
+    svCust: function() {
+      const arr = [];
+      for (let i = 0; i < 7; i++) {
+        arr.push({
+          text: _0xD.getElementById(`edit_target_${i}`).value.trim() || `문항 ${i + 1}`,
+          sub: _0xD.getElementById(`edit_sub_${i}`).value.trim(),
+          kr: _0xD.getElementById(`edit_kr_${i}`).value.trim()
+        });
+      }
+      _0xList = arr;
+      _0xScores = [0, 0, 0, 0, 0, 0, 0];
+      _0xDone = [false, false, false, false, false, false, false];
+      _0xUpdBoard(); _0xRenderCards();
+      _0xD.getElementById('editorPanel').style.display = 'none';
+      _0xPushHist(`교사 직접 편집 (${arr[0].text.substring(0, 6)}...)`, arr);
+      alert("✓ 7개 문항이 저장되었습니다.");
+    },
+    loadHist: function() {
+      const v = _0xD.getElementById('historySelect').value;
+      if (v === 'default') _0xList = JSON.parse(JSON.stringify(_0xDefPreset));
+      else {
+        const h = JSON.parse(localStorage.getItem('speech_custom_preset_history') || '[]');
+        if (h[parseInt(v, 10)]) _0xList = JSON.parse(JSON.stringify(h[parseInt(v, 10)].sentences));
+      }
+      _0xScores = [0, 0, 0, 0, 0, 0, 0];
+      _0xDone = [false, false, false, false, false, false, false];
+      _0xUpdBoard(); _0xRenderCards(); _0xBuildEd();
+    },
+    openQr: function() {
+      const su = _0xD.getElementById('teacherSheetUrl').value.trim();
+      if (!su || su.indexOf('http') !== 0) {
+        alert("⚠️ 먼저 [결과 구글 시트] 칸에 선생님의 시트 주소를 입력해 주세요.");
+        return;
+      }
+      if (!_0xSheetVerified) {
+        alert("🔒 먼저 [🔑 시트 비밀번호 인증]을 완료해야 학생용 QR코드를 생성할 수 있습니다.");
+        return;
+      }
+      const qrBox = _0xD.getElementById('qrcode');
+      qrBox.innerHTML = '';
+      const m = su.match(/[-\w]{25,}/);
+      const sid = m ? m[0] : "";
+      const isDef = JSON.stringify(_0xList.map(i => i.text)) === JSON.stringify(_0xDefPreset.map(i => i.text));
+      const base = _0xW.location.href.split('?')[0].split('#')[0];
+      if (isDef) _0xQrUrl = `${base}?s=${sid}&l=${_0xLang}`;
+      else {
+        const eq = btoa(unescape(encodeURIComponent(JSON.stringify(_0xList.map(i => i.text)))));
+        _0xQrUrl = `${base}?s=${sid}&l=${_0xLang}&q=${encodeURIComponent(eq)}`;
+      }
+      new QRCode(qrBox, { text: _0xQrUrl, width: 220, height: 220, colorDark: "#0f172a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.L });
+      _0xD.getElementById('qrUrlText').innerText = "학생들이 QR을 찍으면 교사용 버튼 없이 깔끔한 학생 화면과 선생님 구글 시트가 자동 연결됩니다.";
+      _0xD.getElementById('qrModal').style.display = 'flex';
+    },
+    cpQr: function() {
+      if (_0xQrUrl) navigator.clipboard.writeText(_0xQrUrl).then(() => alert("✓ 학생 접속용 링크가 복사되었습니다."));
+    },
+    clQr: function() { _0xD.getElementById('qrModal').style.display = 'none'; },
+    openHelp: function() { _0xD.getElementById('helpModal').style.display = 'flex'; },
+    clHelp: function() { _0xD.getElementById('helpModal').style.display = 'none'; },
+    rec: function(idx, targetText) {
+      if (_0xRecIdx === idx && _0xRec) { _0xRec.stop(); return; }
+      if (_0xRec) { _0xRec.abort(); _0xRec = null; _0xRecIdx = null; }
+
+      const su = _0xD.getElementById('teacherSheetUrl').value.trim();
+      if (!su || su.indexOf('http') !== 0) {
+        alert("⚠️ 연결된 구글 시트가 없습니다! 먼저 [📋 새 시트 양식 생성] 후 비밀번호를 인증해 주세요.");
+        return;
+      }
+      if (!_0xSheetVerified && !_0xIsStudentMode) {
+        alert("🔒 시트 비밀번호 인증이 필요합니다! 상단 [🔑 시트 비밀번호 인증] 버튼을 눌러 비밀번호를 먼저 인증해 주세요.");
+        return;
+      }
+
+      const idEl = _0xD.getElementById('studentId');
+      this.fmtId(idEl);
+      const id = idEl.value.trim();
+      const name = _0xD.getElementById('studentName').value.trim();
+      if (!id || !name) { alert("먼저 학번과 이름을 입력해주세요."); return; }
+      if (!_0xSR) { alert("크롬(Chrome) 브라우저를 이용해주세요."); return; }
+
+      _0xRecIdx = idx;
+      _0xTrans = "";
+      _0xRec = new _0xSR();
+      _0xRec.lang = _0xLang;
+      _0xRec.continuous = true;
+      _0xRec.interimResults = true;
+
+      const btn = _0xD.getElementById(`recBtn_${idx}`);
+      btn.className = 'btn-rec btn-stop-rec';
+      btn.innerHTML = '⏹ 녹음 완료 및 채점';
+
+      const resBox = _0xD.getElementById(`resBox_${idx}`);
+      const spEl = _0xD.getElementById(`spoken_${idx}`);
+      const scEl = _0xD.getElementById(`score_${idx}`);
+      const stEl = _0xD.getElementById(`status_${idx}`);
+      const fbBox = _0xD.getElementById(`feedback_${idx}`);
+
+      resBox.style.display = 'block';
+      spEl.innerHTML = `인식 중: <span style="color:#fef08a;">(말씀하신 후 [녹음 완료 및 채점] 버튼을 누르세요)</span>`;
+      scEl.innerHTML = ''; stEl.innerHTML = ''; fbBox.innerHTML = '';
+
+      _0xRec.onresult = (ev) => {
+        let interim = "";
+        _0xTrans = "";
+        for (let i = 0; i < ev.results.length; ++i) {
+          if (ev.results[i].isFinal) _0xTrans += ev.results[i][0].transcript;
+          else interim += ev.results[i][0].transcript;
+        }
+        const cur = _0xTrans + interim;
+        if (cur.trim()) spEl.innerHTML = `인식 중: <strong>${cur}</strong>`;
+      };
+
+      _0xRec.onend = () => {
+        const finalSp = _0xTrans.trim();
+        btn.className = 'btn-rec';
+        btn.innerHTML = '🎙️ 녹음 시작';
+        _0xRec = null; _0xRecIdx = null;
+        if (!finalSp) {
+          spEl.innerHTML = `<span style="color:#f87171;">음성이 감지되지 않았습니다. 다시 녹음해 주세요.</span>`;
+          return;
+        }
+        let norm = finalSp;
+        if (_0xLang === 'zh-CN') {
+          const dm = { '0':'零','1':'一','2':'二','3':'三','4':'四','5':'五','6':'六','7':'七','8':'八','9':'九' };
+          norm = norm.replace(/[0-9]/g, c => dm[c] || c);
+        }
+        const allowCtx = (_0xMode === 'comm' || _0xMode === 'lenient');
+        const tWords = _0xTokWords(targetText, _0xLang);
+        const sWords = _0xTokWords(norm, _0xLang);
+        const sFull = norm.replace(/[\s，。！？,.!؟،؛]/g, "").toLowerCase();
+
+        let matched = 0;
+        let html = `<div class="feedback-title">🎯 의미 단어별 발음 피드백 & 단어 뜻 (클릭 시 발음 재생 🔊):</div><div class="feedback-elements">`;
+        for (let i = 0; i < tWords.length; i++) {
+          const w = tWords[i];
+          const mean = _0xGetMean(w, _0xLang);
+          const sw = w.replace(/'/g, "\\'");
+          const chk = _0xWordMatch(w, sFull, sWords, _0xLang);
+          if (chk.matched && (chk.exact || allowCtx)) {
+            matched++;
+            html += `<span class="item-badge correct" onclick="_0xEngine.tts('${sw}')"><div class="item-word-line"><span class="word-str">${w}</span><span class="speaker-mini">🔊</span></div><span class="item-status-text">${chk.exact ? '✓ 일치' : '✓ 문맥인정'}</span>${mean ? `<span class="item-meaning-text">${mean}</span>` : ''}</span>`;
+          } else {
+            html += `<span class="item-badge wrong" onclick="_0xEngine.tts('${sw}')"><div class="item-word-line"><span class="word-str">${w}</span><span class="speaker-mini">🔊</span></div><span class="item-status-text">✗ 미흡</span>${mean ? `<span class="item-meaning-text">${mean}</span>` : ''}</span>`;
+          }
+        }
+        html += '</div>';
+        fbBox.innerHTML = html;
+
+        const baseSc = tWords.length > 0 ? Math.round((matched / tWords.length) * 100) : 0;
+        let fSc = baseSc;
+        if (_0xMode === 'comm') {
+          const cT = targetText.replace(/[\s，。！？,.!؟،؛]/g, "");
+          const cS = norm.replace(/[\s，。！？,.!؟،؛]/g, "");
+          const fl = Math.min(1.1, cS.length / Math.max(1, cT.length));
+          if (baseSc >= 75) fSc = Math.min(100, Math.round(88 + (baseSc - 75) * 0.48));
+          else if (baseSc >= 45 || (fl >= 0.75 && baseSc >= 30)) fSc = Math.min(95, Math.round(78 + (baseSc * 0.25)));
+          else fSc = Math.round(baseSc * 1.25);
+        } else if (_0xMode === 'lenient') {
+          fSc = Math.min(100, Math.round(baseSc * 1.12 + (baseSc > 20 ? 5 : 0)));
+        }
+
+        _0xDone[idx] = true;
+        if (fSc > _0xScores[idx]) {
+          _0xScores[idx] = fSc;
+          const bEl = _0xD.getElementById(`bestBadge_${idx}`);
+          if (bEl) bEl.innerText = `최고: ${fSc}점`;
+        }
+        _0xUpdBoard();
+
+        const mNames = { strict: '엄격', lenient: '관대', comm: '소통가능' };
+        let grd = "재도전 권장";
+        if (_0xMode === 'comm') grd = fSc >= 85 ? "의사소통 매우우수 (A)" : fSc >= 75 ? "의사소통 원활 (B)" : fSc >= 60 ? "기본의미 전달 (C)" : "소통 보완필요";
+        else if (_0xMode === 'lenient') grd = fSc >= 80 ? "우수 (A)" : fSc >= 65 ? "보통 (B)" : fSc >= 50 ? "노력요함 (C)" : "재도전 권장";
+        else grd = fSc >= 90 ? "우수 (A)" : fSc >= 80 ? "보통 (B)" : fSc >= 60 ? "노력요함 (C)" : "재도전 권장";
+
+        spEl.innerHTML = `인식된 발음: <strong>${finalSp}</strong>`;
+        scEl.innerHTML = `평가 점수: <strong>${fSc}점</strong> (${grd}) <span style="font-size:12px; color:#cbd5e1;">[${mNames[_0xMode]} 모드 | ${matched}/${tWords.length}개 단어 일치]</span>`;
+        stEl.innerText = "⏳ 구글 시트 기록 중...";
+
+        _0xSaveSheet({
+          sheetUrl: su,
+          studentId: id,
+          studentName: name,
+          targetText: targetText,
+          spokenText: finalSp,
+          score: fSc,
+          grade: `${grd} [${mNames[_0xMode]} / ${_0xLang}]`
+        }, stEl);
+      };
+
+      _0xRec.start();
     }
-  }
-</script>
+  };
 
+  _0xD.addEventListener('DOMContentLoaded', function() {
+    _0xCheckDevWatermark();
+    _0xCheckGlobalLockStatus();
+    _0xDetectInApp();
+
+    const saved = localStorage.getItem('speech_custom_teacher_sheet');
+    const verifiedUrl = localStorage.getItem('speech_sheet_verified_url');
+    if (saved) {
+      _0xD.getElementById('teacherSheetUrl').value = saved;
+      if (verifiedUrl && verifiedUrl === saved) {
+        _0xSetVerifiedUI(true);
+      }
+    }
+
+    _0xParseQuery();
+    _0xUpdHistUI();
+    _0xRenderCards();
+    _0xBuildEd();
+  });
+})(window, document);
+</script>
 </body>
 </html>

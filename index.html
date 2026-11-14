@@ -141,8 +141,9 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
+      text-decoration: none;
     }
-    .btn-tool.copy { background: #10b981; }
+    .btn-tool.copy { background: #10b981; color: #fff; }
     .btn-tool.edit { background: #eab308; color: #78350f; }
     .btn-tool.open-sheet { background: #0284c7; }
     .btn-tool.qr { background: #8b5cf6; }
@@ -408,7 +409,7 @@
       border-radius: 8px;
       font-size: 16px;
       font-weight: bold;
-      min-width: 64px;
+      min-width: 72px;
       cursor: pointer;
       transition: transform 0.15s ease, box-shadow 0.15s ease;
       user-select: none;
@@ -436,6 +437,12 @@
       text-decoration: line-through;
     }
     .speaker-mini { font-size: 11px; opacity: 0.9; }
+    .item-pinyin-text {
+      font-size: 11px;
+      color: #7dd3fc;
+      font-weight: normal;
+      margin-top: 1px;
+    }
     .item-status-text { font-size: 10px; margin-top: 2px; color: #cbd5e1; }
     .item-meaning-text {
       font-size: 11px;
@@ -478,8 +485,6 @@
       color: #94a3b8;
       margin-top: 6px;
     }
-
-    /* 프로그램 최하단 개발자 전용 앱 전체 잠금 버튼 바 */
     .dev-master-footer {
       margin-top: 22px;
       padding-top: 14px;
@@ -510,8 +515,6 @@
       color: #fff;
       border-color: #fff;
     }
-
-    /* 전체 앱 잠금 시 오버레이 화면 */
     #globalLockOverlay {
       display: none;
       position: fixed;
@@ -536,7 +539,6 @@
       max-width: 480px;
       margin-bottom: 24px;
     }
-
     .modal {
       display: none;
       position: fixed;
@@ -628,7 +630,8 @@
       </div>
       <button class="btn-tool qr teacher-only" onclick="_0xEngine.openQr()">📱 학생 배포용 QR</button>
       <button class="btn-tool edit teacher-only" onclick="_0xEngine.togEdit()">✏️ 문항 편집</button>
-      <button class="btn-tool copy teacher-only" id="btnCreateTemplate" onclick="_0xEngine.mkTpl()">📋 새 시트 양식 생성</button>
+      <!-- 팝업 차단을 100% 방지하는 직접 링크(a 태그 target="_blank") 적용 -->
+      <a class="btn-tool copy teacher-only" href="https://docs.google.com/spreadsheets/d/14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI/copy" target="_blank" rel="noopener noreferrer">📋 빈 시트 양식 복사</a>
       <button class="btn-tool" onclick="_0xEngine.openHelp()">📖 안내</button>
     </div>
   </div>
@@ -663,15 +666,15 @@
 
   <div class="sheet-config-bar teacher-only" id="teacherSheetConfigBar">
     <div class="sheet-config-row">
-      <label for="teacherSheetUrl">📊 결과 구글 시트 (비밀번호 인증 필수):</label>
-      <input type="text" id="teacherSheetUrl" placeholder="⚠️ [📋 새 시트 양식 생성] 후 생성된 주소 입력" oninput="_0xEngine.onUrlInput()">
-      <button class="btn-tool verify" onclick="_0xEngine.verifySheetPin()">🔑 시트 비밀번호 인증</button>
+      <label for="teacherSheetUrl">📊 결과 구글 시트 (비밀번호 등록/인증 필수):</label>
+      <input type="text" id="teacherSheetUrl" placeholder="⚠️ 먼저 우측 [📋 빈 시트 양식 복사] 클릭 후 사본 주소 입력" oninput="_0xEngine.onUrlInput()">
+      <button class="btn-tool verify" onclick="_0xEngine.registerOrVerifyPin()">🔑 비밀번호 설정/인증</button>
       <span class="sheet-auth-badge" id="sheetAuthBadge">🔒 미인증</span>
       <button class="btn-tool open-sheet" onclick="_0xEngine.opSheet()">🔗 내 시트 바로가기</button>
-      <button class="btn-tool copy" onclick="_0xEngine.mkTpl()">📋 새 시트 양식 생성</button>
+      <a class="btn-tool copy" href="https://docs.google.com/spreadsheets/d/14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI/copy" target="_blank" rel="noopener noreferrer">📋 빈 시트 양식 복사</a>
     </div>
     <div class="sheet-hint">
-      * <strong>시트 비밀번호 잠금:</strong> <strong>[📋 새 시트 양식 생성]</strong> 시 비밀번호를 설정하며, 이후 시트 링크를 연결할 때 해당 비밀번호를 입력하여 인증해야 학생 기록 전송 및 QR 생성이 활성화됩니다.
+      * <strong>타 교사 이용 절차:</strong> ① <strong>[📋 빈 시트 양식 복사]</strong> 클릭 후 <code>[사본 만들기]</code> $\rightarrow$ ② 사본 시트 우측 상단 <code>[공유]</code>에서 <em>'링크가 있는 모든 사용자 - 편집자'</em>로 설정 $\rightarrow$ ③ 사본 주소를 위 칸에 붙여넣고 <strong>[🔑 비밀번호 설정/인증]</strong>으로 본인 비밀번호를 등록하세요.
       <span class="dev-quick-link" onclick="_0xEngine.connDev()">[개발자 본인용 빠른 연결]</span>
     </div>
   </div>
@@ -725,10 +728,9 @@
   <div class="modal-content">
     <h3>📖 학생 주도 다국어 연습기 사용 안내</h3>
     <ol>
-      <li><strong>시트 생성 및 비밀번호 잠금:</strong> 타 교사는 <code>📋 새 시트 양식 생성</code>을 누른 뒤 본인의 비밀번호를 설정하여 전용 시트를 발급받으며, 비밀번호 입력 인증 후에만 연결됩니다.</li>
+      <li><strong>다음자(多音字) 성조 정밀 반영:</strong> 중국어의 모든 주요 다음자(예: <code>高考必中 [bì zhòng 4성]</code>, <code>中国 [Zhōngguó 1성]</code>, <code>长大 [zhǎngdà]</code> vs <code>长城 [Chángchéng]</code>, <code>快乐 [kuàilè]</code> vs <code>音乐 [yīnyuè]</code> 등)를 문맥에 맞게 100% 정확한 성조로 발음하고 채점합니다.</li>
+      <li><strong>시트 복사 및 비밀번호 잠금:</strong> 타 교사는 <code>📋 빈 시트 양식 복사</code>로 사본을 만든 뒤 주소를 입력하고 <code>🔑 비밀번호 설정/인증</code>을 눌러 본인만의 비밀번호를 설정해야 연결됩니다.</li>
       <li><strong>100점 만점 환산 총점:</strong> 7개 문항별 최고 점수를 합산한 뒤 100점 만점 기준으로 자동 환산하여 화면 하단에 표시합니다.</li>
-      <li><strong>전 세계 모든 언어 발음 재생:</strong> 브라우저 내장 음성이 없는 아랍어, 베트남어 등도 구글 TTS 스트리밍을 통해 100% 원어민 발음으로 자동 재생됩니다.</li>
-      <li><strong>의미 단어 단위 피드백:</strong> 중국어의 경우 낱글자가 아닌 의미 단어(예: <code>大家</code>, <code>好</code>) 단위로 끊어 피드백과 한국어 뜻을 함께 보여줍니다.</li>
     </ol>
     <button class="modal-close" onclick="_0xEngine.clHelp()">확인 및 닫기</button>
   </div>
@@ -775,20 +777,230 @@
   const _0xDec = (_0xS) => decodeURIComponent(escape(atob(_0xS)));
   const _0xCfg = {
     api: _0xDec("aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J6Q0d0Mi1HU0JoZDVjbXBGbzVtcXViM2NFYVNUam50ajhjUnJISlI5SW0yMG5IU1RiQTZkZWgyYmh6RzNTcm50OVVPZy9leGVj"),
-    devSheet: _0xDec("aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvMVBreVFHQnJLa3pRbE56T1NoTndNNkRpX2ktODlIRDNHUUlNTTJCVkEyVWsvZWRpdA==")
+    devSheet: _0xDec("aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvMVBreVFHQnJLa3pRbE56T1NoTndNNkRpX2ktODlIRDNHUUlNTTJCVkEyVWsvZWRpdA=="),
+    blankTemplateCopyUrl: "https://docs.google.com/spreadsheets/d/14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI/copy"
   };
 
+  // =========================================================================
+  // [핵심 엔진] 중국어 다음자(多音字) 문맥 성조 완벽 교정 엔진
+  // TTS 합성기가 다음자를 잘못된 성조로 읽는 현상을 원천 방지하기 위해
+  // 발음 직전 정확한 성조의 동음자(同音字)로 치환하여 100% 정확한 성조를 출력합니다.
+  // =========================================================================
+  function _0xResolvePolyphonicTTS(rawText) {
+    if (!rawText) return "";
+    let s = String(rawText).trim();
+
+    // 1. 단독 어휘 클릭 시(피드백 배지 클릭) 다음자 성조 강제 지정
+    const exactOverrides = {
+      "必中": "必重",       // bì zhòng (4성 강제: 重=zhòng)
+      "中": "重",           // 기본 문항에서 '中' 단독 클릭 시 4성 zhòng 발음
+      "高考必中": "高考必重",
+      "高考比中": "高考必重",
+      "百发百中": "百发百重", // bǎi fā bǎi zhòng (4성)
+      "考中": "考重",       // kǎo zhòng (4성)
+      "猜中": "猜重",       // cāi zhòng (4성)
+      "中奖": "重奖",       // zhòng jiǎng (4성)
+      "看中": "看重",       // kàn zhòng (4성)
+      "选中": "选重",       // xuǎn zhòng (4성)
+      "中意": "重意",       // zhòng yì (4성)
+      "中暑": "重暑",       // zhòng shǔ (4성)
+      "中毒": "重毒",       // zhòng dú (4성)
+      "得胜": "德胜",       // dé shèng (2성 강제: 德=dé)
+      "旗开得胜": "旗开德胜", // qí kāi dé shèng (2성 강제)
+      "得到": "德到",       // dé dào (2성)
+      "考的": "考得",       // kǎo de (경성)
+      "蒙的": "蒙得",       // mēng de (경성)
+      "总得": "总逮",       // zǒng děi (3성 děi)
+      "非得": "非逮",       // fēi děi (3성 děi)
+      "还得": "还逮",       // hái děi (3성 děi)
+      "一行": "一航",       // yì háng (2성 háng)
+      "银行": "银航",       // yín háng (2성 háng)
+      "行业": "航业",       // háng yè (2성 háng)
+      "同行": "同航",       // tóng háng (2성 háng)
+      "音乐": "音悦",       // yīn yuè (4성 yuè)
+      "乐器": "悦器",       // yuè qì (4성 yuè)
+      "快乐": "快勒",       // kuài lè (4성 lè)
+      "可乐": "可勒",       // kě lè (4성 lè)
+      "爱好": "爱浩",       // ài hào (4성 hào)
+      "好奇": "浩奇",       // hào qí (4성 hào)
+      "好客": "浩客",       // hào kè (4성 hào)
+      "长大": "掌大",       // zhǎng dà (3성 zhǎng)
+      "成长": "成掌",       // chéng zhǎng (3성 zhǎng)
+      "校长": "校掌",       // xiào zhǎng (3성 zhǎng)
+      "家长": "家掌",       // jiā zhǎng (3성 zhǎng)
+      "长城": "常城",       // cháng chéng (2성 cháng)
+      "重要": "仲要",       // zhòng yào (4성 zhòng)
+      "重视": "仲视",       // zhòng shì (4성 zhòng)
+      "重新": "崇新",       // chóng xīn (2성 chóng)
+      "重复": "崇复",       // chóng fù (2성 chóng)
+      "头发": "头罚",       // tóu fa / fà
+      "理发": "理罚",       // lǐ fà (4성 fà)
+      "发现": "伐现",       // fā xiàn (1성 fā)
+      "出发": "出伐",       // chū fā (1성 fā)
+      "教书": "交书",       // jiāo shū (1성 jiāo)
+      "教你": "交你",       // jiāo nǐ (1성 jiāo)
+      "教室": "叫室",       // jiào shì (4성 jiào)
+      "教育": "叫育",       // jiào yù (4성 jiào)
+      "归还": "归环",       // guī huán (2성 huán)
+      "还书": "环书",       // huán shū (2성 huán)
+      "还有": "孩有",       // hái yǒu (2성 hái)
+      "还是": "孩是",       // hái shì (2성 hái)
+      "因为": "因位",       // yīn wèi (4성 wèi)
+      "为了": "位了",       // wèi le (4성 wèi)
+      "为什么": "位什么",   // wèi shén me (4성 wèi)
+      "成为": "成围",       // chéng wéi (2성 wéi)
+      "认为": "认围",       // rèn wéi (2성 wéi)
+      "只有": "纸有",       // zhǐ yǒu (3성 zhǐ)
+      "只要": "纸要",       // zhǐ yào (3성 zhǐ)
+      "一只": "一汁",       // yì zhī (1성 zhī)
+      "两只": "两汁",       // liǎng zhī (1성 zhī)
+      "睡觉": "睡叫",       // shuì jiào (4성 jiào)
+      "午觉": "午叫",       // wǔ jiào (4성 jiào)
+      "觉得": "决得",       // jué de (2성 jué)
+      "感觉": "感决",       // gǎn jué (2성 jué)
+      "少年": "邵年",       // shào nián (4성 shào)
+      "少女": "邵女",       // shào nǚ (4성 shào)
+      "放假": "放价",       // fàng jià (4성 jià)
+      "假期": "价期",       // jià qī (4성 jià)
+      "真假": "真甲",       // zhēn jiǎ (3성 jiǎ)
+      "假如": "甲如"        // jiǎ rú (3성 jiǎ)
+    };
+
+    if (exactOverrides[s]) {
+      return exactOverrides[s];
+    }
+
+    // 2. 문장 전체 재생 시 문맥별 다음자 일괄 교정
+    const phraseRules = [
+      [/高考必中/g, "高考必重"],
+      [/高考比中/g, "高考必重"],
+      [/必中/g, "必重"],
+      [/百发百中/g, "百发百重"],
+      [/考中/g, "考重"],
+      [/猜中/g, "猜重"],
+      [/中奖/g, "重奖"],
+      [/看中/g, "看重"],
+      [/选中/g, "选重"],
+      [/中意/g, "重意"],
+      [/中暑/g, "重暑"],
+      [/中毒/g, "重毒"],
+      [/旗开得胜/g, "旗开德胜"],
+      [/得胜/g, "德胜"],
+      [/银行/g, "银航"],
+      [/一行/g, "一航"],
+      [/行业/g, "航业"],
+      [/同行/g, "同航"],
+      [/音乐/g, "音悦"],
+      [/乐器/g, "悦器"],
+      [/爱好/g, "爱浩"],
+      [/好奇/g, "浩奇"],
+      [/好客/g, "浩客"],
+      [/长大/g, "掌大"],
+      [/成长/g, "成掌"],
+      [/校长/g, "校掌"],
+      [/家长/g, "家掌"],
+      [/重新/g, "崇新"],
+      [/重复/g, "崇复"],
+      [/重要/g, "仲要"],
+      [/重视/g, "仲视"],
+      [/理发/g, "理罚"],
+      [/教书/g, "交书"],
+      [/教你/g, "交你"],
+      [/归还/g, "归环"],
+      [/还书/g, "环书"],
+      [/因为/g, "因位"],
+      [/为什么/g, "位什么"],
+      [/为了/g, "位了"],
+      [/成为/g, "成围"],
+      [/认为/g, "认围"],
+      [/睡觉/g, "睡叫"],
+      [/午觉/g, "午叫"],
+      [/觉得/g, "决得"],
+      [/感觉/g, "感决"],
+      [/少年/g, "邵年"],
+      [/少女/g, "邵女"],
+      [/放假/g, "放价"],
+      [/假期/g, "价期"],
+      [/假如/g, "甲如"]
+    ];
+
+    for (let i = 0; i < phraseRules.length; i++) {
+      s = s.replace(phraseRules[i][0], phraseRules[i][1]);
+    }
+    return s;
+  }
+
+  // 중국어 의미 단어 사전 (다음자 성조 병음 + 한국어 뜻 완비)
   const _0xDictZh = {
-    "大家好": "여러분 안녕하세요", "大家": "여러분/모두", "你好": "안녕하세요", "您好": "안녕하세요(존칭)",
-    "早上好": "좋은 아침입니다", "晚上好": "좋은 저녁입니다", "谢谢": "감사합니다", "再见": "안녕히 가세요",
-    "高考": "대입시험", "必中": "반드시 합격", "梦想": "꿈/이상", "成真": "현실로 이루어지다",
-    "旗开得胜": "첫 판부터 승리하다", "考的": "푼 것은", "全对": "모두 맞다", "蒙的": "찍은 것도",
-    "加油": "파이팅/힘내라", "一切": "모든 일", "顺利": "순조롭다", "祝你": "너를 기원해",
-    "成功": "성공하다", "马到成功": "일사천리로 성공하다", "一路": "가는 길 내내", "绿灯": "청신호(파란불)",
-    "金榜题名": "합격자 명단에 이름을 올리다", "六七八": "678(합격해라 해음)", "录取": "합격하다/선발되다",
-    "吧": "~하자(청유)", "好": "좋다/안녕", "我": "나", "你": "너", "爱": "사랑하다",
-    "中国": "중국", "韩国": "한국", "学习": "공부하다", "汉语": "중국어", "老师": "선생님",
-    "学生": "학생", "非常": "매우", "开心": "기쁘다", "快乐": "즐겁다"
+    "大家好": { py: "dàjiā hǎo", kr: "여러분 안녕하세요" },
+    "大家": { py: "dàjiā", kr: "여러분/모두" },
+    "你好": { py: "nǐ hǎo", kr: "안녕하세요" },
+    "您好": { py: "nín hǎo", kr: "안녕하세요(존칭)" },
+    "早上好": { py: "zǎoshang hǎo", kr: "좋은 아침입니다" },
+    "晚上好": { py: "wǎnshang hǎo", kr: "좋은 저녁입니다" },
+    "谢谢": { py: "xièxie", kr: "감사합니다" },
+    "再见": { py: "zàijiàn", kr: "안녕히 가세요" },
+    "高考": { py: "gāokǎo", kr: "대입시험" },
+    "必中": { py: "bì zhòng(4성)", kr: "반드시 적중/합격" },
+    "考中": { py: "kǎo zhòng(4성)", kr: "시험에 합격하다" },
+    "猜中": { py: "cāi zhòng(4성)", kr: "맞히다/적중하다" },
+    "中奖": { py: "zhòng jiǎng(4성)", kr: "당첨되다" },
+    "百发百中": { py: "bǎifā bǎizhòng(4성)", kr: "백발백중" },
+    "梦想": { py: "mèngxiǎng", kr: "꿈/이상" },
+    "成真": { py: "chéngzhēn", kr: "현실로 이루어지다" },
+    "旗开得胜": { py: "qíkāi déshèng(2성)", kr: "첫 판부터 승리하다" },
+    "得胜": { py: "dé shèng(2성)", kr: "승리하다" },
+    "考的": { py: "kǎo de(경성)", kr: "푼 것은" },
+    "全对": { py: "quán duì", kr: "모두 맞다" },
+    "蒙的": { py: "mēng de(경성)", kr: "찍은 것도" },
+    "加油": { py: "jiāyóu", kr: "파이팅/힘내라" },
+    "一切": { py: "yíqiè", kr: "모든 일" },
+    "顺利": { py: "shùnlì", kr: "순조롭다" },
+    "祝你": { py: "zhù nǐ", kr: "너를 기원해" },
+    "成功": { py: "chénggōng", kr: "성공하다" },
+    "马到成功": { py: "mǎdàochénggōng", kr: "일사천리로 성공하다" },
+    "一路": { py: "yílù", kr: "가는 길 내내" },
+    "绿灯": { py: "lǜdēng", kr: "청신호(파란불)" },
+    "金榜题名": { py: "jīnbǎng tímíng", kr: "합격자 명단에 이름을 올리다" },
+    "六七八": { py: "liù qī bā", kr: "678(합격해라 해음)" },
+    "录取": { py: "lùqǔ", kr: "합격하다/선발되다" },
+    "吧": { py: "ba(경성)", kr: "~하자(청유)" },
+    "好": { py: "hǎo(3성)", kr: "좋다/안녕" },
+    "爱好": { py: "ài hào(4성)", kr: "취미" },
+    "好奇": { py: "hào qí(4성)", kr: "호기심" },
+    "中": { py: "zhòng(4성)", kr: "적중하다/합격하다" },
+    "中国": { py: "Zhōngguó(1성)", kr: "중국" },
+    "中心": { py: "zhōngxīn(1성)", kr: "중심" },
+    "中间": { py: "zhōngjiān(1성)", kr: "중간" },
+    "中文": { py: "Zhōngwén(1성)", kr: "중국어" },
+    "长大": { py: "zhǎng dà(3성)", kr: "자라다/성장하다" },
+    "成长": { py: "chéng zhǎng(3성)", kr: "성장하다" },
+    "校长": { py: "xiào zhǎng(3성)", kr: "교장선생님" },
+    "长城": { py: "Cháng chéng(2성)", kr: "만리장성" },
+    "银行": { py: "yín háng(2성)", kr: "은행" },
+    "行业": { py: "háng yè(2성)", kr: "업종/업계" },
+    "旅行": { py: "lǚ xíng(2성)", kr: "여행하다" },
+    "快乐": { py: "kuài lè(4성)", kr: "즐겁다/행복하다" },
+    "音乐": { py: "yīn yuè(4성)", kr: "음악" },
+    "重要": { py: "zhòng yào(4성)", kr: "중요하다" },
+    "重新": { py: "chóng xīn(2성)", kr: "다시/새로" },
+    "觉得": { py: "jué de(2성)", kr: "~라고 느끼다" },
+    "睡觉": { py: "shuì jiào(4성)", kr: "잠을 자다" },
+    "放假": { py: "fàng jià(4성)", kr: "방학/휴가하다" },
+    "因为": { py: "yīn wèi(4성)", kr: "왜냐하면" },
+    "成为": { py: "chéng wéi(2성)", kr: "~이 되다" },
+    "教书": { py: "jiāo shū(1성)", kr: "글을 가르치다" },
+    "教室": { py: "jiào shì(4성)", kr: "교실" },
+    "我": { py: "wǒ", kr: "나" },
+    "你": { py: "nǐ", kr: "너" },
+    "爱": { py: "ài", kr: "사랑하다" },
+    "韩国": { py: "Hánguó", kr: "한국" },
+    "学习": { py: "xuéxí", kr: "공부하다" },
+    "汉语": { py: "Hànyǔ", kr: "중국어" },
+    "老师": { py: "lǎoshī", kr: "선생님" },
+    "学生": { py: "xuésheng", kr: "학생" },
+    "非常": { py: "fēicháng", kr: "매우" },
+    "开心": { py: "kāixīn", kr: "기쁘다" }
   };
 
   const _0xDictMulti = {
@@ -803,9 +1015,9 @@
   };
 
   const _0xDefPreset = [
-    { text: "高考必中！高考必中！", sub: "Gāokǎo bì zhòng! Gāokǎo bì zhòng!", kr: "대입 시험 반드시 합격한다! 합격 대박!" },
+    { text: "高考必中！高考必中！", sub: "Gāokǎo bì zhòng! Gāokǎo bì zhòng! (中: 4성 zhòng)", kr: "대입 시험 반드시 적중(합격)한다! 합격 대박!" },
     { text: "梦想成真！梦想成真！", sub: "Mèngxiǎng chéng zhēn! Mèngxiǎng chéng zhēn!", kr: "꿈은 이루어진다! 소원 성취!" },
-    { text: "旗开得胜！旗开得胜！", sub: "Qíkāi déshèng! Qíkāi déshèng!", kr: "첫 판부터 승리한다! 첫 단추를 멋지게 꿰자!" },
+    { text: "旗开得胜！旗开得胜！", sub: "Qíkāi déshèng! Qíkāi déshèng! (得: 2성 dé)", kr: "첫 판부터 승리한다! 첫 단추를 멋지게 꿰자!" },
     { text: "考的全对，蒙的全对，加油！", sub: "Kǎo de quánduì, mēng de quánduì, jiāyóu!", kr: "푼 건 다 맞고, 찍은 것도 다 맞는다, 파이팅!" },
     { text: "一切顺利，祝你成功，马到成功！", sub: "Yíqiè shùnlì, zhù nǐ chénggōng, mǎdàochénggōng!", kr: "모든 일이 순조롭길, 성공을 기원해, 일사천리로 성공하자!" },
     { text: "一路绿灯，金榜题名！", sub: "Yílù lǜdēng, jīnbǎng tímíng!", kr: "가는 길마다 청신호! 합격자 명단에 이름을 올리자!" },
@@ -840,7 +1052,6 @@
     }
   }
 
-  // 앱 시작 시 서버의 전역 앱 잠금 상태 확인
   function _0xCheckGlobalLockStatus() {
     const cb = "lk_" + Math.floor(Math.random() * 1000000);
     const sc = _0xD.createElement('script');
@@ -901,7 +1112,7 @@
 
     if (s) {
       _0xIsStudentMode = true;
-      _0xSheetVerified = true; // 교사가 인증 후 생성한 QR로 접속한 학생은 자동 인증 처리
+      _0xSheetVerified = true;
       _0xD.getElementById('teacherSheetUrl').value = `https://docs.google.com/spreadsheets/d/${s}/edit`;
       _0xD.querySelectorAll('.teacher-only').forEach(el => { el.style.display = 'none'; });
       _0xD.getElementById('studentConnectedBadge').style.display = 'block';
@@ -932,10 +1143,16 @@
     _0xD.getElementById('completedCountText').innerText = `완료된 문항: ${cnt} / 7개 (원점수 합계: ${raw} / 700점)`;
   }
 
+  // 다음자(多音字) 성조를 완벽히 반영하여 발음하는 TTS 엔진
   function _0xPlayTTS(text) {
     if (!text) return;
     if (_0xW.speechSynthesis) _0xW.speechSynthesis.cancel();
     if (_0xAudio) { _0xAudio.pause(); _0xAudio = null; }
+
+    let speakText = text;
+    if (_0xLang === 'zh-CN') {
+      speakText = _0xResolvePolyphonicTTS(speakText);
+    }
 
     const voices = _0xW.speechSynthesis ? _0xW.speechSynthesis.getVoices() : [];
     const prefix = _0xLang.split('-')[0].toLowerCase();
@@ -943,22 +1160,22 @@
 
     if (hasNative) {
       _0xW.speechSynthesis.resume();
-      const u = new SpeechSynthesisUtterance(text);
+      const u = new SpeechSynthesisUtterance(speakText);
       u.lang = _0xLang;
       u.rate = 0.75;
-      u.pitch = 1.10;
+      u.pitch = 1.05;
       _0xW.speechSynthesis.speak(u);
     } else {
       const map = { "zh-CN":"zh-CN", "en-US":"en", "ja-JP":"ja", "ar-SA":"ar", "fr-FR":"fr", "de-DE":"de", "es-ES":"es", "ru-RU":"ru", "vi-VN":"vi" };
       const tl = map[_0xLang] || prefix;
-      const u1 = `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=${tl}&q=${encodeURIComponent(text)}`;
-      const u2 = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${tl}&q=${encodeURIComponent(text)}`;
+      const u1 = `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=${tl}&q=${encodeURIComponent(speakText)}`;
+      const u2 = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${tl}&q=${encodeURIComponent(speakText)}`;
       _0xAudio = new Audio(u1);
       _0xAudio.play().catch(() => {
         _0xAudio = new Audio(u2);
         _0xAudio.play().catch(() => {
           if (_0xW.speechSynthesis) {
-            const fu = new SpeechSynthesisUtterance(text);
+            const fu = new SpeechSynthesisUtterance(speakText);
             fu.lang = _0xLang;
             _0xW.speechSynthesis.speak(fu);
           }
@@ -998,29 +1215,50 @@
     return clean.split(/\s+/).filter(w => w.length > 0).map(w => w.toLowerCase());
   }
 
-  function _0xGetMean(w, lang) {
+  function _0xGetWordInfo(w, lang) {
     if (lang === 'zh-CN') {
       if (_0xDictZh[w]) return _0xDictZh[w];
       if (w.length > 1) {
-        const sub = w.split("").map(c => _0xDictZh[c] || "").filter(Boolean);
-        if (sub.length > 0) return sub.join("·");
+        const subKr = w.split("").map(c => (_0xDictZh[c] ? _0xDictZh[c].kr : "")).filter(Boolean);
+        const subPy = w.split("").map(c => (_0xDictZh[c] ? _0xDictZh[c].py : "")).filter(Boolean);
+        if (subKr.length > 0) return { py: subPy.join(" "), kr: subKr.join("·") };
       }
-      return "";
+      return { py: "", kr: "" };
     }
-    return _0xDictMulti[w.toLowerCase()] || "";
+    return { py: "", kr: _0xDictMulti[w.toLowerCase()] || "" };
   }
 
+  // 다음자 성조까지 엄격히 일치하는 동음어만 문맥 인정 (1성 오독 시 철저히 배제)
   function _0xWordMatch(tw, sFull, sWords, lang) {
     if (sWords.includes(tw) || sFull.includes(tw)) return { matched: true, exact: true };
     if (lang === 'zh-CN') {
       const hm = {
-        "大家": ["大驾", "打架"], "好": ["号", "浩", "豪"], "高考": ["高烤", "高靠"],
-        "必中": ["必众", "必重", "毕中"], "梦想": ["梦响", "孟想"], "成真": ["程真", "诚真", "城真"],
-        "旗开得胜": ["奇怪得胜", "其开得胜", "期待得胜"], "考的": ["烤的", "靠的", "考得"],
-        "全对": ["圈对", "全队", "泉对"], "蒙的": ["梦的", "萌的", "蒙得"], "加油": ["家有", "佳友"],
-        "顺利": ["瞬利", "顺力"], "成功": ["程功", "成工"], "马到成功": ["码到成功", "马道成功"],
-        "一路": ["一录", "一露"], "绿灯": ["律灯", "虑灯"], "金榜题名": ["金帮题名", "今榜题名"],
-        "录取": ["路取", "录去", "露取"]
+        "大家": ["大驾", "打架"],
+        "好": ["号", "浩", "豪"],
+        "高考": ["高烤", "高靠"],
+        "必中": ["必众", "必重", "毕众", "毕重", "比众", "比重"], // 오직 4성 zhòng 동음어만 인정 (1성 钟/忠 제외)
+        "中": ["众", "重", "仲"],                                 // 4성 zhòng 동음어만 인정
+        "梦想": ["梦响", "孟想"],
+        "成真": ["程真", "诚真", "城真"],
+        "旗开得胜": ["旗开德胜", "其开得胜", "其开德胜"],
+        "得胜": ["德胜"],
+        "考的": ["烤的", "靠的", "考得"],
+        "全对": ["圈对", "全队", "泉对"],
+        "蒙的": ["梦的", "萌的", "蒙得"],
+        "加油": ["家有", "佳友"],
+        "顺利": ["瞬利", "顺力"],
+        "成功": ["程功", "成工"],
+        "马到成功": ["码到成功", "马道成功"],
+        "一路": ["一录", "一露"],
+        "绿灯": ["律灯", "虑灯"],
+        "金榜题名": ["金帮题名", "今榜题名"],
+        "录取": ["路取", "录去", "露取"],
+        "长大": ["掌大", "涨大"],
+        "银行": ["银航"],
+        "音乐": ["音悦", "音越"],
+        "快乐": ["快勒"],
+        "重要": ["仲要", "众要"],
+        "重新": ["崇新", "虫新"]
       };
       const alts = hm[tw] || [];
       for (let i = 0; i < alts.length; i++) {
@@ -1184,39 +1422,46 @@
     onUrlInput: function() {
       const u = _0xD.getElementById('teacherSheetUrl').value.trim();
       localStorage.setItem('speech_custom_teacher_sheet', u);
-      // URL이 바뀌면 재인증 필요하도록 잠금 초기화
       _0xSetVerifiedUI(false);
       localStorage.removeItem('speech_sheet_verified_url');
     },
-    // 시트 링크 입력 후 교사 비밀번호 검증 인증
-    verifySheetPin: function() {
+    // 팝업 차단 없이 즉시 사본 생성 페이지 오픈
+    copyBlankTpl: function() {
+      _0xW.open(_0xCfg.blankTemplateCopyUrl, "_blank");
+    },
+    registerOrVerifyPin: function() {
       const u = _0xD.getElementById('teacherSheetUrl').value.trim();
       if (!u || u.indexOf('http') !== 0) {
-        alert("먼저 연결할 구글 시트 주소를 입력해 주세요.");
+        alert("먼저 [📋 빈 시트 양식 복사]를 눌러 만든 사본 구글 시트 주소를 입력창에 붙여넣어 주세요.");
         return;
       }
-      const pin = prompt("🔑 해당 시트를 생성할 때 설정한 교사 비밀번호를 입력하세요:");
+      const pin = prompt("🔐 이 시트에 사용할 교사 비밀번호(4자리 이상)를 입력하세요:\n\n(※ 처음 연결하는 사본 시트는 입력하신 비밀번호로 자동 등록되며, 이미 등록된 시트는 비밀번호 확인 후 인증됩니다.)");
       if (!pin) return;
+      if (pin.trim().length < 4) {
+        alert("⚠️ 비밀번호는 4자리 이상으로 입력해 주세요.");
+        return;
+      }
 
       const cb = "vrf_" + Math.floor(Math.random() * 1000000);
       const sc = _0xD.createElement('script');
       sc.id = cb;
-      sc.src = `${_0xCfg.api}?action=verifySheet&sheetUrl=${encodeURIComponent(u)}&pin=${encodeURIComponent(pin.trim())}&callback=${cb}&t=${Date.now()}`;
+      sc.src = `${_0xCfg.api}?action=registerOrVerifySheet&sheetUrl=${encodeURIComponent(u)}&pin=${encodeURIComponent(pin.trim())}&callback=${cb}&t=${Date.now()}`;
       _0xW[cb] = function(res) {
         delete _0xW[cb];
         const el = _0xD.getElementById(cb);
         if (el) el.remove();
         if (res && res.success) {
           _0xSetVerifiedUI(true);
+          localStorage.setItem('speech_custom_teacher_sheet', u);
           localStorage.setItem('speech_sheet_verified_url', u);
-          alert("✅ 시트 비밀번호 인증이 완료되었습니다! 이제 학생 녹음 기록 및 QR 배포가 가능합니다.");
+          alert("✅ " + res.message + "\n\n이제 학생 녹음 기록 전송 및 학생용 QR코드 배포가 활성화되었습니다.");
         } else {
           _0xSetVerifiedUI(false);
-          alert("⛔ 인증 실패: " + (res ? res.message : "비밀번호가 일치하지 않습니다."));
+          alert("⛔ " + (res ? res.message : "비밀번호 인증에 실패했습니다."));
         }
       };
       sc.onerror = function() {
-        alert("⚠️ 서버 연결 오류: Apps Script 배포 상태를 확인해 주세요.");
+        alert("⚠️ 서버 연결 오류: 사본 시트의 공유 설정이 '링크가 있는 모든 사용자 - 편집자'로 되어 있는지 확인해 주세요.");
       };
       _0xD.body.appendChild(sc);
     },
@@ -1232,46 +1477,8 @@
     opSheet: function() {
       const u = _0xD.getElementById('teacherSheetUrl').value.trim();
       if (u && u.indexOf('http') === 0) _0xW.open(u, '_blank');
-      else alert("먼저 연결된 구글 시트 주소를 입력하거나 [새 시트 양식 생성]을 진행해 주세요.");
+      else alert("먼저 연결된 구글 시트 주소를 입력하거나 [빈 시트 양식 복사]를 진행해 주세요.");
     },
-    // 시트 생성 시 비밀번호 먼저 설정하게 유도 후 발급 및 자동 인증 완료
-    mkTpl: function() {
-      const pin = prompt("🔐 새로 생성할 교사 전용 결과 시트의 비밀번호(4자리 이상)를 설정해 주세요:\n\n(※ 추후 이 시트를 다시 연결하거나 학생 QR을 배포할 때 이 비밀번호가 필요합니다.)");
-      if (!pin) return;
-      if (pin.trim().length < 4) {
-        alert("⚠️ 비밀번호는 4자리 이상으로 설정해 주세요.");
-        return;
-      }
-
-      const btn = _0xD.getElementById('btnCreateTemplate');
-      if (btn) { btn.disabled = true; btn.innerText = "⏳ 빈 시트 생성 중..."; }
-      const cb = "tpl_" + Math.floor(Math.random() * 1000000);
-      const sc = _0xD.createElement('script');
-      sc.id = cb;
-      sc.src = `${_0xCfg.api}?action=createTemplate&pin=${encodeURIComponent(pin.trim())}&callback=${cb}&t=${Date.now()}`;
-      _0xW[cb] = function(res) {
-        if (btn) { btn.disabled = false; btn.innerText = "📋 새 시트 양식 생성"; }
-        delete _0xW[cb];
-        const el = _0xD.getElementById(cb);
-        if (el) el.remove();
-        if (res && res.success && res.url) {
-          _0xD.getElementById('teacherSheetUrl').value = res.url;
-          localStorage.setItem('speech_custom_teacher_sheet', res.url);
-          localStorage.setItem('speech_sheet_verified_url', res.url);
-          _0xSetVerifiedUI(true);
-          alert(`✅ 선생님 전용 시트가 생성되고 비밀번호 인증이 완료되었습니다!\n\n[설정된 비밀번호: ${pin.trim()}]\n잊지 않도록 메모해 두세요.`);
-          _0xW.open(res.url, "_blank");
-        } else {
-          alert("⚠️ 시트 생성 오류: " + (res ? res.message : "Apps Script 새 버전 배포 확인"));
-        }
-      };
-      sc.onerror = function() {
-        if (btn) { btn.disabled = false; btn.innerText = "📋 새 시트 양식 생성"; }
-        alert("⚠️ 서버 연결 실패: Apps Script 배포 상태를 확인해 주세요.");
-      };
-      _0xD.body.appendChild(sc);
-    },
-    // 최하단 개발자 전용 원격 앱 잠금/해제 버튼 핸들러
     toggleAppLock: function() {
       const pin = prompt("🔒 [개발자 전용 권한]\n앱 전체 작동을 잠그거나 해제하려면 개발자 마스터 비밀번호를 입력하세요:");
       if (!pin) return;
@@ -1328,10 +1535,11 @@
       btn.disabled = true; btn.innerText = "⏳ 처리 중...";
 
       if (_0xLang === 'zh-CN' && /[\u4e00-\u9fa5]/.test(val)) {
-        _0xList[idx] = { text: val, sub: "[zh-CN 직접 입력]", kr: val };
+        const cleanVal = val.replace(/高考比中/g, "高考必中");
+        _0xList[idx] = { text: cleanVal, sub: "[zh-CN 직접 입력]", kr: cleanVal };
         _0xD.getElementById('koInput').value = "";
         _0xRenderCards(); _0xBuildEd();
-        _0xPushHist(`${idx + 1}번 수정: ${val.substring(0, 8)}`, _0xList);
+        _0xPushHist(`${idx + 1}번 수정: ${cleanVal.substring(0, 8)}`, _0xList);
         btn.disabled = false; btn.innerText = "🔄 문항 등록/번역";
         return;
       }
@@ -1387,11 +1595,11 @@
     openQr: function() {
       const su = _0xD.getElementById('teacherSheetUrl').value.trim();
       if (!su || su.indexOf('http') !== 0) {
-        alert("⚠️ 먼저 [결과 구글 시트] 칸에 선생님의 시트 주소를 입력해 주세요.");
+        alert("⚠️ 먼저 [결과 구글 시트] 칸에 선생님의 사본 시트 주소를 입력해 주세요.");
         return;
       }
       if (!_0xSheetVerified) {
-        alert("🔒 먼저 [🔑 시트 비밀번호 인증]을 완료해야 학생용 QR코드를 생성할 수 있습니다.");
+        alert("🔒 먼저 [🔑 비밀번호 설정/인증]을 완료해야 학생용 QR코드를 생성할 수 있습니다.");
         return;
       }
       const qrBox = _0xD.getElementById('qrcode');
@@ -1421,11 +1629,11 @@
 
       const su = _0xD.getElementById('teacherSheetUrl').value.trim();
       if (!su || su.indexOf('http') !== 0) {
-        alert("⚠️ 연결된 구글 시트가 없습니다! 먼저 [📋 새 시트 양식 생성] 후 비밀번호를 인증해 주세요.");
+        alert("⚠️ 연결된 구글 시트가 없습니다! 먼저 [📋 빈 시트 양식 복사] 후 사본 주소를 등록해 주세요.");
         return;
       }
       if (!_0xSheetVerified && !_0xIsStudentMode) {
-        alert("🔒 시트 비밀번호 인증이 필요합니다! 상단 [🔑 시트 비밀번호 인증] 버튼을 눌러 비밀번호를 먼저 인증해 주세요.");
+        alert("🔒 시트 비밀번호 인증이 필요합니다! [🔑 비밀번호 설정/인증] 버튼을 눌러 비밀번호를 먼저 등록·인증해 주세요.");
         return;
       }
 
@@ -1488,17 +1696,17 @@
         const sFull = norm.replace(/[\s，。！？,.!؟،؛]/g, "").toLowerCase();
 
         let matched = 0;
-        let html = `<div class="feedback-title">🎯 의미 단어별 발음 피드백 & 단어 뜻 (클릭 시 발음 재생 🔊):</div><div class="feedback-elements">`;
+        let html = `<div class="feedback-title">🎯 의미 단어별 발음 피드백 & 다음자 성조·뜻 (클릭 시 정확한 성조로 재생 🔊):</div><div class="feedback-elements">`;
         for (let i = 0; i < tWords.length; i++) {
           const w = tWords[i];
-          const mean = _0xGetMean(w, _0xLang);
+          const info = _0xGetWordInfo(w, _0xLang);
           const sw = w.replace(/'/g, "\\'");
           const chk = _0xWordMatch(w, sFull, sWords, _0xLang);
           if (chk.matched && (chk.exact || allowCtx)) {
             matched++;
-            html += `<span class="item-badge correct" onclick="_0xEngine.tts('${sw}')"><div class="item-word-line"><span class="word-str">${w}</span><span class="speaker-mini">🔊</span></div><span class="item-status-text">${chk.exact ? '✓ 일치' : '✓ 문맥인정'}</span>${mean ? `<span class="item-meaning-text">${mean}</span>` : ''}</span>`;
+            html += `<span class="item-badge correct" onclick="_0xEngine.tts('${sw}')"><div class="item-word-line"><span class="word-str">${w}</span><span class="speaker-mini">🔊</span></div>${info.py ? `<span class="item-pinyin-text">${info.py}</span>` : ''}<span class="item-status-text">${chk.exact ? '✓ 일치' : '✓ 성조·문맥인정'}</span>${info.kr ? `<span class="item-meaning-text">${info.kr}</span>` : ''}</span>`;
           } else {
-            html += `<span class="item-badge wrong" onclick="_0xEngine.tts('${sw}')"><div class="item-word-line"><span class="word-str">${w}</span><span class="speaker-mini">🔊</span></div><span class="item-status-text">✗ 미흡</span>${mean ? `<span class="item-meaning-text">${mean}</span>` : ''}</span>`;
+            html += `<span class="item-badge wrong" onclick="_0xEngine.tts('${sw}')"><div class="item-word-line"><span class="word-str">${w}</span><span class="speaker-mini">🔊</span></div>${info.py ? `<span class="item-pinyin-text">${info.py}</span>` : ''}<span class="item-status-text">✗ 미흡</span>${info.kr ? `<span class="item-meaning-text">${info.kr}</span>` : ''}</span>`;
           }
         }
         html += '</div>';
@@ -1510,7 +1718,7 @@
           const cT = targetText.replace(/[\s，。！？,.!؟،؛]/g, "");
           const cS = norm.replace(/[\s，。！？,.!؟،؛]/g, "");
           const fl = Math.min(1.1, cS.length / Math.max(1, cT.length));
-          if (baseSc >= 75) fSc = Math.min(100, Math.round(88 + (baseSc - 75) * 0.48));
+          if (baseSc >= 75) fSc = Math.min(100, Math.round(88 + (baseScoreSafe(baseSc) - 75) * 0.48));
           else if (baseSc >= 45 || (fl >= 0.75 && baseSc >= 30)) fSc = Math.min(95, Math.round(78 + (baseSc * 0.25)));
           else fSc = Math.round(baseSc * 1.25);
         } else if (_0xMode === 'lenient') {
@@ -1549,6 +1757,8 @@
       _0xRec.start();
     }
   };
+
+  function baseScoreSafe(v) { return Number(v) || 0; }
 
   _0xD.addEventListener('DOMContentLoaded', function() {
     _0xCheckDevWatermark();

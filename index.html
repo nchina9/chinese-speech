@@ -655,7 +655,7 @@
         <button type="button" class="btn-mode active" id="btnModeComm" onclick="_0xEngine.setMode('comm')">🗣️ 소통가능</button>
       </div>
       <!-- 일반인 및 자율 학습자를 위한 [개인 연습용] 원클릭 전환 버튼 -->
-      <button type="button" class="btn-tool personal" id="btnPersonalMode" onclick="_0xEngine.togglePersonalMode()">🎧 개인 연습용 (시트 없이 바로 시작)</button>
+      <button type="button" class="btn-tool personal teacher-only" id="btnPersonalMode" onclick="_0xEngine.togglePersonalMode()">🎧 개인 연습용 (시트 없이 바로 시작)</button>
       <button class="btn-tool qr teacher-only" id="btnQrTop" onclick="_0xEngine.openQr()">📱 학생 배포용 QR</button>
       <button class="btn-tool edit teacher-only" onclick="_0xEngine.togEdit()">✏️ 문항 편집</button>
       <a class="btn-tool copy teacher-only" id="btnCopyTop" href="https://docs.google.com/spreadsheets/d/14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI/copy" target="_blank" rel="noopener noreferrer" onclick="_0xEngine.notifyManualCopy()">📋 시트 사본 복사</a>
@@ -665,7 +665,7 @@
 
   <!-- 개인 연습용 모드 활성화 시 안내 배너 -->
   <div class="personal-mode-banner" id="personalModeBanner">
-    <span>🎧 <strong>개인 연습 모드 작동 중:</strong> 구글 시트 연결 없이 이름만 입력(또는 생략)하고 곧바로 발음 듣기·녹음·100점 환산 채점을 자유롭게 이용하실 수 있습니다!</span>
+    <span id="personalBannerText">🎧 <strong>개인 연습 모드 작동 중:</strong> 시트 연결 없이 이름만 입력(또는 생략)하고 곧바로 발음 듣기·녹음·100점 환산 채점을 자유롭게 이용하실 수 있습니다! (단, 연결된 시트 주소가 있으면 시트에도 자동 저장됩니다)</span>
     <button type="button" class="btn-tool" style="background:#334155;" onclick="_0xEngine.togglePersonalMode()">🏫 학급 시트 연동 모드로 돌아가기</button>
   </div>
 
@@ -763,7 +763,8 @@
   <div class="modal-content">
     <h3>📖 학생 주도 다국어 연습기 사용 안내</h3>
     <ol>
-      <li><strong>개인 연습용 모드:</strong> 상단 <code>🎧 개인 연습용</code> 버튼을 누르면 구글 시트 연결이나 학번 없이 이름만 적고 곧바로 듣고 녹음하며 100점 만점 성적을 확인할 수 있습니다.</li>
+      <li><strong>시트 자동 기록 보장:</strong> 실수로 개인 연습 모드를 눌렀더라도 연결된 구글 시트 주소가 있거나 QR코드로 접속한 학생이면 모든 발음 평가 결과가 무조건 구글 시트에 기록됩니다.</li>
+      <li><strong>개인 연습용 모드:</strong> 시트 주소를 비워둔 상태에서 <code>🎧 개인 연습용</code> 버튼을 누르면 시트 연결 없이 이름만 적고 곧바로 듣고 녹음하며 100점 만점 성적을 확인할 수 있습니다.</li>
       <li><strong>타 교사 시트 사본 자동 연결:</strong> <code>📋 1. 시트 사본 복사하기</code>를 눌러 사본을 만든 뒤, 사본 시트 우측 상단 <code>[공유]</code>에서 <strong>'링크가 있는 모든 사용자 - 편집자'</strong>로 설정하고 <code>[링크 복사]</code>를 누른 채 이 화면으로 돌아오면 주소칸에 자동으로 연결됩니다.</li>
       <li><strong>다음자(多音字) 성조 정밀 반영:</strong> 중국어의 모든 주요 다음자(예: <code>高考必中 [bì zhòng 4성]</code>)를 문맥에 맞게 100% 정확한 성조로 발음하고 채점합니다.</li>
     </ol>
@@ -1142,9 +1143,9 @@
 
     if (s) {
       _0xIsStudentMode = true;
+      _0xIsPersonalMode = false; // QR 접속 학생은 개인 연습 모드 원천 차단
       _0xD.getElementById('teacherSheetUrl').value = `https://docs.google.com/spreadsheets/d/${s}/edit`;
       _0xD.querySelectorAll('.teacher-only').forEach(el => { el.style.display = 'none'; });
-      _0xD.getElementById('btnPersonalMode').style.display = 'none';
       _0xD.getElementById('studentConnectedBadge').style.display = 'block';
       _0xUpdateSheetStatusUI();
     }
@@ -1423,7 +1424,6 @@
     } catch (e) {}
   }
 
-  // 타 교사가 사본 복사 후 주소를 복사해 화면으로 돌아오는 순간 자동으로 감지하여 입력칸에 연결
   async function _0xAutoDetectCopiedSheet(showAlert) {
     try {
       if (navigator.clipboard && navigator.clipboard.readText) {
@@ -1472,8 +1472,8 @@
       _0xD.getElementById('btnModeLenient').classList.toggle('active', m === 'lenient');
       _0xD.getElementById('btnModeComm').classList.toggle('active', m === 'comm');
     },
-    // [핵심 기능 3] 일반인/개별 학습자용 '개인 연습용' 모드 토글 (시트 연결 없이 이름만 쓰고 즉시 작동)
     togglePersonalMode: function() {
+      if (_0xIsStudentMode) return; // QR 접속 학생은 개인 연습 모드 전환 불가
       _0xIsPersonalMode = !_0xIsPersonalMode;
       const btn = _0xD.getElementById('btnPersonalMode');
       const banner = _0xD.getElementById('personalModeBanner');
@@ -1507,7 +1507,6 @@
     },
     onUrlInput: function() {
       const u = _0xD.getElementById('teacherSheetUrl').value.trim();
-      // 타 교사가 실수로 개발자 원본 시트 주소를 그대로 넣은 경우 안내
       if (u.indexOf('14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI') !== -1 && !_0xDevAuthorized) {
         alert("⚠️ 이 주소는 개발자(신윤기 수석) 원본 시트입니다!\n\n타 교사는 [📋 1. 시트 사본 복사하기]를 눌러 생성된 본인 사본 시트의 주소를 넣어주세요.\n(개발자 본인이시면 우측 하단 [🔒 개발자 본인 시트 열기]를 눌러 비밀번호를 입력해 주세요.)");
         _0xD.getElementById('teacherSheetUrl').value = "";
@@ -1523,7 +1522,6 @@
     tryAutoPasteClipboard: function() {
       _0xAutoDetectCopiedSheet(true);
     },
-    // [핵심 기능 2] 개발자(신윤기 수석) 본인 시트 열기/연결 시에만 마스터 비밀번호 유지
     connDev: function() {
       const pin = prompt("🔑 개발자(신윤기 수석) 전용 마스터 비밀번호를 입력하세요:");
       if (!pin) return;
@@ -1709,19 +1707,30 @@
       if (_0xRec) { _0xRec.abort(); _0xRec = null; _0xRecIdx = null; }
 
       const su = _0xD.getElementById('teacherSheetUrl').value.trim();
+      const hasValidSheet = (su && su.indexOf('http') === 0);
       const idEl = _0xD.getElementById('studentId');
       this.fmtId(idEl);
       let id = idEl.value.trim();
       let name = _0xD.getElementById('studentName').value.trim();
 
-      // 개인 연습 모드인 경우 시트 연결이나 학번 없이 이름만(미입력 시 기본값)으로 즉시 녹음 시작
-      if (_0xIsPersonalMode) {
+      // [핵심 안전장치]
+      // 1) QR 접속 학생(_0xIsStudentMode)은 무조건 학번+이름 필수 및 시트 저장
+      // 2) 실수로 개인 연습 모드를 눌렀더라도 시트 주소(hasValidSheet)가 있으면 무조건 시트에 기록
+      if (_0xIsStudentMode) {
+        if (!id || !name) {
+          alert("먼저 학번과 이름을 모두 입력해 주세요!");
+          return;
+        }
+      } else if (_0xIsPersonalMode) {
         if (!name) {
           name = "개인학습자";
           _0xD.getElementById('studentName').value = name;
         }
+        if (!id) {
+          id = "개인연습";
+        }
       } else {
-        if (!su || su.indexOf('http') !== 0) {
+        if (!hasValidSheet) {
           alert("⚠️ 연결된 구글 시트가 없습니다!\n\n- 학급 수업을 하시려면 [📋 1. 시트 사본 복사하기]로 시트를 연결하시고,\n- 시트 없이 혼자 연습하시려면 상단의 [🎧 개인 연습용] 버튼을 눌러주세요!");
           return;
         }
@@ -1831,20 +1840,22 @@
         spEl.innerHTML = `인식된 발음: <strong>${finalSp}</strong>`;
         scEl.innerHTML = `평가 점수: <strong>${fSc}점</strong> (${grd}) <span style="font-size:12px; color:#cbd5e1;">[${mNames[_0xMode]} 모드 | ${matched}/${tWords.length}개 단어 일치]</span>`;
 
-        if (_0xIsPersonalMode) {
-          stEl.style.color = "#f472b6";
-          stEl.innerText = `✓ [${name}] 개인 연습 채점 완료! (하단 종합 점수에 반영됨)`;
-        } else {
+        // [무조건 기록 규칙] 시트 주소가 있거나 QR 접속 학생이면 개인 연습 모드 여부와 상관없이 무조건 구글 시트에 기록!
+        if (hasValidSheet || _0xIsStudentMode) {
+          stEl.style.color = "#4ade80";
           stEl.innerText = "⏳ 구글 시트 기록 중...";
           _0xSaveSheet({
             sheetUrl: su,
-            studentId: id,
-            studentName: name,
+            studentId: id || "개인연습",
+            studentName: name || "개인학습자",
             targetText: targetText,
             spokenText: finalSp,
             score: fSc,
             grade: `${grd} [${mNames[_0xMode]} / ${_0xLang}]`
           }, stEl);
+        } else {
+          stEl.style.color = "#f472b6";
+          stEl.innerText = `✓ [${name}] 개인 연습 채점 완료! (하단 종합 점수에 반영됨)`;
         }
       };
 

@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="referrer" content="no-referrer">
   <title>학생 주도 다국어 연습기 - 개발자: 신윤기 수석</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
@@ -811,10 +810,9 @@
   }, 2500);
 
   const _0xDec = (_0xS) => decodeURIComponent(escape(atob(_0xS)));
-  // ★ devSheet: 수석님의 실제 마스터 시트(1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk)로 고정
-  // ★ blankTemplateCopyUrl: 타 교사 배포용 빈 양식(14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI)으로 분리
+  // ★ 결정적 수정: 수석님께서 알려주신 실제 웹앱 주소(deh2hbzG3Srnt9UOg)로 100% 정확히 일치시켰습니다!
   const _0xCfg = {
-    api: _0xDec("aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J6Q0d0Mi1HU0JoZDVjbXBGbzVtcXViM2NFYVNUam50ajhjUnJISlI5SW0yMG5IU1RiQTZkZWgyYmh6RzNTcm50OVVPZy9leGVj"),
+    api: "https://script.google.com/macros/s/AKfycbzCGt2-GSBhd5cmpFo5mqub3cEaSTjntj8cRrHJR9Im20nHSTbA6deh2hbzG3Srnt9UOg/exec",
     devSheet: "https://docs.google.com/spreadsheets/d/1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk/edit?gid=1493352603#gid=1493352603",
     blankTemplateCopyUrl: "https://docs.google.com/spreadsheets/d/14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI/copy"
   };
@@ -1386,17 +1384,11 @@
       if (el) el.remove();
       const fqs = Object.keys(base).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(base[k])).join('&');
       const furl = `${_0xCfg.api}?${fqs}&nocache=${Date.now()}`;
-      fetch(furl, { method: 'GET', mode: 'no-cors', cache: 'no-cache', credentials: 'omit' })
+      fetch(furl, { method: 'GET', mode: 'no-cors', cache: 'no-cache' })
         .then(() => { statusEl.style.color = "#4ade80"; statusEl.innerText = "✓ 구글 시트 전송 완료!"; })
         .catch(() => {
-          if (navigator.sendBeacon) {
-            navigator.sendBeacon(furl);
-            statusEl.style.color = "#4ade80";
-            statusEl.innerText = "✓ 구글 시트 전송 완료!";
-          } else {
-            statusEl.style.color = "#f87171";
-            statusEl.innerText = "⚠️ 네트워크 또는 시트 공유 권한을 확인해 주세요.";
-          }
+          statusEl.style.color = "#f87171";
+          statusEl.innerText = "⚠️ 네트워크 또는 시트 공유 권한을 확인해 주세요.";
         });
     };
     _0xD.body.appendChild(sc);
@@ -1529,12 +1521,10 @@
     tryAutoPasteClipboard: function() {
       _0xAutoDetectCopiedSheet(true);
     },
-    // [핵심 수정] 개발자 본인 시트 열기 클릭 시 1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk 시트로 즉시 연결 및 오픈
     connDev: function() {
       const pin = prompt("🔑 개발자(신윤기 수석) 전용 마스터 비밀번호를 입력하세요:");
       if (!pin) return;
 
-      // 로컬에서도 즉시 검증 지원 (0804) + 서버 이중 확인
       if (pin.trim() === "0804") {
         _0xDevAuthorized = true;
         _0xD.getElementById('teacherSheetUrl').value = _0xCfg.devSheet;

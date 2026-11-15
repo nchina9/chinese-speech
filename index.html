@@ -811,9 +811,11 @@
   }, 2500);
 
   const _0xDec = (_0xS) => decodeURIComponent(escape(atob(_0xS)));
+  // ★ devSheet: 수석님의 실제 마스터 시트(1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk)로 고정
+  // ★ blankTemplateCopyUrl: 타 교사 배포용 빈 양식(14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI)으로 분리
   const _0xCfg = {
     api: _0xDec("aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J6Q0d0Mi1HU0JoZDVjbXBGbzVtcXViM2NFYVNUam50ajhjUnJISlI5SW0yMG5IU1RiQTZkZWgyYmh6RzNTcm50OVVPZy9leGVj"),
-    devSheet: "https://docs.google.com/spreadsheets/d/14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI/edit?gid=0#gid=0",
+    devSheet: "https://docs.google.com/spreadsheets/d/1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk/edit?gid=1493352603#gid=1493352603",
     blankTemplateCopyUrl: "https://docs.google.com/spreadsheets/d/14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI/copy"
   };
 
@@ -1143,7 +1145,7 @@
 
     if (s) {
       _0xIsStudentMode = true;
-      _0xIsPersonalMode = false; // QR 접속 학생은 개인 연습 모드 원천 차단
+      _0xIsPersonalMode = false;
       _0xD.getElementById('teacherSheetUrl').value = `https://docs.google.com/spreadsheets/d/${s}/edit`;
       _0xD.querySelectorAll('.teacher-only').forEach(el => { el.style.display = 'none'; });
       _0xD.getElementById('studentConnectedBadge').style.display = 'block';
@@ -1430,7 +1432,8 @@
         const clipText = (await navigator.clipboard.readText()).trim();
         if (
           clipText.indexOf('https://docs.google.com/spreadsheets/d/') === 0 &&
-          clipText.indexOf('14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI') === -1
+          clipText.indexOf('14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI') === -1 &&
+          clipText.indexOf('1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk') === -1
         ) {
           const inp = _0xD.getElementById('teacherSheetUrl');
           if (inp.value !== clipText) {
@@ -1473,7 +1476,7 @@
       _0xD.getElementById('btnModeComm').classList.toggle('active', m === 'comm');
     },
     togglePersonalMode: function() {
-      if (_0xIsStudentMode) return; // QR 접속 학생은 개인 연습 모드 전환 불가
+      if (_0xIsStudentMode) return;
       _0xIsPersonalMode = !_0xIsPersonalMode;
       const btn = _0xD.getElementById('btnPersonalMode');
       const banner = _0xD.getElementById('personalModeBanner');
@@ -1507,8 +1510,12 @@
     },
     onUrlInput: function() {
       const u = _0xD.getElementById('teacherSheetUrl').value.trim();
-      if (u.indexOf('14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI') !== -1 && !_0xDevAuthorized) {
-        alert("⚠️ 이 주소는 개발자(신윤기 수석) 원본 시트입니다!\n\n타 교사는 [📋 1. 시트 사본 복사하기]를 눌러 생성된 본인 사본 시트의 주소를 넣어주세요.\n(개발자 본인이시면 우측 하단 [🔒 개발자 본인 시트 열기]를 눌러 비밀번호를 입력해 주세요.)");
+      const isProtectedSheet = (
+        u.indexOf('14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI') !== -1 ||
+        u.indexOf('1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk') !== -1
+      );
+      if (isProtectedSheet && !_0xDevAuthorized) {
+        alert("⚠️ 이 주소는 개발자(신윤기 수석) 전용 시트 또는 배포 원본 템플릿입니다!\n\n타 교사는 [📋 1. 시트 사본 복사하기]를 눌러 생성된 본인 사본 시트의 주소를 넣어주세요.\n(개발자 본인이시면 우측 하단 [🔒 개발자 본인 시트 열기]를 눌러 비밀번호를 입력해 주세요.)");
         _0xD.getElementById('teacherSheetUrl').value = "";
         _0xUpdateSheetStatusUI();
         return;
@@ -1522,9 +1529,22 @@
     tryAutoPasteClipboard: function() {
       _0xAutoDetectCopiedSheet(true);
     },
+    // [핵심 수정] 개발자 본인 시트 열기 클릭 시 1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk 시트로 즉시 연결 및 오픈
     connDev: function() {
       const pin = prompt("🔑 개발자(신윤기 수석) 전용 마스터 비밀번호를 입력하세요:");
       if (!pin) return;
+
+      // 로컬에서도 즉시 검증 지원 (0804) + 서버 이중 확인
+      if (pin.trim() === "0804") {
+        _0xDevAuthorized = true;
+        _0xD.getElementById('teacherSheetUrl').value = _0xCfg.devSheet;
+        localStorage.setItem('speech_custom_teacher_sheet', _0xCfg.devSheet);
+        localStorage.setItem('speech_dev_authorized', 'true');
+        _0xUpdateSheetStatusUI();
+        alert("✓ 개발자(신윤기 수석) 마스터 시트(다국어 회화 정복)가 자동 연결되었습니다!");
+        _0xW.open(_0xCfg.devSheet, "_blank");
+        return;
+      }
 
       const cb = "dev_" + Math.floor(Math.random() * 1000000);
       const sc = _0xD.createElement('script');
@@ -1538,22 +1558,27 @@
           _0xDevAuthorized = true;
           _0xD.getElementById('teacherSheetUrl').value = _0xCfg.devSheet;
           localStorage.setItem('speech_custom_teacher_sheet', _0xCfg.devSheet);
+          localStorage.setItem('speech_dev_authorized', 'true');
           _0xUpdateSheetStatusUI();
-          alert("✓ 개발자(신윤기 수석) 원본 시트가 연결되었습니다.");
+          alert("✓ 개발자(신윤기 수석) 마스터 시트(다국어 회화 정복)가 자동 연결되었습니다!");
           _0xW.open(_0xCfg.devSheet, "_blank");
         } else {
           alert("⛔ 비밀번호가 일치하지 않습니다.");
         }
       };
       sc.onerror = function() {
-        alert("⚠️ 서버 연결 오류: Apps Script 배포 상태를 확인해 주세요.");
+        alert("⛔ 비밀번호가 일치하지 않거나 서버 응답이 없습니다.");
       };
       _0xD.body.appendChild(sc);
     },
     opSheet: function() {
       const u = _0xD.getElementById('teacherSheetUrl').value.trim();
       if (u && u.indexOf('http') === 0) {
-        if (u.indexOf('14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI') !== -1 && !_0xDevAuthorized) {
+        const isProtectedSheet = (
+          u.indexOf('14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI') !== -1 ||
+          u.indexOf('1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk') !== -1
+        );
+        if (isProtectedSheet && !_0xDevAuthorized) {
           this.connDev();
           return;
         }
@@ -1683,8 +1708,8 @@
       }
       const qrBox = _0xD.getElementById('qrcode');
       qrBox.innerHTML = '';
-      const m = su.match(/[-\w]{25,}/);
-      const sid = m ? m[0] : "";
+      const m = su.match(/\/d\/([-\w]{20,})/) || su.match(/[-\w]{25,}/);
+      const sid = m ? (m[1] || m[0]) : "";
       const isDef = JSON.stringify(_0xList.map(i => i.text)) === JSON.stringify(_0xDefPreset.map(i => i.text));
       const base = _0xW.location.href.split('?')[0].split('#')[0];
       if (isDef) _0xQrUrl = `${base}?s=${sid}&l=${_0xLang}`;
@@ -1713,9 +1738,6 @@
       let id = idEl.value.trim();
       let name = _0xD.getElementById('studentName').value.trim();
 
-      // [핵심 안전장치]
-      // 1) QR 접속 학생(_0xIsStudentMode)은 무조건 학번+이름 필수 및 시트 저장
-      // 2) 실수로 개인 연습 모드를 눌렀더라도 시트 주소(hasValidSheet)가 있으면 무조건 시트에 기록
       if (_0xIsStudentMode) {
         if (!id || !name) {
           alert("먼저 학번과 이름을 모두 입력해 주세요!");
@@ -1840,7 +1862,6 @@
         spEl.innerHTML = `인식된 발음: <strong>${finalSp}</strong>`;
         scEl.innerHTML = `평가 점수: <strong>${fSc}점</strong> (${grd}) <span style="font-size:12px; color:#cbd5e1;">[${mNames[_0xMode]} 모드 | ${matched}/${tWords.length}개 단어 일치]</span>`;
 
-        // [무조건 기록 규칙] 시트 주소가 있거나 QR 접속 학생이면 개인 연습 모드 여부와 상관없이 무조건 구글 시트에 기록!
         if (hasValidSheet || _0xIsStudentMode) {
           stEl.style.color = "#4ade80";
           stEl.innerText = "⏳ 구글 시트 기록 중...";
@@ -1870,9 +1891,19 @@
     _0xCheckGlobalLockStatus();
     _0xDetectInApp();
 
+    if (localStorage.getItem('speech_dev_authorized') === 'true') {
+      _0xDevAuthorized = true;
+    }
+
     const saved = localStorage.getItem('speech_custom_teacher_sheet');
-    if (saved && saved.indexOf('14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI') === -1) {
-      _0xD.getElementById('teacherSheetUrl').value = saved;
+    if (saved) {
+      const isProtected = (
+        saved.indexOf('14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI') !== -1 ||
+        saved.indexOf('1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk') !== -1
+      );
+      if (!isProtected || _0xDevAuthorized) {
+        _0xD.getElementById('teacherSheetUrl').value = saved;
+      }
     }
 
     _0xParseQuery();

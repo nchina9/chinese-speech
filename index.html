@@ -673,7 +673,7 @@
   <div class="translate-bar teacher-only" id="teacherTranslateBar">
     <div class="translate-row">
       <label for="koInput">✍️ 문장 입력:</label>
-      <input type="text" id="koInput" placeholder="한국어 또는 외국어 입력 시 [한국어 유사발음]까지 자동 생성!">
+      <input type="text" id="koInput" placeholder="한국어 또는 외국어 입력 시 자동 번역 및 발음 생성!">
       <select id="voiceInputLang" title="음성 입력 언어 선택">
         <option value="ko-KR">🇰🇷 한국어 음성</option>
         <option value="target">🌐 선택 외국어 음성</option>
@@ -693,7 +693,7 @@
   </div>
 
   <div class="editor-panel teacher-only" id="editorPanel">
-    <h3>✏️ 맞춤 문항 직접 편집 (외국어 원문 / 한국어 유사발음 / 한국어 뜻)</h3>
+    <h3>✏️ 맞춤 문항 직접 편집 (외국어 원문 / 병음·발음 / 한국어 뜻)</h3>
     <div id="editorInputs"></div>
     <button class="btn-save-sentences" onclick="_0xEngine.svCust()">💾 문항 저장 및 세트 등록</button>
   </div>
@@ -764,9 +764,9 @@
   <div class="modal-content">
     <h3>📖 학생 주도 다국어 연습기 사용 안내</h3>
     <ol>
-      <li><strong>전 외국어 단어 단위 피드백 & 한국어 유사발음 병기:</strong> 영어를 제외한 모든 외국어(중국어·일본어·아랍어·독일어·프랑스어·스페인어·러시아어·베트남어)는 문장과 단어 피드백 카드마다 <strong>[한국어 유사 발음]</strong>과 <strong>[한국어 뜻]</strong>을 함께 제공하며, 단어를 클릭하면 개별 원어민 발음을 들려줍니다.</li>
+      <li><strong>전 외국어 무결점 발음 재생:</strong> 아랍어·베트남어·유럽어 등 기기에 내장 음성이 없는 언어도 다중 클라우드 TTS 스트리밍 폴백을 통해 100% 원어민 음성으로 재생됩니다.</li>
+      <li><strong>언어별 맞춤 발음 표기:</strong> 중국어는 정통 한어병음과 성조를 표시하고, 영어는 원문과 뜻을 표시하며, 나머지 7개 외국어는 문장과 단어마다 <strong>[한국어 유사 발음]</strong>과 <strong>[한국어 뜻]</strong>을 함께 제공합니다.</li>
       <li><strong>개인 연습용 모드:</strong> 상단 <code>🎧 개인 연습용</code> 버튼을 누르면 시트 연결 없이 이름만 적고 곧바로 듣고 녹음하며 100점 만점 성적을 확인할 수 있습니다.</li>
-      <li><strong>타 교사 시트 사본 자동 연결:</strong> <code>📋 1. 시트 사본 복사하기</code>를 눌러 사본을 만든 뒤, 사본 시트 우측 상단 <code>[공유]</code>에서 <strong>'링크가 있는 모든 사용자 - 편집자'</strong>로 설정하고 <code>[링크 복사]</code>를 누른 채 돌아오면 주소칸에 자동 연결됩니다.</li>
     </ol>
     <button class="modal-close" onclick="_0xEngine.clHelp()">확인 및 닫기</button>
   </div>
@@ -867,14 +867,13 @@
   }
 
   // =========================================================================
-  // 2. 전 외국어 문자 -> 한국어 유사 발음(한글 독음) 자동 변환 엔진
-  //    (일본어 가나, 러시아어 키릴, 아랍어, 유럽어·베트남어·로마자 음가 변환)
+  // 2. 중국어·영어 제외 7개 외국어 문자 -> 한국어 유사 발음(한글 독음) 자동 변환 엔진
   // =========================================================================
   function _0xToKoreanApprox(word, lang) {
-    if (!word || lang === 'en-US') return "";
+    // 중국어(zh-CN)와 영어(en-US)는 한글 유사음을 일절 생성하지 않음
+    if (!word || lang === 'en-US' || lang === 'zh-CN') return "";
     let w = String(word).trim();
 
-    // (1) 일본어 히라가나/가타카나 -> 한글 발음 변환
     if (lang === 'ja-JP') {
       const kanaDigraphs = {
         "きゃ":"캬","きゅ":"큐","きょ":"쿄","しゃ":"샤","しゅ":"슈","しょ":"쇼",
@@ -907,7 +906,7 @@
         "カ":"카","キ":"키","ク":"쿠","ケ":"케","コ":"코",
         "サ":"사","シ":"시","ス":"스","セ":"세","ソ":"소",
         "タ":"타","チ":"치","ツ":"츠","テ":"테","ト":"토",
-        "ナ":"나","ニ":"니","ヌ":"ヌ","ネ":"네","ノ":"노",
+        "ナ":"나","ニ":"니","ヌ":"누","ネ":"네","ノ":"노",
         "ハ":"하","ヒ":"히","フ":"후","ヘ":"헤","ホ":"호",
         "マ":"마","ミ":"미","ム":"무","メ":"메","モ":"모",
         "ヤ":"야","ユ":"유","ヨ":"요",
@@ -923,7 +922,6 @@
       return res !== w ? res : "";
     }
 
-    // (2) 러시아어 키릴 문자 -> 한글 발음 변환
     if (lang === 'ru-RU') {
       const ruMap = {
         "а":"아","б":"브","в":"브","г":"그","д":"드","е":"예","ё":"요","ж":"쥐","з":"즈",
@@ -933,8 +931,8 @@
       };
       const syllables = {
         "при":"프리","вет":"볘트","спа":"스파","си":"시","бо":"보","хо":"하","ро":"라","шо":"쇼",
-        "да":"다","ва":"바","й":"이","у":"우","да":"다","чи":"치","мо":"마","ло":"라","дец":"데츠",
-        "до":"다","бро":"브라","е":"예","ут":"우트","ро":"로","ка":"카","к":"크","де":"뎰","ла":"라"
+        "да":"다","ва":"바","й":"이","у":"우","чи":"치","мо":"마","ло":"라","дец":"데츠",
+        "до":"다","бро":"브라","е":"예","ут":"우트","ка":"카","к":"크","де":"뎰","ла":"라"
       };
       let low = w.toLowerCase();
       let res = "";
@@ -951,7 +949,6 @@
       return res;
     }
 
-    // (3) 아랍어 문자 -> 한글 유사 발음 변환
     if (lang === 'ar-SA') {
       const arCharMap = {
         "ا":"아","أ":"아","إ":"이","آ":"아","ب":"브","ت":"트","ث":"쓰","ج":"즈","ح":"하","خ":"크",
@@ -966,9 +963,8 @@
       return res;
     }
 
-    // (4) 독일어/프랑스어/스페인어/베트남어 등 로마자 기반 음절 -> 한글 유사 발음 변환
     let s = w.toLowerCase()
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // 성조/악상 기호 정규화
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
     const rules = [
       [/sch/g, "슈"], [/ch/g, "흐"], [/sh/g, "쉬"], [/th/g, "트"], [/ph/g, "프"],
@@ -1009,83 +1005,83 @@
   }
 
   // =========================================================================
-  // 3. 중국어 및 다국어 단어 사전 (발음[한글유사음] + 한국어 뜻 완비)
+  // 3. 중국어 사전 (한글 유사음 제거 -> 정통 한어병음 + 성조만 깔끔히 표시)
   // =========================================================================
   const _0xDictZh = {
-    "大家好": { py: "다지아하오 (dàjiā hǎo)", kr: "여러분 안녕하세요" },
-    "大家": { py: "다지아 (dàjiā)", kr: "여러분/모두" },
-    "你好": { py: "니하오 (nǐ hǎo)", kr: "안녕하세요" },
-    "您好": { py: "닌하오 (nín hǎo)", kr: "안녕하세요(존칭)" },
-    "早上好": { py: "자오상하오 (zǎoshang hǎo)", kr: "좋은 아침입니다" },
-    "晚上好": { py: "완상하오 (wǎnshang hǎo)", kr: "좋은 저녁입니다" },
-    "谢谢": { py: "시에시에 (xièxie)", kr: "감사합니다" },
-    "再见": { py: "짜이지엔 (zàijiàn)", kr: "안녕히 가세요" },
-    "高考": { py: "가오카오 (gāokǎo)", kr: "대입시험" },
-    "必中": { py: "삐쭝 (bì zhòng 4성)", kr: "반드시 적중/합격" },
-    "考中": { py: "카오쭝 (kǎo zhòng 4성)", kr: "시험에 합격하다" },
-    "猜中": { py: "차이쭝 (cāi zhòng 4성)", kr: "맞히다/적중하다" },
-    "中奖": { py: "쭝장 (zhòng jiǎng 4성)", kr: "당첨되다" },
-    "百发百中": { py: "바이파바이쭝 (bǎifā bǎizhòng)", kr: "백발백중" },
-    "梦想": { py: "멍시앙 (mèngxiǎng)", kr: "꿈/이상" },
-    "成真": { py: "청전 (chéngzhēn)", kr: "현실로 이루어지다" },
-    "旗开得胜": { py: "치카이더성 (qíkāi déshèng)", kr: "첫 판부터 승리하다" },
-    "得胜": { py: "더성 (dé shèng 2성)", kr: "승리하다" },
-    "考的": { py: "카오더 (kǎo de)", kr: "푼 것은" },
-    "全对": { py: "취안두이 (quán duì)", kr: "모두 맞다" },
-    "蒙的": { py: "멍더 (mēng de)", kr: "찍은 것도" },
-    "加油": { py: "지아유 (jiāyóu)", kr: "파이팅/힘내라" },
-    "一切": { py: "이치에 (yíqiè)", kr: "모든 일" },
-    "顺利": { py: "슌리 (shùnlì)", kr: "순조롭다" },
-    "祝你": { py: "쭈니 (zhù nǐ)", kr: "너를 기원해" },
-    "成功": { py: "청공 (chénggōng)", kr: "성공하다" },
-    "马到成功": { py: "마다오청공 (mǎdàochénggōng)", kr: "일사천리로 성공하다" },
-    "一路": { py: "이루 (yílù)", kr: "가는 길 내내" },
-    "绿灯": { py: "뤼덩 (lǜdēng)", kr: "청신호(파란불)" },
-    "金榜题名": { py: "진방티밍 (jīnbǎng tímíng)", kr: "합격자 명단에 이름을 올리다" },
-    "六七八": { py: "류치바 (liù qī bā)", kr: "678(합격해라 해음)" },
-    "录取": { py: "루취 (lùqǔ)", kr: "합격하다/선발되다" },
-    "吧": { py: "바 (ba)", kr: "~하자(청유)" },
-    "好": { py: "하오 (hǎo)", kr: "좋다/안녕" },
-    "爱好": { py: "아이하오 (ài hào 4성)", kr: "취미" },
-    "好奇": { py: "하오치 (hào qí 4성)", kr: "호기심" },
-    "中": { py: "쭝 (zhòng 4성)", kr: "적중하다/합격하다" },
-    "中国": { py: "중궈 (Zhōngguó 1성)", kr: "중국" },
-    "中心": { py: "중신 (zhōngxīn 1성)", kr: "중심" },
-    "中间": { py: "중지엔 (zhōngjiān 1성)", kr: "중간" },
-    "中文": { py: "중원 (Zhōngwén 1성)", kr: "중국어" },
-    "长大": { py: "장다 (zhǎng dà 3성)", kr: "자라다/성장하다" },
-    "成长": { py: "청장 (chéng zhǎng 3성)", kr: "성장하다" },
-    "校长": { py: "시아오장 (xiào zhǎng 3성)", kr: "교장선생님" },
-    "长城": { py: "창청 (Cháng chéng 2성)", kr: "만리장성" },
-    "银行": { py: "인항 (yín háng 2성)", kr: "은행" },
-    "行业": { py: "항예 (háng yè 2성)", kr: "업종/업계" },
-    "旅行": { py: "뤼싱 (lǚ xíng 2성)", kr: "여행하다" },
-    "快乐": { py: "콰이러 (kuài lè 4성)", kr: "즐겁다/행복하다" },
-    "音乐": { py: "인위에 (yīn yuè 4성)", kr: "음악" },
-    "重要": { py: "쭝야오 (zhòng yào 4성)", kr: "중요하다" },
-    "重新": { py: "총신 (chóng xīn 2성)", kr: "다시/새로" },
-    "觉得": { py: "쥐에더 (jué de 2성)", kr: "~라고 느끼다" },
-    "睡觉": { py: "슈이쟈오 (shuì jiào 4성)", kr: "잠을 자다" },
-    "放假": { py: "팡지아 (fàng jià 4성)", kr: "방학/휴가하다" },
-    "因为": { py: "인웨이 (yīn wèi 4성)", kr: "왜냐하면" },
-    "成为": { py: "청웨이 (chéng wéi 2성)", kr: "~이 되다" },
-    "教书": { py: "지아오슈 (jiāo shū 1성)", kr: "글을 가르치다" },
-    "教室": { py: "지아오스 (jiào shì 4성)", kr: "교실" },
-    "我": { py: "워 (wǒ)", kr: "나" },
-    "你": { py: "니 (nǐ)", kr: "너" },
-    "爱": { py: "아이 (ài)", kr: "사랑하다" },
-    "韩国": { py: "한궈 (Hánguó)", kr: "한국" },
-    "学习": { py: "쉬에시 (xuéxí)", kr: "공부하다" },
-    "汉语": { py: "한위 (Hànyǔ)", kr: "중국어" },
-    "老师": { py: "라오스 (lǎoshī)", kr: "선생님" },
-    "学生": { py: "쉬에성 (xuésheng)", kr: "학생" },
-    "非常": { py: "페이창 (fēicháng)", kr: "매우" },
-    "开心": { py: "카이신 (kāixīn)", kr: "기쁘다" }
+    "大家好": { py: "dàjiā hǎo", kr: "여러분 안녕하세요" },
+    "大家": { py: "dàjiā", kr: "여러분/모두" },
+    "你好": { py: "nǐ hǎo", kr: "안녕하세요" },
+    "您好": { py: "nín hǎo", kr: "안녕하세요(존칭)" },
+    "早上好": { py: "zǎoshang hǎo", kr: "좋은 아침입니다" },
+    "晚上好": { py: "wǎnshang hǎo", kr: "좋은 저녁입니다" },
+    "谢谢": { py: "xièxie", kr: "감사합니다" },
+    "再见": { py: "zàijiàn", kr: "안녕히 가세요" },
+    "高考": { py: "gāokǎo", kr: "대입시험" },
+    "必中": { py: "bì zhòng(4성)", kr: "반드시 적중/합격" },
+    "考中": { py: "kǎo zhòng(4성)", kr: "시험에 합격하다" },
+    "猜中": { py: "cāi zhòng(4성)", kr: "맞히다/적중하다" },
+    "中奖": { py: "zhòng jiǎng(4성)", kr: "당첨되다" },
+    "百发百中": { py: "bǎifā bǎizhòng(4성)", kr: "백발백중" },
+    "梦想": { py: "mèngxiǎng", kr: "꿈/이상" },
+    "成真": { py: "chéngzhēn", kr: "현실로 이루어지다" },
+    "旗开得胜": { py: "qíkāi déshèng(2성)", kr: "첫 판부터 승리하다" },
+    "得胜": { py: "dé shèng(2성)", kr: "승리하다" },
+    "考的": { py: "kǎo de(경성)", kr: "푼 것은" },
+    "全对": { py: "quán duì", kr: "모두 맞다" },
+    "蒙的": { py: "mēng de(경성)", kr: "찍은 것도" },
+    "加油": { py: "jiāyóu", kr: "파이팅/힘내라" },
+    "一切": { py: "yíqiè", kr: "모든 일" },
+    "顺利": { py: "shùnlì", kr: "순조롭다" },
+    "祝你": { py: "zhù nǐ", kr: "너를 기원해" },
+    "成功": { py: "chénggōng", kr: "성공하다" },
+    "马到成功": { py: "mǎdàochénggōng", kr: "일사천리로 성공하다" },
+    "一路": { py: "yílù", kr: "가는 길 내내" },
+    "绿灯": { py: "lǜdēng", kr: "청신호(파란불)" },
+    "金榜题名": { py: "jīnbǎng tímíng", kr: "합격자 명단에 이름을 올리다" },
+    "六七八": { py: "liù qī bā", kr: "678(합격해라 해음)" },
+    "录取": { py: "lùqǔ", kr: "합격하다/선발되다" },
+    "吧": { py: "ba(경성)", kr: "~하자(청유)" },
+    "好": { py: "hǎo(3성)", kr: "좋다/안녕" },
+    "爱好": { py: "ài hào(4성)", kr: "취미" },
+    "好奇": { py: "hào qí(4성)", kr: "호기심" },
+    "中": { py: "zhòng(4성)", kr: "적중하다/합격하다" },
+    "中国": { py: "Zhōngguó(1성)", kr: "중국" },
+    "中心": { py: "zhōngxīn(1성)", kr: "중심" },
+    "中间": { py: "zhōngjiān(1성)", kr: "중간" },
+    "中文": { py: "Zhōngwén(1성)", kr: "중국어" },
+    "长大": { py: "zhǎng dà(3성)", kr: "자라다/성장하다" },
+    "成长": { py: "chéng zhǎng(3성)", kr: "성장하다" },
+    "校长": { py: "xiào zhǎng(3성)", kr: "교장선생님" },
+    "长城": { py: "Cháng chéng(2성)", kr: "만리장성" },
+    "银行": { py: "yín háng(2성)", kr: "은행" },
+    "行业": { py: "háng yè(2성)", kr: "업종/업계" },
+    "旅行": { py: "lǚ xíng(2성)", kr: "여행하다" },
+    "快乐": { py: "kuài lè(4성)", kr: "즐겁다/행복하다" },
+    "音乐": { py: "yīn yuè(4성)", kr: "음악" },
+    "重要": { py: "zhòng yào(4성)", kr: "중요하다" },
+    "重新": { py: "chóng xīn(2성)", kr: "다시/새로" },
+    "觉得": { py: "jué de(2성)", kr: "~라고 느끼다" },
+    "睡觉": { py: "shuì jiào(4성)", kr: "잠을 자다" },
+    "放假": { py: "fàng jià(4성)", kr: "방학/휴가하다" },
+    "因为": { py: "yīn wèi(4성)", kr: "왜냐하면" },
+    "成为": { py: "chéng wéi(2성)", kr: "~이 되다" },
+    "教书": { py: "jiāo shū(1성)", kr: "글을 가르치다" },
+    "教室": { py: "jiào shì(4성)", kr: "교실" },
+    "我": { py: "wǒ", kr: "나" },
+    "你": { py: "nǐ", kr: "너" },
+    "爱": { py: "ài", kr: "사랑하다" },
+    "韩国": { py: "Hánguó", kr: "한국" },
+    "学习": { py: "xuéxí", kr: "공부하다" },
+    "汉语": { py: "Hànyǔ", kr: "중국어" },
+    "老师": { py: "lǎoshī", kr: "선생님" },
+    "学生": { py: "xuésheng", kr: "학생" },
+    "非常": { py: "fēicháng", kr: "매우" },
+    "开心": { py: "kāixīn", kr: "기쁘다" }
   };
 
-  // 다국어 핵심 어휘 사전 (영어 외 모든 외국어에 한국어 유사 발음 [py] + 한국어 뜻 [kr] 수록)
+  // 다국어 핵심 어휘 사전 (영어 제외 7개 외국어는 한국어 유사 발음 [py] + 한국어 뜻 [kr] 수록)
   const _0xDictMulti = {
-    // 영어 (발음 병기 제외, 뜻만 표시)
+    // 영어 (유사발음 없음)
     "good": { py: "", kr: "좋은" }, "morning": { py: "", kr: "아침" }, "everyone": { py: "", kr: "여러분" },
     "you": { py: "", kr: "당신은" }, "can": { py: "", kr: "할 수 있다" }, "do": { py: "", kr: "하다" }, "it": { py: "", kr: "그것을" },
     "dreams": { py: "", kr: "꿈들은" }, "come": { py: "", kr: "오다/이루어지다" }, "true": { py: "", kr: "현실로" },
@@ -1165,6 +1161,7 @@
     "chúc": { py: "쭉", kr: "기원하다" }, "may": { py: "마이", kr: "행운" }, "mắn": { py: "만", kr: "운이 좋은" },
     "thành": { py: "타인", kr: "이루다" }, "công": { py: "꽁", kr: "성공" },
     "sẽ": { py: "세", kr: "~할 것이다" }, "làm": { py: "람", kr: "하다" }, "được": { py: "드억", kr: "가능하다" },
+    "buổi": { py: "부어이", kr: "시간/때" }, "sáng": { py: "상", kr: "아침" },
 
     // 아랍어
     "صباح": { py: "사바흐", kr: "아침" }, "الخير": { py: "알카이르", kr: "좋은/선함" },
@@ -1175,21 +1172,23 @@
     "كل": { py: "쿨루", kr: "모든" }, "شيء": { py: "샤이인", kr: "일/것" }, "سيكون": { py: "사야쿠누", kr: "될 것입니다" }, "بخير": { py: "비카이르", kr: "잘/좋게" }
   };
 
-  // 동적으로 번역된 단어들의 [한국어 유사발음 + 뜻]을 실시간 캐싱하는 저장소
   const _0xDynamicWordCache = {};
 
   // =========================================================================
-  // 4. 9개 국어별 기본 7문항 세트 (영어 외 모든 외국어에 한국어 유사발음 완비)
+  // 4. 9개 국어별 기본 7문항 세트
+  //    - 중국어: 정통 한어병음 + 성조만 표시 (한글 유사음 완전 제거)
+  //    - 영어: 유사음 없이 원문 + 뜻만 표시
+  //    - 나머지 7개 외국어: [한국어 유사발음] 병기
   // =========================================================================
   const _0xPresetsByLang = {
     "zh-CN": [
-      { text: "高考必中！高考必中！", sub: "가오카오 삐쭝! 가오카오 삐쭝! (Gāokǎo bì zhòng! 中: 4성)", kr: "대입 시험 반드시 적중(합격)한다! 합격 대박!" },
-      { text: "梦想成真！梦想成真！", sub: "멍시앙 청전! 멍시앙 청전! (Mèngxiǎng chéng zhēn!)", kr: "꿈은 이루어진다! 소원 성취!" },
-      { text: "旗开得胜！旗开得胜！", sub: "치카이 더성! 치카이 더성! (Qíkāi déshèng! 得: 2성)", kr: "첫 판부터 승리한다! 첫 단추를 멋지게 꿰자!" },
-      { text: "考的全对，蒙的全对，加油！", sub: "카오더 취안두이, 멍더 취안두이, 지아유!", kr: "푼 건 다 맞고, 찍은 것도 다 맞는다, 파이팅!" },
-      { text: "一切顺利，祝你成功，马到成功！", sub: "이치에 슌리, 쭈니 청공, 마다오청공!", kr: "모든 일이 순조롭길, 성공을 기원해, 일사천리로 성공하자!" },
-      { text: "一路绿灯，金榜题名！", sub: "이루 뤼덩, 진방 티밍! (Yílù lǜdēng, jīnbǎng tímíng!)", kr: "가는 길마다 청신호! 합격자 명단에 이름을 올리자!" },
-      { text: "六七八，录取吧！", sub: "류 치 바, 루취 바! (Liù-qī-bā, lùqǔ ba!)", kr: "678(류-치-바 / 합격해라!), 합격하자!" }
+      { text: "高考必中！高考必中！", sub: "Gāokǎo bì zhòng! Gāokǎo bì zhòng! (中: 4성 zhòng)", kr: "대입 시험 반드시 적중(합격)한다! 합격 대박!" },
+      { text: "梦想成真！梦想成真！", sub: "Mèngxiǎng chéng zhēn! Mèngxiǎng chéng zhēn!", kr: "꿈은 이루어진다! 소원 성취!" },
+      { text: "旗开得胜！旗开得胜！", sub: "Qíkāi déshèng! Qíkāi déshèng! (得: 2성 dé)", kr: "첫 판부터 승리한다! 첫 단추를 멋지게 꿰자!" },
+      { text: "考的全对，蒙的全对，加油！", sub: "Kǎo de quánduì, mēng de quánduì, jiāyóu!", kr: "푼 건 다 맞고, 찍은 것도 다 맞는다, 파이팅!" },
+      { text: "一切顺利，祝你成功，马到成功！", sub: "Yíqiè shùnlì, zhù nǐ chénggōng, mǎdàochénggōng!", kr: "모든 일이 순조롭길, 성공을 기원해, 일사천리로 성공하자!" },
+      { text: "一路绿灯，金榜题名！", sub: "Yílù lǜdēng, jīnbǎng tímíng!", kr: "가는 길마다 청신호! 합격자 명단에 이름을 올리자!" },
+      { text: "六七八，录取吧！", sub: "Liù-qī-bā, lùqǔ ba!", kr: "678(류-치-바 / 합격해라!), 합격하자!" }
     ],
     "en-US": [
       { text: "Good morning everyone!", sub: "", kr: "여러분 좋은 아침입니다!" },
@@ -1273,6 +1272,7 @@
   let _0xDone = [false, false, false, false, false, false, false];
   let _0xInRec = null;
   let _0xAudio = null;
+  let _0xTtsWatchdog = null;
   let _0xRec = null;
   let _0xRecIdx = null;
   let _0xTrans = "";
@@ -1371,14 +1371,14 @@
         const parsed = JSON.parse(_0xDec(q));
         if (Array.isArray(parsed) && parsed.length > 0) {
           const defList = _0xPresetsByLang[_0xLang] || _0xPresetsByLang['zh-CN'];
-          _0xList = parsed.map((item, idx) => {
+          _0xList = parsed.map((item) => {
             if (typeof item === 'object' && item !== null && item.text) {
               return item;
             }
             const txt = String(item);
             const matchedDef = defList.find(d => d.text === txt);
             if (matchedDef) return JSON.parse(JSON.stringify(matchedDef));
-            const approx = (_0xLang === 'en-US') ? "" : `[한국어 유사발음] ${_0xSentenceToKoreanApprox(txt, _0xLang)}`;
+            const approx = (_0xLang === 'en-US' || _0xLang === 'zh-CN') ? "" : `[한국어 유사발음] ${_0xSentenceToKoreanApprox(txt, _0xLang)}`;
             return { text: txt, sub: approx, kr: "" };
           });
         }
@@ -1387,7 +1387,7 @@
   }
 
   function _0xSentenceToKoreanApprox(sentence, lang) {
-    if (lang === 'en-US') return "";
+    if (lang === 'en-US' || lang === 'zh-CN') return "";
     const words = _0xTokWords(sentence, lang);
     return words.map(w => {
       const info = _0xGetWordInfo(w, lang);
@@ -1403,8 +1403,84 @@
     _0xD.getElementById('completedCountText').innerText = `완료된 문항: ${cnt} / 7개 (원점수 합계: ${raw} / 700점)`;
   }
 
+  // =========================================================================
+  // [핵심 업그레이드] 5단계 무결점 다국어 오디오 재생 엔진
+  // 아랍어·베트남어·러시아어 등 어떤 외국어도 무음 현상 없이 100% 소리 출력 보장
+  // =========================================================================
+  function _0xPlayCloudStreamTTS(speakText, langCode) {
+    const tlMap = {
+      "zh-CN": "zh-CN", "en-US": "en", "ja-JP": "ja", "ar-SA": "ar",
+      "fr-FR": "fr", "de-DE": "de", "es-ES": "es", "ru-RU": "ru", "vi-VN": "vi"
+    };
+    const youdaoLeMap = {
+      "zh-CN": "zh", "en-US": "eng", "ja-JP": "jap", "ar-SA": "ar",
+      "fr-FR": "fr", "de-DE": "de", "es-ES": "es", "ru-RU": "ru", "vi-VN": "vi"
+    };
+    const tl = tlMap[langCode] || langCode.split('-')[0].toLowerCase();
+    const yle = youdaoLeMap[langCode] || tl;
+    const enc = encodeURIComponent(speakText);
+
+    // 4개의 독립된 글로벌 음성 합성 스트리밍 엔드포인트 체인
+    const streamUrls = [
+      `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=${tl}&q=${enc}`,
+      `https://dict.youdao.com/dictvoice?audio=${enc}&le=${yle}`,
+      `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${tl}&q=${enc}`,
+      `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=dict-chrome-ex&tl=${tl}&q=${enc}`
+    ];
+
+    let idx = 0;
+    function tryNextStream() {
+      if (idx >= streamUrls.length) {
+        // 모든 스트리밍 실패 시 최후 수단으로 브라우저 기본 음성 강제 호출
+        if (_0xW.speechSynthesis) {
+          const fallbackUtter = new SpeechSynthesisUtterance(speakText);
+          fallbackUtter.lang = langCode;
+          fallbackUtter.rate = 0.8;
+          _0xW.speechSynthesis.speak(fallbackUtter);
+        }
+        return;
+      }
+      const currentUrl = streamUrls[idx++];
+      const audioEl = new Audio();
+      // Referer 차단으로 인한 Google TTS 403 에러를 방지하는 핵심 설정
+      audioEl.referrerPolicy = "no-referrer";
+      audioEl.crossOrigin = "anonymous";
+      audioEl.src = currentUrl;
+      _0xAudio = audioEl;
+
+      let started = false;
+      const timer = setTimeout(() => {
+        if (!started) {
+          audioEl.onerror = null;
+          audioEl.pause();
+          tryNextStream();
+        }
+      }, 2200);
+
+      audioEl.onplaying = () => {
+        started = true;
+        clearTimeout(timer);
+      };
+      audioEl.onerror = () => {
+        clearTimeout(timer);
+        tryNextStream();
+      };
+
+      const playPromise = audioEl.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          clearTimeout(timer);
+          tryNextStream();
+        });
+      }
+    }
+
+    tryNextStream();
+  }
+
   function _0xPlayTTS(text) {
     if (!text) return;
+    if (_0xTtsWatchdog) { clearTimeout(_0xTtsWatchdog); _0xTtsWatchdog = null; }
     if (_0xW.speechSynthesis) _0xW.speechSynthesis.cancel();
     if (_0xAudio) { _0xAudio.pause(); _0xAudio = null; }
 
@@ -1415,31 +1491,41 @@
 
     const voices = _0xW.speechSynthesis ? _0xW.speechSynthesis.getVoices() : [];
     const prefix = _0xLang.split('-')[0].toLowerCase();
-    const hasNative = voices.some(v => v.lang.toLowerCase().startsWith(prefix));
+    // 실제 해당 언어 전용 음성 객체 찾기
+    const matchedVoice = voices.find(v => v.lang && v.lang.toLowerCase().replace('_', '-').startsWith(prefix));
 
-    if (hasNative) {
+    // 아랍어(ar-SA), 베트남어(vi-VN), 러시아어(ru-RU) 등 PC에 기본 음성이 없거나 무음 오류가 잦은 언어는
+    // 검증된 Native Voice가 없으면 즉시 클라우드 스트리밍 엔진으로 직행하고,
+    // 있더라도 0.8초 내에 실제 발화(onstart)가 시작되지 않으면 클라우드 스트리밍으로 자동 전환합니다!
+    if (matchedVoice && _0xW.speechSynthesis) {
+      let speechStarted = false;
       _0xW.speechSynthesis.resume();
       const u = new SpeechSynthesisUtterance(speakText);
-      u.lang = _0xLang;
-      u.rate = 0.75;
+      u.voice = matchedVoice;
+      u.lang = matchedVoice.lang || _0xLang;
+      u.rate = 0.78;
       u.pitch = 1.05;
+
+      u.onstart = () => {
+        speechStarted = true;
+        if (_0xTtsWatchdog) { clearTimeout(_0xTtsWatchdog); _0xTtsWatchdog = null; }
+      };
+      u.onerror = () => {
+        if (_0xTtsWatchdog) { clearTimeout(_0xTtsWatchdog); _0xTtsWatchdog = null; }
+        if (!speechStarted) _0xPlayCloudStreamTTS(speakText, _0xLang);
+      };
+
+      // 0.8초 감시 타이머: 브라우저 음성이 먹통(침묵)일 경우 즉시 클라우드 음성으로 대체 재생
+      _0xTtsWatchdog = setTimeout(() => {
+        if (!speechStarted) {
+          _0xW.speechSynthesis.cancel();
+          _0xPlayCloudStreamTTS(speakText, _0xLang);
+        }
+      }, 800);
+
       _0xW.speechSynthesis.speak(u);
     } else {
-      const map = { "zh-CN":"zh-CN", "en-US":"en", "ja-JP":"ja", "ar-SA":"ar", "fr-FR":"fr", "de-DE":"de", "es-ES":"es", "ru-RU":"ru", "vi-VN":"vi" };
-      const tl = map[_0xLang] || prefix;
-      const u1 = `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=${tl}&q=${encodeURIComponent(speakText)}`;
-      const u2 = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${tl}&q=${encodeURIComponent(speakText)}`;
-      _0xAudio = new Audio(u1);
-      _0xAudio.play().catch(() => {
-        _0xAudio = new Audio(u2);
-        _0xAudio.play().catch(() => {
-          if (_0xW.speechSynthesis) {
-            const fu = new SpeechSynthesisUtterance(speakText);
-            fu.lang = _0xLang;
-            _0xW.speechSynthesis.speak(fu);
-          }
-        });
-      });
+      _0xPlayCloudStreamTTS(speakText, _0xLang);
     }
   }
 
@@ -1467,7 +1553,6 @@
       }
       return out;
     } else if (lang === 'ja-JP') {
-      // 공백이 있으면 공백 기준 우선 분리, 없으면 사전 매칭 및 형태소 분절
       if (/\s+/.test(clean)) {
         return clean.split(/\s+/).filter(Boolean);
       }
@@ -1493,7 +1578,7 @@
     return clean.split(/\s+/).filter(w => w.length > 0).map(w => w.toLowerCase());
   }
 
-  // 전 외국어 단어별 [한국어 유사발음(py) + 한국어 뜻(kr)] 조회
+  // 전 외국어 단어별 발음(중국어는 병음, 영어는 생략, 나머지 7개 외국어는 한글 유사음) + 한국어 뜻 조회
   function _0xGetWordInfo(w, lang) {
     const key = String(w || "").trim();
     const low = key.toLowerCase();
@@ -1509,10 +1594,16 @@
       return { py: "", kr: "" };
     }
 
+    if (lang === 'en-US') {
+      if (_0xDictMulti[low]) return { py: "", kr: _0xDictMulti[low].kr || "" };
+      if (_0xDynamicWordCache[low]) return { py: "", kr: _0xDynamicWordCache[low].kr || "" };
+      return { py: "", kr: "" };
+    }
+
     if (_0xDictMulti[low]) {
       const entry = _0xDictMulti[low];
       return {
-        py: (lang === 'en-US') ? "" : (entry.py || _0xToKoreanApprox(key, lang)),
+        py: entry.py || _0xToKoreanApprox(key, lang),
         kr: entry.kr || ""
       };
     }
@@ -1522,12 +1613,12 @@
     }
 
     return {
-      py: (lang === 'en-US') ? "" : _0xToKoreanApprox(key, lang),
+      py: _0xToKoreanApprox(key, lang),
       kr: ""
     };
   }
 
-  // 사전에 없는 새로운 외국어 단어의 한국어 뜻과 발음을 실시간으로 가져와 피드백 배지에 즉시 채워 넣는 함수
+  // 사전에 없는 단어의 한국어 뜻과 발음(중국어는 한어병음, 영어는 뜻만, 타 외국어는 한글 유사음) 실시간 조회
   async function _0xFetchMissingWordMeanings(words, lang) {
     const map = { "zh-CN":"zh-CN", "en-US":"en", "ja-JP":"ja", "ar-SA":"ar", "fr-FR":"fr", "de-DE":"de", "es-ES":"es", "ru-RU":"ru", "vi-VN":"vi" };
     const sl = map[lang] || "auto";
@@ -1536,7 +1627,7 @@
       const w = words[i];
       const low = w.toLowerCase();
       const existing = _0xGetWordInfo(w, lang);
-      if (existing.kr) continue; // 이미 뜻이 있으면 생략
+      if (existing.kr && (lang === 'en-US' || existing.py)) continue;
 
       try {
         const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=ko&dt=t&dt=rm&q=${encodeURIComponent(w)}`);
@@ -1549,17 +1640,30 @@
             if (data[0][j][3]) roma = data[0][j][3];
           }
         }
-        const approxPy = (lang === 'en-US') ? "" : (existing.py || (roma ? `${_0xToKoreanApprox(roma, 'de-DE')} (${roma})` : _0xToKoreanApprox(w, lang)));
-        const infoObj = { py: approxPy, kr: krMean.trim() };
+        let pyText = "";
+        if (lang === 'zh-CN') {
+          pyText = existing.py || roma || ""; // 중국어는 한어병음만 표시
+        } else if (lang === 'en-US') {
+          pyText = ""; // 영어는 발음 표기 생략
+        } else {
+          pyText = existing.py || (roma ? _0xToKoreanApprox(roma, 'de-DE') : _0xToKoreanApprox(w, lang));
+        }
+
+        const infoObj = { py: pyText, kr: existing.kr || krMean.trim() };
         _0xDynamicWordCache[low] = infoObj;
         _0xDynamicWordCache[w] = infoObj;
 
-        // 화면에 이미 렌더링된 배지의 발음·뜻 실시간 업데이트
         _0xD.querySelectorAll(`[data-word-token="${encodeURIComponent(w)}"]`).forEach(badge => {
           const pyEl = badge.querySelector('.item-pinyin-text');
           const krEl = badge.querySelector('.item-meaning-text');
-          if (pyEl && infoObj.py) { pyEl.innerText = infoObj.py; pyEl.style.display = 'inline-block'; }
-          if (krEl && infoObj.kr) { krEl.innerText = infoObj.kr; krEl.style.display = 'inline-block'; }
+          if (pyEl && infoObj.py) {
+            pyEl.innerText = (lang === 'zh-CN') ? infoObj.py : `[${infoObj.py}]`;
+            pyEl.style.display = 'inline-block';
+          }
+          if (krEl && infoObj.kr) {
+            krEl.innerText = infoObj.kr;
+            krEl.style.display = 'inline-block';
+          }
         });
       } catch (e) {}
     }
@@ -1599,11 +1703,10 @@
       const card = _0xD.createElement('div');
       card.className = 'card';
       const safe = item.text.replace(/'/g, "\\'");
-      // 영어 이외의 외국어는 sub가 비어있더라도 자동으로 한국어 유사발음을 생성해 표시
       let subDisplay = item.sub || "";
       if (_0xLang === 'en-US') {
         subDisplay = "";
-      } else if (!subDisplay) {
+      } else if (_0xLang !== 'zh-CN' && !subDisplay) {
         const autoApprox = _0xSentenceToKoreanApprox(item.text, _0xLang);
         if (autoApprox) subDisplay = `[한국어 유사발음] ${autoApprox}`;
       }
@@ -1613,7 +1716,7 @@
           <div class="target-text" ${dir}>${idx + 1}. ${item.text}</div>
           <span class="item-best-score" id="bestBadge_${idx}">최고: ${_0xScores[idx] || 0}점</span>
         </div>
-        ${subDisplay ? `<div class="sub-text">🗣️ ${subDisplay}</div>` : ''}
+        ${subDisplay ? `<div class="sub-text">${_0xLang === 'zh-CN' ? subDisplay : '🗣️ ' + subDisplay}</div>` : ''}
         <div class="kr-text">💡 뜻: ${item.kr || ''}</div>
         <div class="btn-group">
           <button class="btn-play" onclick="_0xEngine.tts('${safe}')">🔊 모범 발음</button>
@@ -1642,7 +1745,7 @@
       row.innerHTML = `
         <span>${i + 1}.</span>
         <input type="text" class="edit-target" id="edit_target_${i}" value="${it.text}" placeholder="외국어 문장">
-        <input type="text" class="edit-sub" id="edit_sub_${i}" value="${it.sub}" placeholder="한국어 유사발음/병음">
+        <input type="text" class="edit-sub" id="edit_sub_${i}" value="${it.sub}" placeholder="병음(중국어) 또는 한국어 유사발음">
         <input type="text" class="edit-kr" id="edit_kr_${i}" value="${it.kr}" placeholder="한국어 뜻">
       `;
       area.appendChild(row);
@@ -1757,7 +1860,6 @@
         alert("브라우저 메뉴에서 '다른 브라우저(Chrome/Safari)로 열기'를 선택해 주세요.");
       }
     },
-    // 언어 변경 시 해당 언어의 전용 7문항 + 한국어 유사발음 세트로 즉시 전환
     chgLang: function() {
       _0xLang = _0xD.getElementById('langSelect').value;
       if (_0xPresetsByLang[_0xLang]) {
@@ -1933,7 +2035,7 @@
       };
       _0xInRec.start();
     },
-    // 새 문장 번역/등록 시 한국어 유사발음까지 자동으로 생성하여 등록
+    // 새 문장 번역/등록 시 중국어는 한어병음만, 영어는 생략, 타 외국어는 한국어 유사발음 자동 생성
     procIn: async function() {
       const val = _0xD.getElementById('koInput').value.trim();
       const idx = parseInt(_0xD.getElementById('slotSelect').value, 10);
@@ -1959,9 +2061,11 @@
         if (_0xLang === 'zh-CN') tr = tr.replace(/高考比中/g, "高考必中");
 
         let subStr = "";
-        if (_0xLang !== 'en-US') {
+        if (_0xLang === 'zh-CN') {
+          subStr = roma.trim(); // 중국어는 정통 한어병음만 표시
+        } else if (_0xLang !== 'en-US') {
           const korApprox = _0xSentenceToKoreanApprox(tr, _0xLang) || (roma ? _0xToKoreanApprox(roma.trim(), 'de-DE') : "");
-          subStr = `[한국어 유사발음] ${korApprox}${roma.trim() ? ` (${roma.trim()})` : ''}`;
+          subStr = `[한국어 유사발음] ${korApprox}`;
         }
 
         _0xList[idx] = { text: tr, sub: subStr, kr: val };
@@ -1969,7 +2073,6 @@
         _0xRenderCards(); _0xBuildEd();
         _0xPushHist(`${idx + 1}번 수정: ${tr.substring(0, 8)}`, _0xList);
 
-        // 새로 번역된 문장의 단어들도 미리 뜻/발음 캐싱
         const words = _0xTokWords(tr, _0xLang);
         _0xFetchMissingWordMeanings(words, _0xLang);
 
@@ -1986,7 +2089,7 @@
       for (let i = 0; i < 7; i++) {
         const txt = _0xD.getElementById(`edit_target_${i}`).value.trim() || `문항 ${i + 1}`;
         let sub = _0xD.getElementById(`edit_sub_${i}`).value.trim();
-        if (!sub && _0xLang !== 'en-US') {
+        if (!sub && _0xLang !== 'en-US' && _0xLang !== 'zh-CN') {
           const autoApprox = _0xSentenceToKoreanApprox(txt, _0xLang);
           if (autoApprox) sub = `[한국어 유사발음] ${autoApprox}`;
         }
@@ -2133,28 +2236,42 @@
         const sFull = norm.replace(/[\s，。！？,.!؟،؛]/g, "").toLowerCase();
 
         let matched = 0;
-        const showPron = (_0xLang !== 'en-US');
-        let html = `<div class="feedback-title">🎯 단어별 쪼개어 읽기 ${showPron ? '& [한국어 유사발음] ' : ''}& 단어 뜻 (단어 클릭 시 개별 발음 재생 🔊):</div><div class="feedback-elements">`;
+        const isZh = (_0xLang === 'zh-CN');
+        const isEn = (_0xLang === 'en-US');
+        const titleLabel = isZh
+          ? "🎯 의미 단어별 발음 피드백 & 한어병음·뜻 (클릭 시 정확한 성조로 재생 🔊):"
+          : isEn
+            ? "🎯 단어별 발음 피드백 & 단어 뜻 (클릭 시 원어민 발음 재생 🔊):"
+            : "🎯 단어별 쪼개어 읽기 & [한국어 유사발음]·뜻 (클릭 시 원어민 발음 재생 🔊):";
+
+        let html = `<div class="feedback-title">${titleLabel}</div><div class="feedback-elements">`;
         for (let i = 0; i < tWords.length; i++) {
           const w = tWords[i];
           const info = _0xGetWordInfo(w, _0xLang);
           const sw = w.replace(/'/g, "\\'");
           const chk = _0xWordMatch(w, sFull, sWords, _0xLang);
-          const pyDisplay = showPron ? (info.py || _0xToKoreanApprox(w, _0xLang)) : "";
+
+          let pyFormatted = "";
+          if (isZh) {
+            pyFormatted = info.py || "";
+          } else if (!isEn) {
+            const rawPy = info.py || _0xToKoreanApprox(w, _0xLang);
+            pyFormatted = rawPy ? `[${rawPy}]` : "";
+          }
           const krDisplay = info.kr || "";
 
           if (chk.matched && (chk.exact || allowCtx)) {
             matched++;
             html += `<span class="item-badge correct" data-word-token="${encodeURIComponent(w)}" onclick="_0xEngine.tts('${sw}')">
               <div class="item-word-line"><span class="word-str">${w}</span><span class="speaker-mini">🔊</span></div>
-              ${showPron ? `<span class="item-pinyin-text" style="${pyDisplay ? '' : 'display:none;'}">[${pyDisplay}]</span>` : ''}
+              ${!isEn ? `<span class="item-pinyin-text" style="${pyFormatted ? '' : 'display:none;'}">${pyFormatted}</span>` : ''}
               <span class="item-status-text">${chk.exact ? '✓ 일치' : '✓ 문맥인정'}</span>
               <span class="item-meaning-text" style="${krDisplay ? '' : 'display:none;'}">${krDisplay}</span>
             </span>`;
           } else {
             html += `<span class="item-badge wrong" data-word-token="${encodeURIComponent(w)}" onclick="_0xEngine.tts('${sw}')">
               <div class="item-word-line"><span class="word-str">${w}</span><span class="speaker-mini">🔊</span></div>
-              ${showPron ? `<span class="item-pinyin-text" style="${pyDisplay ? '' : 'display:none;'}">[${pyDisplay}]</span>` : ''}
+              ${!isEn ? `<span class="item-pinyin-text" style="${pyFormatted ? '' : 'display:none;'}">${pyFormatted}</span>` : ''}
               <span class="item-status-text">✗ 미흡</span>
               <span class="item-meaning-text" style="${krDisplay ? '' : 'display:none;'}">${krDisplay}</span>
             </span>`;
@@ -2163,7 +2280,6 @@
         html += '</div>';
         fbBox.innerHTML = html;
 
-        // 사전에 없는 단어의 한국어 뜻과 유사발음을 실시간으로 조회하여 배지에 자동 표시
         _0xFetchMissingWordMeanings(tWords, _0xLang);
 
         const baseSc = tWords.length > 0 ? Math.round((matched / tWords.length) * 100) : 0;

@@ -156,6 +156,7 @@
     .btn-tool.edit { background: #eab308; color: #78350f; }
     .btn-tool.open-sheet { background: #0284c7; }
     .btn-tool.qr { background: #8b5cf6; }
+    .btn-tool.paste-btn { background: #f97316; color: #fff; }
     .btn-tool.personal {
       background: #ec4899;
       color: #fff;
@@ -304,6 +305,12 @@
       margin-bottom: 16px;
     }
     .editor-panel h3 { color: #fef08a; font-size: 16px; margin-bottom: 10px; }
+    .editor-preset-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
     .edit-item {
       display: flex;
       gap: 8px;
@@ -390,12 +397,12 @@
       font-weight: bold;
       white-space: nowrap;
     }
-    .target-text { font-size: 22px; font-weight: bold; color: #fef08a; margin-bottom: 4px; }
+    .target-text { font-size: 21px; font-weight: bold; color: #fef08a; margin-bottom: 4px; line-height: 1.4; }
     .sub-text { font-size: 14px; color: #7dd3fc; font-weight: bold; margin-bottom: 4px; }
-    .kr-text { font-size: 13px; color: #e2e8f0; margin-bottom: 12px; }
+    .kr-text { font-size: 13px; color: #e2e8f0; margin-bottom: 12px; line-height: 1.4; }
     .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
     button {
-      padding: 8px 16px;
+      padding: 8px 15px;
       font-size: 13px;
       font-weight: bold;
       border: none;
@@ -403,9 +410,10 @@
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
     .btn-play { background: #facc15; color: #78350f; }
+    .btn-play-slow { background: #fde047; color: #78350f; border: 1px solid #fff; }
     .btn-rec { background: #2563eb; color: #fff; }
     .btn-stop-rec { background: #ef4444; color: #fff; animation: pulse 1s infinite; }
     @keyframes pulse {
@@ -528,6 +536,18 @@
       color: #94a3b8;
       margin-top: 6px;
     }
+    .btn-cert {
+      margin-top: 14px;
+      background: linear-gradient(90deg, #f59e0b 0%, #eab308 100%);
+      color: #451a03;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 900;
+      border: 2px solid #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.45);
+    }
     .dev-master-footer {
       margin-top: 22px;
       padding-top: 14px;
@@ -595,12 +615,12 @@
     .modal-content {
       background: #1e293b;
       color: #fff;
-      max-width: 580px;
+      max-width: 600px;
       width: 100%;
       border-radius: 14px;
       padding: 24px;
       border: 2px solid #38bdf8;
-      max-height: 85vh;
+      max-height: 88vh;
       overflow-y: auto;
     }
     .modal-content h3 { color: #38bdf8; margin-bottom: 14px; }
@@ -622,6 +642,58 @@
       border-radius: 12px;
       margin: 15px auto;
       width: fit-content;
+    }
+    .cert-box {
+      background: #ffffff;
+      color: #0f172a;
+      border: 4px double #b45309;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: left;
+    }
+    .cert-header {
+      text-align: center;
+      border-bottom: 2px solid #f59e0b;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+    .cert-header h4 {
+      font-size: 20px;
+      color: #991b1b;
+      font-weight: 900;
+    }
+    .cert-meta {
+      font-size: 13px;
+      background: #fefce8;
+      border: 1px solid #fde047;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+    .cert-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+    .cert-table th, .cert-table td {
+      border: 1px solid #cbd5e1;
+      padding: 6px 8px;
+    }
+    .cert-table th {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+    .cert-final {
+      text-align: center;
+      font-size: 18px;
+      font-weight: 900;
+      color: #1d4ed8;
+      background: #eff6ff;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #93c5fd;
     }
   </style>
 </head>
@@ -700,15 +772,15 @@
 
   <!-- 개인 연습용 모드 활성화 시 안내 배너 -->
   <div class="personal-mode-banner" id="personalModeBanner">
-    <span id="personalBannerText">🎧 <strong>개인 연습 & 실시간 번역기 모드 작동 중:</strong> 시트 연결 없이 위 문장 입력칸에 자국어로 문장을 쓰면 즉시 번역되어 발음 듣기·녹음·채점을 자유롭게 이용하실 수 있습니다!</span>
+    <span id="personalBannerText">🎧 <strong>개인 연습 & 실시간 번역기 모드 작동 중:</strong> 시트 연결 없이 위 문장 입력칸에 짧은 문장이나 긴 문장(장문)을 입력하면 즉시 번역되어 발음 듣기·녹음·채점을 자유롭게 이용하실 수 있습니다!</span>
     <button type="button" class="btn-tool" id="btnBackToClass" style="background:#334155;" onclick="_0xEngine.togglePersonalMode()">🏫 학급 시트 연동 모드로 돌아가기</button>
   </div>
 
-  <!-- 양방향 실시간 번역 & 문장 등록 바 (10개 전 언어 음성 인식 지원) -->
+  <!-- 양방향 실시간 번역 & 문장 등록 바 (긴 문장/장문 분할 번역 + 10개 전 언어 음성 인식) -->
   <div class="translate-bar" id="teacherTranslateBar">
     <div class="translate-row">
       <label for="koInput" id="lblTranslateInput">🌐 실시간 번역 & 등록:</label>
-      <input type="text" id="koInput" placeholder="한국어 또는 외국어(자국어)로 문장을 입력하거나 말하면 자동 번역되어 아래 문항에 등록됩니다!" onkeydown="if(event.key==='Enter') _0xEngine.procIn();">
+      <input type="text" id="koInput" placeholder="짧은 문장은 물론 긴 문장(장문)도 한국어 또는 자국어로 입력/말하면 자동 번역되어 등록됩니다!" onkeydown="if(event.key==='Enter') _0xEngine.procIn();">
       <select id="voiceInputLang" title="말로 입력할 언어 선택 (10개 국어 모두 음성 인식 지원)">
         <option value="ko-KR">🇰🇷 한국어 음성인식</option>
         <option value="target">🌐 현재 선택언어 음성인식</option>
@@ -735,29 +807,36 @@
       <button class="btn-translate" id="btnTranslate" onclick="_0xEngine.procIn()">🔄 번역 및 문항 등록</button>
     </div>
     <div class="translate-sub-hint" id="translateHintText">
-      💡 <strong>양방향 번역 & 전 언어 음성인식:</strong> 러시아어·독일어·스페인어·아랍어·베트남어 등 <strong>10개 국어 모두 음성 입력과 발음 채점을 완벽 지원</strong>합니다!
+      💡 <strong>긴 문장(장문) 번역 & 기계음 방지:</strong> 여러 문장으로 된 긴 글도 자동 분할 번역되며, 녹음 시작 시 모범 발음(기계음)이 자동 차단되어 학생 본인의 육성만 인식합니다.
     </div>
   </div>
 
+  <!-- 교사용 문항 편집 및 세트 내보내기/불러오기 패널 -->
   <div class="editor-panel teacher-only" id="editorPanel">
-    <h3 id="editorTitle">✏️ 맞춤 문항 직접 편집 (목표 언어 원문 / 병음·발음 / 뜻·번역)</h3>
+    <h3 id="editorTitle">✏️ 맞춤 문항 직접 편집 & 세트 공유 (목표 문장 / 발음 표기 / 뜻·번역)</h3>
+    <div class="editor-preset-actions">
+      <button type="button" class="btn-tool copy" onclick="_0xEngine.exportPreset()">📤 현재 7문항 세트 코드 복사 (동료 교사 공유용)</button>
+      <button type="button" class="btn-tool qr" onclick="_0xEngine.importPreset()">📥 문항 세트 코드 붙여넣기 (불러오기)</button>
+    </div>
     <div id="editorInputs"></div>
     <button class="btn-save-sentences" id="btnSaveSentences" onclick="_0xEngine.svCust()">💾 문항 저장 및 세트 등록</button>
   </div>
 
+  <!-- PC 및 태블릿(아이패드·갤럭시탭) 완벽 대응 시트 사본 자동 연결 바 -->
   <div class="sheet-config-bar teacher-only" id="teacherSheetConfigBar">
     <div class="sheet-config-row">
       <label for="teacherSheetUrl" id="lblSheetUrl">📊 결과 구글 시트:</label>
-      <input type="text" id="teacherSheetUrl" placeholder="우측 [📋 1. 시트 사본 복사] 후 사본의 공유 링크를 복사하면 자동 연결됩니다!" oninput="_0xEngine.onUrlInput()" onfocus="_0xEngine.tryAutoPasteClipboard()">
+      <input type="text" id="teacherSheetUrl" placeholder="사본 시트 링크 복사 후 이 화면을 터치하거나 우측 [📋 복사한 링크 붙여넣기]를 누르세요!" oninput="_0xEngine.onUrlInput()" onfocus="_0xEngine.tryAutoPasteClipboard(true)" onclick="_0xEngine.tryAutoPasteClipboard(true)">
       <span class="sheet-status-badge" id="sheetStatusBadge">⚪ 시트 미연결</span>
     </div>
     <div class="sheet-config-row">
       <a class="btn-tool copy" id="btnCopySub" href="https://docs.google.com/spreadsheets/d/14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI/copy" target="_blank" rel="noopener noreferrer" onclick="_0xEngine.notifyManualCopy()">📋 1. 시트 사본 복사하기</a>
-      <button class="btn-tool open-sheet" id="btnOpenSheetSub" onclick="_0xEngine.opSheet()">🔗 2. 내 복사 시트 열기 (결과 확인)</button>
-      <button class="btn-tool personal" id="btnPersonalSub" onclick="_0xEngine.togglePersonalMode()">🎧 시트 없이 개인 연습하기</button>
+      <button type="button" class="btn-tool paste-btn" onclick="_0xEngine.manualPasteSheet()">📥 2. 복사한 시트 링크 자동 붙여넣기</button>
+      <button type="button" class="btn-tool open-sheet" id="btnOpenSheetSub" onclick="_0xEngine.opSheet()">🔗 3. 내 복사 시트 열기 (결과 확인)</button>
+      <button type="button" class="btn-tool personal" id="btnPersonalSub" onclick="_0xEngine.togglePersonalMode()">🎧 시트 없이 개인 연습하기</button>
     </div>
     <div class="sheet-hint" id="sheetHintBox">
-      * <strong>타 교사 시트 자동 연결 방법:</strong> ① <strong>[📋 1. 시트 사본 복사하기]</strong> 클릭 후 <code>[사본 만들기]</code> $\rightarrow$ ② 열린 사본 시트 우측 상단 <code>[공유]</code> 클릭 $\rightarrow$ 일반 액세스를 <strong>'링크가 있는 모든 사용자 - 편집자'</strong>로 바꾼 뒤 <code>[링크 복사]</code>를 누르고 <strong>이 화면으로 돌아오면 위 주소칸에 자동으로 입력·연결</strong>됩니다!
+      * <strong>PC·태블릿 시트 자동 연결:</strong> ① <strong>[📋 1. 시트 사본 복사하기]</strong> 후 사본 시트 <code>[공유]</code>에서 <strong>'링크가 있는 모든 사용자 - 편집자'</strong>로 바꾸고 <code>[링크 복사]</code>를 누른 뒤, <strong>이 화면으로 돌아와 빈 곳을 터치하거나 [📥 2. 복사한 시트 링크 자동 붙여넣기]를 누르면 즉시 연결</strong>됩니다!
       <span class="dev-quick-link" onclick="_0xEngine.connDev()">[🔒 개발자 본인 시트 열기]</span>
     </div>
   </div>
@@ -783,6 +862,9 @@
     <div class="total-summary-title" id="lblTotalTitle">🏆 나의 종합 말하기 점수 (100점 만점 환산)</div>
     <div class="total-score-display" id="totalScoreText">0점 <span>/ 100점 만점</span></div>
     <div class="total-sub-info" id="completedCountText">완료된 문항: 0 / 7개 (원점수 합계: 0 / 700점)</div>
+    <div>
+      <button type="button" class="btn-cert" id="btnShowCert" onclick="_0xEngine.openCert()">🏅 나의 말하기 결과표 (인증서) 보기</button>
+    </div>
   </div>
 
   <!-- 프로그램 최하단 개발자 전용 앱 잠금 제어 영역 -->
@@ -792,10 +874,26 @@
   </div>
 </div>
 
+<!-- 학생 배포용 QR코드 모달 (학생용 기본 UI 언어 지정 기능 포함) -->
 <div class="modal" id="qrModal">
   <div class="modal-content" style="text-align: center;">
     <h3>📱 학생 연습용 QR코드</h3>
-    <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 10px;">교실 TV 화면에 띄워 학생들이 스캔하면 교사용 버튼과 시트 입력창이 모두 숨겨진 학생 전용 화면으로 연결됩니다.</p>
+    <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 10px;">교실 TV·태블릿 화면에 띄워 학생들이 스캔하면 학생 전용 화면과 선생님 구글 시트가 자동 연결됩니다.</p>
+    <div style="margin-bottom: 10px; background: rgba(15,23,42,0.7); padding: 8px 12px; border-radius: 8px; border: 1px solid #38bdf8;">
+      <label for="qrUiLangSelect" style="font-size: 12px; color: #7dd3fc; font-weight: bold; margin-right: 6px;">🌍 학생 접속 시 기본 화면(UI) 언어:</label>
+      <select id="qrUiLangSelect" class="ui-lang-select" onchange="_0xEngine.refreshQr()">
+        <option value="ko">🇰🇷 한국어 UI</option>
+        <option value="en">🇺🇸 English UI</option>
+        <option value="zh">🇨🇳 中文界面</option>
+        <option value="vi">🇻🇳 Tiếng Việt UI</option>
+        <option value="ja">🇯🇵 日本語 UI</option>
+        <option value="ru">🇷🇺 Русский UI</option>
+        <option value="es">🇪🇸 Español UI</option>
+        <option value="de">🇩🇪 Deutsch UI</option>
+        <option value="fr">🇫🇷 Français UI</option>
+        <option value="ar">🇸🇦 العربية UI</option>
+      </select>
+    </div>
     <div id="qrcodeWrapper">
       <div id="qrcode"></div>
     </div>
@@ -807,14 +905,43 @@
   </div>
 </div>
 
+<!-- 학습 완료 인증서(결과 요약표) 모달 -->
+<div class="modal" id="certModal">
+  <div class="modal-content">
+    <div class="cert-box" id="certCaptureArea">
+      <div class="cert-header">
+        <h4>🏅 다국어 말하기 연습 결과 인증서</h4>
+        <div style="font-size: 11px; color: #64748b; margin-top: 2px;">학생 주도 다국어 연습기 (개발자: 신윤기 수석)</div>
+      </div>
+      <div class="cert-meta" id="certMetaInfo"></div>
+      <table class="cert-table">
+        <thead>
+          <tr>
+            <th style="width: 36px; text-align: center;">번호</th>
+            <th>연습 문장</th>
+            <th style="width: 65px; text-align: center;">최고점</th>
+          </tr>
+        </thead>
+        <tbody id="certTableBody"></tbody>
+      </table>
+      <div class="cert-final" id="certFinalScore"></div>
+    </div>
+    <div style="font-size: 12px; color: #cbd5e1; text-align: center; margin-top: 10px;">
+      📸 위 인증서 화면을 캡처하여 과제 제출방이나 클래스룸에 제출할 수 있습니다.
+    </div>
+    <button class="modal-close" onclick="_0xEngine.clCert()">닫기</button>
+  </div>
+</div>
+
+<!-- 안내 모달 -->
 <div class="modal" id="helpModal">
   <div class="modal-content">
     <h3>📖 학생 주도 다국어 연습기 & 양방향 번역기 안내</h3>
     <ol>
-      <li><strong>다문화·외국인용 10개 국어 UI 전환:</strong> 좌측 상단 <code>🌍 UI 언어</code>를 바꾸면 모든 버튼과 안내 문구가 해당 국가 언어로 즉시 전환됩니다.</li>
-      <li><strong>러시아어·독일어·스페인어 등 10개 국어 음성인식:</strong> 선택한 모든 외국어의 음성 입력과 발음 정확도 채점을 100% 지원합니다.</li>
-      <li><strong>외국인 한국어 번역 & 발음 연습:</strong> 상단 언어를 <code>🇰🇷 한국어 (Korean)</code>로 선택한 뒤 문장 입력칸에 자국어로 문장을 쓰면, 한국어 문장과 로마자 발음(Romanization)으로 자동 번역되어 아래 카드에 등록됩니다.</li>
-      <li><strong>개인 연습용 모드:</strong> 상단 <code>🎧 개인 연습용</code> 버튼을 누르면 시트 연결 없이 누구나 번역기와 발음 연습기를 자유롭게 이용할 수 있습니다.</li>
+      <li><strong>기계음 부정 인식 원천 차단:</strong> 녹음 시작 시 모범 발음이 자동 종료되며, 녹음 도중 모범 발음 버튼을 누르면 채점이 즉시 취소되어 본인의 실제 육성만 평가됩니다.</li>
+      <li><strong>느리게 듣기(0.7x) & 일반 속도(1.0x):</strong> 문장별로 두 가지 속도의 원어민 음성을 제공하여 초급자도 정확하게 따라 말할 수 있습니다.</li>
+      <li><strong>긴 문장(장문) 자동 분할 번역:</strong> 긴 문장이나 여러 문장을 입력해도 문장 단위로 끊어서 빠짐없이 번역하여 등록합니다.</li>
+      <li><strong>PC·태블릿 시트 사본 자동 연결:</strong> 사본 시트 공유 링크를 복사한 뒤 앱 화면으로 돌아와 터치하거나 <code>[📥 2. 복사한 시트 링크 자동 붙여넣기]</code>를 누르면 즉시 연결됩니다.</li>
     </ol>
     <button class="modal-close" onclick="_0xEngine.clHelp()">확인 및 닫기</button>
   </div>
@@ -875,17 +1002,19 @@
       personalBtn: "🎧 개인 연습용", classBtn: "🏫 학급 시트 연동 모드",
       qrBtn: "📱 학생 배포용 QR", editBtn: "✏️ 문항 편집", copyBtn: "📋 시트 사본 복사", helpBtn: "📖 안내",
       transLabel: "🌐 실시간 번역 & 등록:",
-      transPlaceholder: "한국어 또는 외국어(자국어)로 문장을 입력하거나 말하면 자동 번역되어 아래 문항에 등록됩니다!",
+      transPlaceholder: "짧은 문장은 물론 긴 문장(장문)도 한국어 또는 자국어로 입력/말하면 자동 번역되어 등록됩니다!",
       voiceBtn: "🎙️ 말로 입력", voiceListening: "🛑 듣는 중...",
       transSubmit: "🔄 번역 및 문항 등록", transWorking: "⏳ 번역 중...",
       studentIdLbl: "학번 (4자리 또는 5자리 입력)", studentIdPh: "예: 2022 또는 20888",
       nameLbl: "이름", namePersonalLbl: "이름 (선택 입력 - 바로 녹음 가능)", namePh: "성명 입력",
-      playBtn: "🔊 모범 발음", recStart: "🎙️ 녹음 시작", recStop: "⏹ 녹음 완료 및 채점",
+      playBtn: "🔊 모범 발음", playSlowBtn: "🐢 느리게(0.7x)", recStart: "🎙️ 녹음 시작", recStop: "⏹ 녹음 완료 및 채점",
       bestScore: "최고", ptUnit: "점", meaningPrefix: "💡 뜻/원문:",
       totalTitle: "🏆 나의 종합 말하기 점수 (100점 만점 환산)",
       outOf100: "/ 100점 만점", completedPrefix: "완료된 문항", rawSumPrefix: "원점수 합계",
+      certBtn: "🏅 나의 말하기 결과표 (인증서) 보기",
       listeningGuide: "인식 중: (말씀하신 후 [녹음 완료 및 채점] 버튼을 누르세요)",
       noSpeechErr: "음성이 감지되지 않았습니다. 다시 녹음해 주세요.",
+      machineBlockedErr: "⚠️ 녹음 중에는 모범 발음(기계음)을 재생할 수 없습니다. 본인의 실제 목소리로 다시 녹음해 주세요!",
       recognizedLbl: "인식된 발음", evalScoreLbl: "평가 점수",
       matchExact: "✓ 일치", matchCtx: "✓ 문맥인정", matchWrong: "✗ 미흡",
       fbHeader: "🎯 단어별 발음 피드백 & 뜻 (단어 클릭 시 원어민 발음 재생 🔊):"
@@ -896,17 +1025,19 @@
       personalBtn: "🎧 Solo Practice", classBtn: "🏫 Class Sheet Mode",
       qrBtn: "📱 Student QR", editBtn: "✏️ Edit Items", copyBtn: "📋 Copy Sheet", helpBtn: "📖 Guide",
       transLabel: "🌐 Translate & Add:",
-      transPlaceholder: "Type or speak in your native language to translate and add to the practice list below!",
+      transPlaceholder: "Type or speak short or long sentences in your language to translate and add!",
       voiceBtn: "🎙️ Voice Input", voiceListening: "🛑 Listening...",
       transSubmit: "🔄 Translate & Add", transWorking: "⏳ Translating...",
       studentIdLbl: "Student ID (4-5 digits)", studentIdPh: "e.g., 20101",
       nameLbl: "Name", namePersonalLbl: "Name (Optional - Ready to Record)", namePh: "Enter your name",
-      playBtn: "🔊 Listen Model", recStart: "🎙️ Start Record", recStop: "⏹ Stop & Score",
+      playBtn: "🔊 Listen (1.0x)", playSlowBtn: "🐢 Slow (0.7x)", recStart: "🎙️ Start Record", recStop: "⏹ Stop & Score",
       bestScore: "Best", ptUnit: "pts", meaningPrefix: "💡 Meaning:",
       totalTitle: "🏆 Total Speaking Score (100-pt Scale)",
       outOf100: "/ 100 pts", completedPrefix: "Completed", rawSumPrefix: "Raw Total",
+      certBtn: "🏅 View Speaking Certificate",
       listeningGuide: "Listening... (Speak now, then click [Stop & Score])",
       noSpeechErr: "No voice detected. Please try recording again.",
+      machineBlockedErr: "⚠️ Playing model audio during recording is blocked. Please record your own voice!",
       recognizedLbl: "Recognized Speech", evalScoreLbl: "Score",
       matchExact: "✓ Match", matchCtx: "✓ Accepted", matchWrong: "✗ Retry",
       fbHeader: "🎯 Word-by-Word Feedback & Meaning (Click any word to listen 🔊):"
@@ -917,17 +1048,19 @@
       personalBtn: "🎧 个人练习模式", classBtn: "🏫 班级表格联动",
       qrBtn: "📱 学生二维码", editBtn: "✏️ 编辑题目", copyBtn: "📋 复制表格", helpBtn: "📖 说明",
       transLabel: "🌐 实时翻译并添加:",
-      transPlaceholder: "用母语或外语输入/说出句子，自动翻译并添加到下方练习题中！",
+      transPlaceholder: "输入或说出短句或长句，自动翻译并添加到下方练习题中！",
       voiceBtn: "🎙️ 语音输入", voiceListening: "🛑 正在听...",
       transSubmit: "🔄 翻译并添加", transWorking: "⏳ 翻译中...",
       studentIdLbl: "学号 (4或5位数字)", studentIdPh: "例如: 20101",
       nameLbl: "姓名", namePersonalLbl: "姓名 (选填 - 可直接录音)", namePh: "请输入姓名",
-      playBtn: "🔊 示范发音", recStart: "🎙️ 开始录音", recStop: "⏹ 完成并评分",
+      playBtn: "🔊 示范发音", playSlowBtn: "🐢 慢速(0.7x)", recStart: "🎙️ 开始录音", recStop: "⏹ 完成并评分",
       bestScore: "最高", ptUnit: "分", meaningPrefix: "💡 释义/原文:",
       totalTitle: "🏆 我的综合口语得分 (百分制换算)",
       outOf100: "/ 100分", completedPrefix: "已完成题数", rawSumPrefix: "原始总分",
+      certBtn: "🏅 查看口语成绩单 (证书)",
       listeningGuide: "正在识别... (请朗读后点击 [完成并评分])",
       noSpeechErr: "未检测到声音，请重新录音。",
+      machineBlockedErr: "⚠️ 录音期间禁止播放示范音频，请用自己的声音重新录音！",
       recognizedLbl: "识别结果", evalScoreLbl: "评测得分",
       matchExact: "✓ 准确", matchCtx: "✓ 语境认可", matchWrong: "✗ 需改进",
       fbHeader: "🎯 逐词发音反馈与释义 (点击词语可听标准发音 🔊):"
@@ -938,17 +1071,19 @@
       personalBtn: "🎧 Tự luyện tập", classBtn: "🏫 Chế độ lớp học",
       qrBtn: "📱 Mã QR", editBtn: "✏️ Sửa câu", copyBtn: "📋 Sao chép mẫu", helpBtn: "📖 Hướng dẫn",
       transLabel: "🌐 Dịch & Thêm câu:",
-      transPlaceholder: "Nhập hoặc nói bằng tiếng mẹ đẻ để dịch tự động và thêm vào bài luyện tập!",
+      transPlaceholder: "Nhập hoặc nói câu ngắn hoặc dài để dịch tự động và thêm vào bài luyện tập!",
       voiceBtn: "🎙️ Nói", voiceListening: "🛑 Đang nghe...",
       transSubmit: "🔄 Dịch & Đăng ký", transWorking: "⏳ Đang dịch...",
       studentIdLbl: "Mã học sinh (4-5 số)", studentIdPh: "VD: 20101",
       nameLbl: "Họ tên", namePersonalLbl: "Họ tên (Tùy chọn - Ghi âm ngay)", namePh: "Nhập tên của bạn",
-      playBtn: "🔊 Nghe mẫu", recStart: "🎙️ Ghi âm", recStop: "⏹ Chấm điểm",
+      playBtn: "🔊 Nghe mẫu", playSlowBtn: "🐢 Chậm(0.7x)", recStart: "🎙️ Ghi âm", recStop: "⏹ Chấm điểm",
       bestScore: "Cao nhất", ptUnit: "đ", meaningPrefix: "💡 Ý nghĩa:",
       totalTitle: "🏆 Tổng điểm nói của tôi (Thang điểm 100)",
       outOf100: "/ 100 điểm", completedPrefix: "Đã hoàn thành", rawSumPrefix: "Tổng điểm gốc",
+      certBtn: "🏅 Xem Bảng Điểm (Chứng nhận)",
       listeningGuide: "Đang nhận diện... (Hãy nói rồi bấm [Chấm điểm])",
       noSpeechErr: "Không nhận diện được giọng nói. Vui lòng thử lại.",
+      machineBlockedErr: "⚠️ Không thể phát âm thanh mẫu khi đang ghi âm. Vui lòng ghi âm lại bằng giọng của bạn!",
       recognizedLbl: "Giọng đã nhận diện", evalScoreLbl: "Điểm đánh giá",
       matchExact: "✓ Chính xác", matchCtx: "✓ Chấp nhận", matchWrong: "✗ Cần sửa",
       fbHeader: "🎯 Phản hồi từng từ & Ý nghĩa (Bấm vào từ để nghe phát âm 🔊):"
@@ -959,17 +1094,19 @@
       personalBtn: "🎧 個人練習用", classBtn: "🏫 クラス連動",
       qrBtn: "📱 生徒用QR", editBtn: "✏️ 問題編集", copyBtn: "📋 シート複製", helpBtn: "📖 案内",
       transLabel: "🌐 翻訳＆問題登録:",
-      transPlaceholder: "母国語または外国語で文を入力・音声入力すると自動翻訳して登録されます！",
+      transPlaceholder: "短い文も長い文も入力・音声入力すると自動翻訳して登録されます！",
       voiceBtn: "🎙️ 音声入力", voiceListening: "🛑 聴取中...",
       transSubmit: "🔄 翻訳して登録", transWorking: "⏳ 翻訳中...",
       studentIdLbl: "学番 (4〜5桁)", studentIdPh: "例: 20101",
       nameLbl: "名前", namePersonalLbl: "名前 (任意 - すぐ録音可能)", namePh: "名前を入力",
-      playBtn: "🔊 お手本音声", recStart: "🎙️ 録音開始", recStop: "⏹ 録音完了・採点",
+      playBtn: "🔊 お手本音声", playSlowBtn: "🐢 ゆっくり(0.7x)", recStart: "🎙️ 録音開始", recStop: "⏹ 録音完了・採点",
       bestScore: "最高", ptUnit: "点", meaningPrefix: "💡 意味/原文:",
       totalTitle: "🏆 総合スピーキング点数 (100点満点換算)",
       outOf100: "/ 100点満点", completedPrefix: "完了問題", rawSumPrefix: "合計点",
+      certBtn: "🏅 スピーキング結果表を見る",
       listeningGuide: "認識中... (発話後に [録音完了・採点] を押してください)",
       noSpeechErr: "音声が検出されませんでした。もう一度録音してください。",
+      machineBlockedErr: "⚠️ 録音中は機械音を再生できません。ご自身の声で再度録音してください！",
       recognizedLbl: "認識された発音", evalScoreLbl: "評価点数",
       matchExact: "✓ 一致", matchCtx: "✓ 許容", matchWrong: "✗ 要練習",
       fbHeader: "🎯 単語別発音フィードバック＆意味 (クリックで音声再生 🔊):"
@@ -980,17 +1117,19 @@
       personalBtn: "🎧 Личная практика", classBtn: "🏫 Режим класса",
       qrBtn: "📱 QR-код", editBtn: "✏️ Редактировать", copyBtn: "📋 Копия таблицы", helpBtn: "📖 Справка",
       transLabel: "🌐 Перевод и добавление:",
-      transPlaceholder: "Введите или скажите фразу на родном языке для перевода и тренировки!",
+      transPlaceholder: "Введите или скажите короткую или длинную фразу для перевода!",
       voiceBtn: "🎙️ Голос", voiceListening: "🛑 Слушаю...",
       transSubmit: "🔄 Перевести", transWorking: "⏳ Перевод...",
       studentIdLbl: "Номер ученика", studentIdPh: "Напр.: 20101",
       nameLbl: "Имя", namePersonalLbl: "Имя (необязательно)", namePh: "Введите имя",
-      playBtn: "🔊 Прослушать", recStart: "🎙️ Запись", recStop: "⏹ Оценить",
+      playBtn: "🔊 Прослушать", playSlowBtn: "🐢 Медленно(0.7x)", recStart: "🎙️ Запись", recStop: "⏹ Оценить",
       bestScore: "Лучший", ptUnit: "б.", meaningPrefix: "💡 Значение:",
       totalTitle: "🏆 Общий балл за произношение (из 100)",
       outOf100: "/ 100 баллов", completedPrefix: "Выполнено", rawSumPrefix: "Сумма",
+      certBtn: "🏅 Показать сертификат результатов",
       listeningGuide: "Слушаю... (Произнесите фразу и нажмите [Оценить])",
       noSpeechErr: "Голос не распознан. Попробуйте еще раз.",
+      machineBlockedErr: "⚠️ Во время записи воспроизведение образца запрещено. Запишите свой голос!",
       recognizedLbl: "Распознано", evalScoreLbl: "Оценка",
       matchExact: "✓ Точно", matchCtx: "✓ Принято", matchWrong: "✗ Ошибка",
       fbHeader: "🎯 Разбор по словам и перевод (нажмите на слово для озвучки 🔊):"
@@ -1001,17 +1140,19 @@
       personalBtn: "🎧 Práctica Libre", classBtn: "🏫 Modo Clase",
       qrBtn: "📱 Código QR", editBtn: "✏️ Editar", copyBtn: "📋 Copiar Hoja", helpBtn: "📖 Ayuda",
       transLabel: "🌐 Traducir y Añadir:",
-      transPlaceholder: "¡Escribe o habla en tu idioma para traducir y practicar!",
+      transPlaceholder: "¡Escribe o habla frases cortas o largas para traducir y practicar!",
       voiceBtn: "🎙️ Voz", voiceListening: "🛑 Escuchando...",
       transSubmit: "🔄 Traducir y Añadir", transWorking: "⏳ Traduciendo...",
       studentIdLbl: "ID de Estudiante", studentIdPh: "Ej: 20101",
       nameLbl: "Nombre", namePersonalLbl: "Nombre (Opcional)", namePh: "Tu nombre",
-      playBtn: "🔊 Escuchar", recStart: "🎙️ Grabar", recStop: "⏹ Evaluar",
+      playBtn: "🔊 Escuchar", playSlowBtn: "🐢 Lento(0.7x)", recStart: "🎙️ Grabar", recStop: "⏹ Evaluar",
       bestScore: "Mejor", ptUnit: "pts", meaningPrefix: "💡 Significado:",
       totalTitle: "🏆 Puntuación Total de Habla (sobre 100)",
       outOf100: "/ 100 pts", completedPrefix: "Completados", rawSumPrefix: "Total bruto",
+      certBtn: "🏅 Ver Certificado de Resultados",
       listeningGuide: "Escuchando... (Habla y pulsa [Evaluar])",
       noSpeechErr: "No se detectó voz. Inténtalo de nuevo.",
+      machineBlockedErr: "⚠️ No se puede reproducir el audio modelo mientras grabas. ¡Graba tu propia voz!",
       recognizedLbl: "Voz reconocida", evalScoreLbl: "Puntuación",
       matchExact: "✓ Exacto", matchCtx: "✓ Aceptado", matchWrong: "✗ Mejorar",
       fbHeader: "🎯 Retroalimentación palabra por palabra (Haz clic para escuchar 🔊):"
@@ -1022,17 +1163,19 @@
       personalBtn: "🎧 Freies Üben", classBtn: "🏫 Klassenmodus",
       qrBtn: "📱 QR-Code", editBtn: "✏️ Bearbeiten", copyBtn: "📋 Tabelle kopieren", helpBtn: "📖 Hilfe",
       transLabel: "🌐 Übersetzen & Hinzufügen:",
-      transPlaceholder: "Satz eingeben oder sprechen, um ihn zu übersetzen und zu üben!",
+      transPlaceholder: "Kurze oder lange Sätze eingeben oder sprechen zum Übersetzen!",
       voiceBtn: "🎙️ Spracheingabe", voiceListening: "🛑 Höre zu...",
       transSubmit: "🔄 Übersetzen", transWorking: "⏳ Übersetze...",
       studentIdLbl: "Schülernummer", studentIdPh: "z.B. 20101",
       nameLbl: "Name", namePersonalLbl: "Name (Optional)", namePh: "Name eingeben",
-      playBtn: "🔊 Anhören", recStart: "🎙️ Aufnahme", recStop: "⏹ Bewerten",
+      playBtn: "🔊 Anhören", playSlowBtn: "🐢 Langsam(0.7x)", recStart: "🎙️ Aufnahme", recStop: "⏹ Bewerten",
       bestScore: "Beste", ptUnit: "Pkt", meaningPrefix: "💡 Bedeutung:",
       totalTitle: "🏆 Gesamtpunktzahl (100-Punkte-Skala)",
       outOf100: "/ 100 Pkt", completedPrefix: "Abgeschlossen", rawSumPrefix: "Rohpunkte",
+      certBtn: "🏅 Ergebniszertifikat anzeigen",
       listeningGuide: "Höre zu... (Sprechen und [Bewerten] klicken)",
       noSpeechErr: "Keine Stimme erkannt. Bitte erneut versuchen.",
+      machineBlockedErr: "⚠️ Während der Aufnahme ist die Modellstimme gesperrt. Bitte selbst sprechen!",
       recognizedLbl: "Erkannt", evalScoreLbl: "Punktzahl",
       matchExact: "✓ Korrekt", matchCtx: "✓ Akzeptiert", matchWrong: "✗ Üben",
       fbHeader: "🎯 Wort-für-Wort-Feedback (Klicken zum Anhören 🔊):"
@@ -1043,17 +1186,19 @@
       personalBtn: "🎧 Pratique Libre", classBtn: "🏫 Mode Classe",
       qrBtn: "📱 Code QR", editBtn: "✏️ Éditer", copyBtn: "📋 Copier Feuille", helpBtn: "📖 Aide",
       transLabel: "🌐 Traduire & Ajouter:",
-      transPlaceholder: "Écrivez ou parlez dans votre langue pour traduire et pratiquer !",
+      transPlaceholder: "Écrivez ou parlez des phrases courtes ou longues pour traduire !",
       voiceBtn: "🎙️ Voix", voiceListening: "🛑 Écoute...",
       transSubmit: "🔄 Traduire", transWorking: "⏳ Traduction...",
       studentIdLbl: "Numéro d'étudiant", studentIdPh: "ex: 20101",
       nameLbl: "Nom", namePersonalLbl: "Nom (Optionnel)", namePh: "Votre nom",
-      playBtn: "🔊 Écouter", recStart: "🎙️ Enregistrer", recStop: "⏹ Évaluer",
+      playBtn: "🔊 Écouter", playSlowBtn: "🐢 Lent(0.7x)", recStart: "🎙️ Enregistrer", recStop: "⏹ Évaluer",
       bestScore: "Meilleur", ptUnit: "pts", meaningPrefix: "💡 Sens:",
       totalTitle: "🏆 Score Total d'Expression (sur 100)",
       outOf100: "/ 100 pts", completedPrefix: "Complétés", rawSumPrefix: "Total brut",
+      certBtn: "🏅 Voir le Certificat de Résultats",
       listeningGuide: "Écoute en cours... (Parlez puis cliquez sur [Évaluer])",
       noSpeechErr: "Aucune voix détectée. Veuillez réessayer.",
+      machineBlockedErr: "⚠️ Audio modèle bloqué pendant l'enregistrement. Enregistrez votre propre voix !",
       recognizedLbl: "Voix reconnue", evalScoreLbl: "Score",
       matchExact: "✓ Exact", matchCtx: "✓ Accepté", matchWrong: "✗ À revoir",
       fbHeader: "🎯 Détail mot par mot (Cliquez sur un mot pour écouter 🔊):"
@@ -1064,17 +1209,19 @@
       personalBtn: "🎧 تدريب فردي", classBtn: "🏫 وضع الفصل",
       qrBtn: "📱 رمز QR", editBtn: "✏️ تعديل", copyBtn: "📋 نسخ الجدول", helpBtn: "📖 مساعدة",
       transLabel: "🌐 ترجمة وإضافة:",
-      transPlaceholder: "اكتب أو تحدث بلغتك لترجمة الجملة وإضافتها للتدريب!",
+      transPlaceholder: "اكتب أو تحدث بجمل قصيرة أو طويلة لترجمتها وإضافتها للتدريب!",
       voiceBtn: "🎙️ إدخال صوتي", voiceListening: "🛑 جاري الاستماع...",
       transSubmit: "🔄 ترجمة وإضافة", transWorking: "⏳ جاري الترجمة...",
       studentIdLbl: "رقم الطالب", studentIdPh: "مثال: 20101",
       nameLbl: "الاسم", namePersonalLbl: "الاسم (اختياري)", namePh: "أدخل اسمك",
-      playBtn: "🔊 استماع للنطق", recStart: "🎙️ بدء التسجيل", recStop: "⏹ إنهاء وتقييم",
+      playBtn: "🔊 استماع", playSlowBtn: "🐢 بطيء(0.7x)", recStart: "🎙️ بدء التسجيل", recStop: "⏹ إنهاء وتقييم",
       bestScore: "الأفضل", ptUnit: "نقطة", meaningPrefix: "💡 المعنى:",
       totalTitle: "🏆 مجموع درجات التحدث (من 100)",
       outOf100: "/ 100 نقطة", completedPrefix: "المكتمل", rawSumPrefix: "المجموع",
+      certBtn: "🏅 عرض شهادة النتائج",
       listeningGuide: "جاري الاستماع... (تحدث ثم اضغط [إنهاء وتقييم])",
       noSpeechErr: "لم يتم اكتشاف صوت. يرجى المحاولة مرة أخرى.",
+      machineBlockedErr: "⚠️ يُمنع تشغيل الصوت النموذجي أثناء التسجيل. يرجى التسجيل بصوتك!",
       recognizedLbl: "النطق المكتشف", evalScoreLbl: "الدرجة",
       matchExact: "✓ مطابق", matchCtx: "✓ مقبول", matchWrong: "✗ غير دقيق",
       fbHeader: "🎯 تقييم الكلمات والمعاني (اضغط على الكلمة للاستماع 🔊):"
@@ -1249,7 +1396,7 @@
       const arCharMap = {
         "ا":"아","أ":"아","إ":"이","آ":"아","ب":"브","ت":"트","ث":"쓰","ج":"즈","ح":"하","خ":"크",
         "د":"드","ذ":"드","ر":"르","ز":"즈","س":"스","ش":"쉬","ص":"스","ض":"드","ط":"트","ظ":"즈",
-        "ع":"아","غ":"그","ف":"프","ق":"크","ك":"크","ل":"을","م":"음","ن":"은","ه":"흐","ة":"아",
+        "ع":"아","غ":"그","ف":"프","ق":"크","ك":"크","ل":"을","م":"음","н":"은","ه":"흐","ة":"아",
         "و":"우","ي":"이","ى":"아","ء":""
       };
       let res = "";
@@ -1589,6 +1736,7 @@
   const _0xSilentWav = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA";
   let _0xRec = null;
   let _0xRecIdx = null;
+  let _0xRecAbortedByMachine = false;
   let _0xTrans = "";
   let _0xIsStudentMode = false;
   let _0xIsPersonalMode = false;
@@ -1599,6 +1747,14 @@
   if (_0xW.speechSynthesis) {
     _0xW.speechSynthesis.getVoices();
     _0xW.speechSynthesis.onvoiceschanged = () => { _0xW.speechSynthesis.getVoices(); };
+  }
+
+  function _0xStopAllAudio() {
+    if (_0xW.speechSynthesis) _0xW.speechSynthesis.cancel();
+    try {
+      _0xSharedAudio.pause();
+      _0xSharedAudio.currentTime = 0;
+    } catch (e) {}
   }
 
   function _0xApplyUiLang() {
@@ -1627,6 +1783,7 @@
     _0xD.getElementById('studentNameLabel').innerText = _0xIsPersonalMode ? _0xT('namePersonalLbl') : _0xT('nameLbl');
     _0xD.getElementById('studentName').placeholder = _0xT('namePh');
     _0xD.getElementById('lblTotalTitle').innerText = _0xT('totalTitle');
+    _0xD.getElementById('btnShowCert').innerText = _0xT('certBtn');
 
     _0xUpdBoard();
     _0xRenderCards();
@@ -1754,7 +1911,10 @@
     _0xD.getElementById('completedCountText').innerText = `${_0xT('completedPrefix')}: ${cnt} / 7 (${_0xT('rawSumPrefix')}: ${raw} / 700)`;
   }
 
-  function _0xPlayDirectUrlChain(speakText, tl, langCode) {
+  // =========================================================================
+  // [기계음 부정 인식 방지 + 속도 조절(1.0x / 0.7x) 10개 국어 무결점 음성 출력 엔진]
+  // =========================================================================
+  function _0xPlayDirectUrlChain(speakText, tl, langCode, rate) {
     const enc = encodeURIComponent(speakText);
     const urls = [
       `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${tl}&q=${enc}`,
@@ -1770,12 +1930,13 @@
           _0xW.speechSynthesis.resume();
           const u = new SpeechSynthesisUtterance(speakText);
           u.lang = langCode;
-          u.rate = 0.80;
+          u.rate = rate || 0.95;
           _0xW.speechSynthesis.speak(u);
         }
         return;
       }
       _0xSharedAudio.src = urls[idx++];
+      _0xSharedAudio.playbackRate = rate || 1.0;
       const p = _0xSharedAudio.play();
       if (p !== undefined) {
         p.catch(() => nextUrl());
@@ -1784,10 +1945,20 @@
     nextUrl();
   }
 
-  function _0xPlayTTS(text) {
+  function _0xPlayTTS(text, customRate) {
     if (!text) return;
-    if (_0xW.speechSynthesis) _0xW.speechSynthesis.cancel();
-    try { _0xSharedAudio.pause(); } catch (e) {}
+
+    // [기계음 부정 인식 차단] 현재 학생 녹음(_0xRec)이 진행 중이면 모범 발음 재생을 차단하고 녹음을 즉시 무효화!
+    if (_0xRec && _0xRecIdx !== null) {
+      _0xStopAllAudio();
+      _0xRecAbortedByMachine = true;
+      try { _0xRec.stop(); } catch (e) {}
+      alert(_0xT('machineBlockedErr'));
+      return;
+    }
+
+    const rate = customRate || 1.0;
+    _0xStopAllAudio();
 
     let speakText = text;
     if (_0xLang === 'zh-CN') {
@@ -1803,6 +1974,7 @@
 
     if (_0xAudioDataCache[cacheKey]) {
       _0xSharedAudio.src = _0xAudioDataCache[cacheKey];
+      _0xSharedAudio.playbackRate = rate;
       _0xSharedAudio.play().catch(() => {});
       return;
     }
@@ -1825,7 +1997,7 @@
         delete _0xW[cb];
         const el = _0xD.getElementById(cb);
         if (el) el.remove();
-        _0xPlayDirectUrlChain(speakText, tl, _0xLang);
+        _0xPlayDirectUrlChain(speakText, tl, _0xLang, rate);
       }
     }, 2500);
 
@@ -1841,11 +2013,12 @@
         const dataUri = "data:audio/mp3;base64," + res.audioData;
         _0xAudioDataCache[cacheKey] = dataUri;
         _0xSharedAudio.src = dataUri;
+        _0xSharedAudio.playbackRate = rate;
         _0xSharedAudio.play().catch(() => {
-          _0xPlayDirectUrlChain(speakText, tl, _0xLang);
+          _0xPlayDirectUrlChain(speakText, tl, _0xLang, rate);
         });
       } else {
-        _0xPlayDirectUrlChain(speakText, tl, _0xLang);
+        _0xPlayDirectUrlChain(speakText, tl, _0xLang, rate);
       }
     };
 
@@ -1856,7 +2029,7 @@
       delete _0xW[cb];
       const el = _0xD.getElementById(cb);
       if (el) el.remove();
-      _0xPlayDirectUrlChain(speakText, tl, _0xLang);
+      _0xPlayDirectUrlChain(speakText, tl, _0xLang, rate);
     };
 
     _0xD.body.appendChild(sc);
@@ -1958,12 +2131,12 @@
   async function _0xFetchMissingWordMeanings(words, lang) {
     const map = { "zh-CN":"zh-CN", "ko-KR":"ko", "en-US":"en", "ja-JP":"ja", "ar-SA":"ar", "fr-FR":"fr", "de-DE":"de", "es-ES":"es", "ru-RU":"ru", "vi-VN":"vi" };
     const sl = map[lang] || "auto";
-    // UI 언어가 외국어로 선택되어 있으면 단어 뜻도 그 외국인 학습자의 UI 언어로 번역해 제공
     const targetMeaningLang = (lang === 'ko-KR')
       ? (_0xUiLang !== 'ko' ? _0xUiLang : (_0xLastSourceLang || 'en'))
       : (_0xUiLang !== 'ko' ? _0xUiLang : 'ko');
 
-    for (let i = 0; i < words.length; i++) {
+    const limit = Math.min(words.length, 20);
+    for (let i = 0; i < limit; i++) {
       const w = words[i];
       const low = w.toLowerCase();
       const existing = _0xGetWordInfo(w, lang);
@@ -2044,7 +2217,7 @@
     _0xList.forEach((item, idx) => {
       const card = _0xD.createElement('div');
       card.className = 'card';
-      const safe = item.text.replace(/'/g, "\\'");
+      const safe = item.text.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/\n/g, " ");
       let subDisplay = item.sub || "";
       if (_0xLang === 'en-US') {
         subDisplay = "";
@@ -2064,7 +2237,8 @@
         ${subDisplay ? `<div class="sub-text">${_0xLang === 'zh-CN' ? subDisplay : '🗣️ ' + subDisplay}</div>` : ''}
         <div class="kr-text">${_0xT('meaningPrefix')} ${item.kr || ''}</div>
         <div class="btn-group">
-          <button class="btn-play" onclick="_0xEngine.tts('${safe}')">${_0xT('playBtn')}</button>
+          <button class="btn-play" onclick="_0xEngine.tts('${safe}', 1.0)">${_0xT('playBtn')}</button>
+          <button class="btn-play-slow" onclick="_0xEngine.tts('${safe}', 0.72)">${_0xT('playSlowBtn')}</button>
           <button class="btn-rec" id="recBtn_${idx}" onclick="_0xEngine.rec(${idx}, '${safe}')">${_0xT('recStart')}</button>
         </div>
         <div class="result-box" id="resBox_${idx}">
@@ -2167,33 +2341,103 @@
     } catch (e) {}
   }
 
+  // =========================================================================
+  // [PC + 태블릿(아이패드·갤럭시탭) 완벽 지원 시트 사본 클립보드 자동 감지]
+  // =========================================================================
+  function _0xApplySheetLinkIfValid(rawText, showAlert) {
+    if (!rawText) return false;
+    const clipText = String(rawText).trim();
+    if (
+      clipText.indexOf('https://docs.google.com/spreadsheets/d/') === 0 &&
+      clipText.indexOf('14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI') === -1 &&
+      clipText.indexOf('1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk') === -1
+    ) {
+      const inp = _0xD.getElementById('teacherSheetUrl');
+      if (inp && inp.value !== clipText) {
+        inp.value = clipText;
+        localStorage.setItem('speech_custom_teacher_sheet', clipText);
+        _0xWaitingManualCopy = false;
+        _0xUpdateSheetStatusUI();
+        if (showAlert) {
+          alert("✅ 복사하신 새 사본 시트가 결과 구글 시트 칸에 자동 연결되었습니다!");
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+
   async function _0xAutoDetectCopiedSheet(showAlert) {
     try {
       if (navigator.clipboard && navigator.clipboard.readText) {
-        const clipText = (await navigator.clipboard.readText()).trim();
-        if (
-          clipText.indexOf('https://docs.google.com/spreadsheets/d/') === 0 &&
-          clipText.indexOf('14I_7S-I4xWEkrphIlk0lHi57zTAzRLqyFNwuhWHHkfI') === -1 &&
-          clipText.indexOf('1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk') === -1
-        ) {
-          const inp = _0xD.getElementById('teacherSheetUrl');
-          if (inp.value !== clipText) {
-            inp.value = clipText;
-            localStorage.setItem('speech_custom_teacher_sheet', clipText);
-            _0xWaitingManualCopy = false;
-            _0xUpdateSheetStatusUI();
-            if (showAlert) {
-              alert("✅ 복사하신 새 사본 시트가 화면에 자동 연결되었습니다!");
-            }
-          }
-        }
+        const clipText = await navigator.clipboard.readText();
+        _0xApplySheetLinkIfValid(clipText, showAlert);
       }
     } catch (e) {}
   }
 
+  // PC용 focus 이벤트 + 태블릿(아이패드/갤럭시탭)용 visibilitychange & pointerdown 삼중 감지
   _0xW.addEventListener('focus', function() {
     _0xAutoDetectCopiedSheet(_0xWaitingManualCopy);
   });
+  _0xD.addEventListener('visibilitychange', function() {
+    if (_0xD.visibilityState === 'visible') {
+      _0xAutoDetectCopiedSheet(_0xWaitingManualCopy);
+    }
+  });
+  _0xD.addEventListener('pointerdown', function() {
+    if (_0xWaitingManualCopy) {
+      _0xAutoDetectCopiedSheet(true);
+    }
+  }, { passive: true });
+
+  // =========================================================================
+  // [긴 문장(장문) 무제한 자동 분할 번역 엔진]
+  // =========================================================================
+  async function _0xTranslateLongText(fullText, sourceLang, targetLang, includeRoma) {
+    const rawChunks = String(fullText).match(/[^.!?。！？\n]+[.!?。！？\n]*/g) || [String(fullText)];
+    const chunks = [];
+    let buf = "";
+    for (let i = 0; i < rawChunks.length; i++) {
+      if ((buf + rawChunks[i]).length > 400 && buf.length > 0) {
+        chunks.push(buf.trim());
+        buf = rawChunks[i];
+      } else {
+        buf += rawChunks[i];
+      }
+    }
+    if (buf.trim()) chunks.push(buf.trim());
+
+    let translatedAll = [];
+    let romaAll = [];
+    let detectedLang = "";
+
+    for (let c = 0; c < chunks.length; c++) {
+      const part = chunks[c];
+      const dtParam = includeRoma ? "&dt=t&dt=rm" : "&dt=t";
+      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceLang}&tl=${targetLang}${dtParam}&q=${encodeURIComponent(part)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      let partTr = "";
+      let partRoma = "";
+      if (data && data[0]) {
+        for (let i = 0; i < data[0].length; i++) {
+          if (data[0][i][0]) partTr += data[0][i][0];
+          if (data[0][i][2]) partRoma += data[0][i][2] + " ";
+          else if (data[0][i][3]) partRoma += data[0][i][3] + " ";
+        }
+      }
+      if (data && data[2] && !detectedLang) detectedLang = data[2];
+      if (partTr) translatedAll.push(partTr.trim());
+      if (partRoma.trim()) romaAll.push(partRoma.trim());
+    }
+
+    return {
+      text: translatedAll.join(" ").trim(),
+      roma: romaAll.join(" ").trim(),
+      detectedLang: detectedLang
+    };
+  }
 
   _0xW._0xEngine = {
     tts: _0xPlayTTS,
@@ -2205,9 +2449,10 @@
         alert("브라우저 메뉴에서 '다른 브라우저(Chrome/Safari)로 열기'를 선택해 주세요.");
       }
     },
-    // 인터페이스(UI) 다국어 전환
     chgUiLang: function() {
       _0xUiLang = _0xD.getElementById('uiLangSelect').value;
+      const qrSel = _0xD.getElementById('qrUiLangSelect');
+      if (qrSel) qrSel.value = _0xUiLang;
       _0xApplyUiLang();
     },
     chgLang: function() {
@@ -2276,8 +2521,26 @@
     notifyManualCopy: function() {
       _0xWaitingManualCopy = true;
     },
-    tryAutoPasteClipboard: function() {
-      _0xAutoDetectCopiedSheet(true);
+    tryAutoPasteClipboard: function(showAlert) {
+      _0xAutoDetectCopiedSheet(showAlert);
+    },
+    manualPasteSheet: async function() {
+      try {
+        if (navigator.clipboard && navigator.clipboard.readText) {
+          const clipText = await navigator.clipboard.readText();
+          if (_0xApplySheetLinkIfValid(clipText, true)) return;
+          if (clipText && clipText.indexOf('http') === 0) {
+            _0xD.getElementById('teacherSheetUrl').value = clipText.trim();
+            this.onUrlInput();
+            return;
+          }
+        }
+      } catch (e) {}
+      const manual = prompt("📋 복사하신 구글 시트 사본 주소를 아래에 붙여넣어 주세요:");
+      if (manual) {
+        _0xD.getElementById('teacherSheetUrl').value = manual.trim();
+        this.onUrlInput();
+      }
     },
     connDev: function() {
       const pin = prompt("🔑 개발자(신윤기 수석) 전용 마스터 비밀번호를 입력하세요:");
@@ -2397,37 +2660,23 @@
       try {
         if (_0xLang === 'ko-KR') {
           if (!hasHangul) {
-            const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=ko&dt=t&dt=rm&q=${encodeURIComponent(val)}`);
-            const data = await res.json();
-            let koTr = "";
-            if (data && data[0]) {
-              for (let i = 0; i < data[0].length; i++) {
-                if (data[0][i][0]) koTr += data[0][i][0];
-              }
-            }
-            if (data && data[2]) _0xLastSourceLang = data[2];
-            if (!koTr) throw new Error();
+            const trRes = await _0xTranslateLongText(val, "auto", "ko", false);
+            if (!trRes.text) throw new Error();
+            if (trRes.detectedLang) _0xLastSourceLang = trRes.detectedLang;
 
-            const roma = _0xHangulToRoman(koTr);
+            const roma = _0xHangulToRoman(trRes.text);
             const subStr = `[Pronunciation] ${roma}`;
-            _0xList[idx] = { text: koTr, sub: subStr, kr: val };
+            _0xList[idx] = { text: trRes.text, sub: subStr, kr: val };
           } else {
             const targetMeaningLang = (_0xUiLang !== 'ko') ? _0xUiLang : 'en';
-            const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=ko&tl=${targetMeaningLang}&dt=t&q=${encodeURIComponent(val)}`);
-            const data = await res.json();
-            let enTr = "";
-            if (data && data[0]) {
-              for (let i = 0; i < data[0].length; i++) {
-                if (data[0][i][0]) enTr += data[0][i][0];
-              }
-            }
+            const enRes = await _0xTranslateLongText(val, "ko", targetMeaningLang, false);
             const roma = _0xHangulToRoman(val);
-            _0xList[idx] = { text: val, sub: `[Pronunciation] ${roma}`, kr: enTr || val };
+            _0xList[idx] = { text: val, sub: `[Pronunciation] ${roma}`, kr: enRes.text || val };
           }
 
           _0xD.getElementById('koInput').value = "";
           _0xRenderCards(); _0xBuildEd();
-          _0xPushHist(`${idx + 1}: ${_0xList[idx].text.substring(0, 8)}`, _0xList);
+          _0xPushHist(`${idx + 1}: ${_0xList[idx].text.substring(0, 10)}`, _0xList);
           const words = _0xTokWords(_0xList[idx].text, _0xLang);
           _0xFetchMissingWordMeanings(words, _0xLang);
           return;
@@ -2436,44 +2685,29 @@
         let koMeaning = val;
         if (!hasHangul) {
           try {
-            const koRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=ko&dt=t&q=${encodeURIComponent(val)}`);
-            const koData = await koRes.json();
-            let tmpKo = "";
-            if (koData && koData[0]) {
-              for (let i = 0; i < koData[0].length; i++) {
-                if (koData[0][i][0]) tmpKo += koData[0][i][0];
-              }
-            }
-            if (tmpKo) koMeaning = `${tmpKo.trim()} (${val})`;
+            const koRes = await _0xTranslateLongText(val, "auto", "ko", false);
+            if (koRes.text) koMeaning = `${koRes.text} (${val})`;
           } catch (e) {}
         }
 
-        const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${tl}&dt=t&dt=rm&q=${encodeURIComponent(val)}`);
-        const data = await res.json();
-        let tr = "";
-        let roma = "";
-        if (data && data[0]) {
-          for (let i = 0; i < data[0].length; i++) {
-            if (data[0][i][0]) tr += data[0][i][0];
-            if (data[0][i][2]) roma += data[0][i][2] + " ";
-            else if (data[0][i][3]) roma += data[0][i][3] + " ";
-          }
-        }
+        const trRes = await _0xTranslateLongText(val, "auto", tl, true);
+        let tr = trRes.text;
+        let roma = trRes.roma;
         if (!tr) throw new Error();
         if (_0xLang === 'zh-CN') tr = tr.replace(/高考比中/g, "高考必中");
 
         let subStr = "";
         if (_0xLang === 'zh-CN') {
-          subStr = roma.trim();
+          subStr = roma;
         } else if (_0xLang !== 'en-US') {
-          const korApprox = _0xSentenceToKoreanApprox(tr, _0xLang) || (roma ? _0xToKoreanApprox(roma.trim(), 'de-DE') : "");
+          const korApprox = _0xSentenceToKoreanApprox(tr, _0xLang) || (roma ? _0xToKoreanApprox(roma, 'de-DE') : "");
           subStr = `[한국어 유사발음] ${korApprox}`;
         }
 
         _0xList[idx] = { text: tr, sub: subStr, kr: koMeaning };
         _0xD.getElementById('koInput').value = "";
         _0xRenderCards(); _0xBuildEd();
-        _0xPushHist(`${idx + 1}: ${tr.substring(0, 8)}`, _0xList);
+        _0xPushHist(`${idx + 1}: ${tr.substring(0, 10)}`, _0xList);
 
         const words = _0xTokWords(tr, _0xLang);
         _0xFetchMissingWordMeanings(words, _0xLang);
@@ -2513,6 +2747,40 @@
       _0xPushHist(`편집 (${arr[0].text.substring(0, 6)}...)`, arr);
       alert("✓ 7개 문항이 저장되었습니다.");
     },
+    exportPreset: function() {
+      const bundle = { lang: _0xLang, items: _0xList };
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(bundle))));
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(encoded).then(() => {
+          alert("📤 현재 7개 문항 세트 코드가 클립보드에 복사되었습니다!\n메신저로 동료 교사에게 보내주시면 [📥 문항 세트 코드 붙여넣기]로 즉시 불러올 수 있습니다.");
+        }).catch(() => prompt("아래 문항 세트 코드를 전체 복사하세요:", encoded));
+      } else {
+        prompt("아래 문항 세트 코드를 전체 복사하세요:", encoded);
+      }
+    },
+    importPreset: function() {
+      const code = prompt("📥 공유받으신 문항 세트 코드를 붙여넣어 주세요:");
+      if (!code || !code.trim()) return;
+      try {
+        const parsed = JSON.parse(_0xDec(code.trim()));
+        if (parsed && Array.isArray(parsed.items) && parsed.items.length > 0) {
+          if (parsed.lang && _0xPresetsByLang[parsed.lang]) {
+            _0xLang = parsed.lang;
+            _0xD.getElementById('langSelect').value = _0xLang;
+          }
+          _0xList = parsed.items;
+          _0xScores = [0, 0, 0, 0, 0, 0, 0];
+          _0xDone = [false, false, false, false, false, false, false];
+          _0xUpdBoard(); _0xRenderCards(); _0xBuildEd();
+          _0xPushHist(`불러온 세트 (${_0xList[0].text.substring(0, 6)}...)`, _0xList);
+          alert("✓ 문항 세트를 성공적으로 불러왔습니다!");
+        } else {
+          throw new Error();
+        }
+      } catch (e) {
+        alert("⚠️ 올바른 문항 세트 코드가 아닙니다. 다시 확인해 주세요.");
+      }
+    },
     loadHist: function() {
       const v = _0xD.getElementById('historySelect').value;
       if (v === 'default') {
@@ -2525,12 +2793,9 @@
       _0xDone = [false, false, false, false, false, false, false];
       _0xUpdBoard(); _0xRenderCards(); _0xBuildEd();
     },
-    openQr: function() {
+    refreshQr: function() {
       const su = _0xD.getElementById('teacherSheetUrl').value.trim();
-      if (!su || su.indexOf('http') !== 0) {
-        alert("⚠️ 먼저 [📋 1. 시트 사본 복사하기]를 눌러 선생님의 복사본 시트 주소를 연결해 주세요.");
-        return;
-      }
+      if (!su || su.indexOf('http') !== 0) return;
       const qrBox = _0xD.getElementById('qrcode');
       qrBox.innerHTML = '';
       const m = su.match(/\/d\/([-\w]{20,})/) || su.match(/[-\w]{25,}/);
@@ -2538,25 +2803,66 @@
       const defForLang = _0xPresetsByLang[_0xLang] || _0xPresetsByLang['zh-CN'];
       const isDef = JSON.stringify(_0xList.map(i => i.text)) === JSON.stringify(defForLang.map(i => i.text));
       const base = _0xW.location.href.split('?')[0].split('#')[0];
-      const uiParam = (_0xUiLang !== 'ko') ? `&u=${_0xUiLang}` : "";
+      const qrUi = _0xD.getElementById('qrUiLangSelect').value;
+      const uiParam = (qrUi && qrUi !== 'ko') ? `&u=${qrUi}` : "";
       if (isDef) _0xQrUrl = `${base}?s=${sid}&l=${_0xLang}${uiParam}`;
       else {
-        const eq = btoa(unescape(encodeURIComponent(JSON.stringify(_0xList))));
+        const eq = btoa(unescape(encodeURIComponent(JSON.stringify(_0xList.map(i => i.text)))));
         _0xQrUrl = `${base}?s=${sid}&l=${_0xLang}${uiParam}&q=${encodeURIComponent(eq)}`;
       }
       new QRCode(qrBox, { text: _0xQrUrl, width: 220, height: 220, colorDark: "#0f172a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.L });
-      _0xD.getElementById('qrUrlText').innerText = "학생들이 QR을 찍으면 교사용 버튼 없이 깔끔한 학생 화면과 선생님 구글 시트가 자동 연결됩니다.";
+    },
+    openQr: function() {
+      const su = _0xD.getElementById('teacherSheetUrl').value.trim();
+      if (!su || su.indexOf('http') !== 0) {
+        alert("⚠️ 먼저 [📋 1. 시트 사본 복사하기]를 눌러 선생님의 복사본 시트 주소를 연결해 주세요.");
+        return;
+      }
+      _0xD.getElementById('qrUiLangSelect').value = _0xUiLang;
+      this.refreshQr();
+      _0xD.getElementById('qrUrlText').innerText = "학생들이 QR을 찍으면 교사용 버튼 없이 학생 전용 화면과 선생님 구글 시트가 자동 연결됩니다.";
       _0xD.getElementById('qrModal').style.display = 'flex';
     },
     cpQr: function() {
       if (_0xQrUrl) navigator.clipboard.writeText(_0xQrUrl).then(() => alert("✓ 학생 접속용 링크가 복사되었습니다."));
     },
     clQr: function() { _0xD.getElementById('qrModal').style.display = 'none'; },
+    openCert: function() {
+      const idVal = _0xD.getElementById('studentId').value.trim() || "개인연습";
+      const nameVal = _0xD.getElementById('studentName').value.trim() || "학습자";
+      const nowStr = new Date().toLocaleString('ko-KR');
+      const raw = _0xScores.reduce((a, b) => a + b, 0);
+      const c100 = Math.round(raw / 7);
+      const cnt = _0xDone.filter(Boolean).length;
+
+      _0xD.getElementById('certMetaInfo').innerHTML = `
+        <strong>• 학번 / 성명:</strong> ${idVal} / ${nameVal}<br>
+        <strong>• 연습 언어:</strong> ${_0xLang} &nbsp;|&nbsp; <strong>• 응시 일시:</strong> ${nowStr}
+      `;
+      const tbody = _0xD.getElementById('certTableBody');
+      tbody.innerHTML = '';
+      _0xList.forEach((item, i) => {
+        const tr = _0xD.createElement('tr');
+        tr.innerHTML = `
+          <td style="text-align:center; font-weight:bold;">${i + 1}</td>
+          <td>${item.text}</td>
+          <td style="text-align:center; font-weight:bold; color:${_0xDone[i] ? '#15803d' : '#94a3b8'};">${_0xDone[i] ? _0xScores[i] + '점' : '미응시'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      _0xD.getElementById('certFinalScore').innerText = `최종 환산 점수: ${c100}점 / 100점 만점 (완료 ${cnt}/7문항)`;
+      _0xD.getElementById('certModal').style.display = 'flex';
+    },
+    clCert: function() { _0xD.getElementById('certModal').style.display = 'none'; },
     openHelp: function() { _0xD.getElementById('helpModal').style.display = 'flex'; },
     clHelp: function() { _0xD.getElementById('helpModal').style.display = 'none'; },
     rec: function(idx, targetText) {
       if (_0xRecIdx === idx && _0xRec) { _0xRec.stop(); return; }
       if (_0xRec) { _0xRec.abort(); _0xRec = null; _0xRecIdx = null; }
+
+      // [기계음 차단 핵심] 녹음 버튼을 누르는 즉시 재생 중인 모든 모범 발음(기계음) 강제 정지!
+      _0xStopAllAudio();
+      _0xRecAbortedByMachine = false;
 
       const su = _0xD.getElementById('teacherSheetUrl').value.trim();
       const hasValidSheet = (su && su.indexOf('http') === 0);
@@ -2594,7 +2900,6 @@
       _0xRecIdx = idx;
       _0xTrans = "";
       _0xRec = new _0xSR();
-      // 선택된 연습 언어(러시아어 ru-RU, 독일어 de-DE, 스페인어 es-ES 등 10개 국어 모두)로 음성 인식 엔진 가동
       _0xRec.lang = _0xLang;
       _0xRec.continuous = true;
       _0xRec.interimResults = true;
@@ -2614,6 +2919,10 @@
       scEl.innerHTML = ''; stEl.innerHTML = ''; fbBox.innerHTML = '';
 
       _0xRec.onresult = (ev) => {
+        if (_0xRecAbortedByMachine) {
+          _0xTrans = "";
+          return;
+        }
         let interim = "";
         _0xTrans = "";
         for (let i = 0; i < ev.results.length; ++i) {
@@ -2626,9 +2935,15 @@
 
       _0xRec.onend = () => {
         const finalSp = _0xTrans.trim();
+        const wasAbortedByMachine = _0xRecAbortedByMachine;
         btn.className = 'btn-rec';
         btn.innerHTML = _0xT('recStart');
-        _0xRec = null; _0xRecIdx = null;
+        _0xRec = null; _0xRecIdx = null; _0xRecAbortedByMachine = false;
+
+        if (wasAbortedByMachine) {
+          spEl.innerHTML = `<span style="color:#f87171; font-weight:bold;">${_0xT('machineBlockedErr')}</span>`;
+          return;
+        }
         if (!finalSp) {
           spEl.innerHTML = `<span style="color:#f87171;">${_0xT('noSpeechErr')}</span>`;
           return;
@@ -2665,14 +2980,14 @@
 
           if (chk.matched && (chk.exact || allowCtx)) {
             matched++;
-            html += `<span class="item-badge correct" data-word-token="${encodeURIComponent(w)}" onclick="_0xEngine.tts('${sw}')">
+            html += `<span class="item-badge correct" data-word-token="${encodeURIComponent(w)}" onclick="_0xEngine.tts('${sw}', 1.0)">
               <div class="item-word-line"><span class="word-str">${w}</span><span class="speaker-mini">🔊</span></div>
               ${!isEn ? `<span class="item-pinyin-text" style="${pyFormatted ? '' : 'display:none;'}">${pyFormatted}</span>` : ''}
               <span class="item-status-text">${chk.exact ? _0xT('matchExact') : _0xT('matchCtx')}</span>
               <span class="item-meaning-text" style="${krDisplay ? '' : 'display:none;'}">${krDisplay}</span>
             </span>`;
           } else {
-            html += `<span class="item-badge wrong" data-word-token="${encodeURIComponent(w)}" onclick="_0xEngine.tts('${sw}')">
+            html += `<span class="item-badge wrong" data-word-token="${encodeURIComponent(w)}" onclick="_0xEngine.tts('${sw}', 1.0)">
               <div class="item-word-line"><span class="word-str">${w}</span><span class="speaker-mini">🔊</span></div>
               ${!isEn ? `<span class="item-pinyin-text" style="${pyFormatted ? '' : 'display:none;'}">${pyFormatted}</span>` : ''}
               <span class="item-status-text">${_0xT('matchWrong')}</span>

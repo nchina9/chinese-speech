@@ -852,7 +852,7 @@
   </div>
 
   <div class="student-connected-badge" id="studentConnectedBadge">
-    ✅ 선생님 평가 시트와 연결되었습니다. 7개 문항을 모두 녹음하면 목표 문장 칸에 [종합] 결과와 문장별 점수 드롭다운이 기록됩니다!
+    ✅ 선생님 평가 시트와 연결되었습니다. 7개 문항을 모두 녹음하면 목표 문장 칸에 [종합] 결과와 1~7번 드롭다운이 기록됩니다!
   </div>
 
   <div class="student-bar">
@@ -872,7 +872,7 @@
     <div class="total-summary-title" id="lblTotalTitle">🏆 나의 종합 말하기 점수 (100점 만점 환산)</div>
     <div class="total-score-display" id="totalScoreText">0점 <span>/ 100점 만점</span></div>
     <div class="total-sub-info" id="completedCountText">완료된 문항: 0 / 7개 (원점수 합계: 0 / 700점)</div>
-    <div class="sheet-batch-status" id="sheetBatchStatusText">📌 7문장을 모두 녹음하면 구글 시트 목표 문장 칸에 [종합] 결과와 드롭다운 메뉴가 자동 기록됩니다.</div>
+    <div class="sheet-batch-status" id="sheetBatchStatusText">📌 7문장을 모두 녹음하면 구글 시트 목표 문장 칸에 [종합] 드롭다운(1~7번)이 자동 기록됩니다.</div>
     <div>
       <button type="button" class="btn-cert" id="btnShowCert" onclick="_0xEngine.openCert()">🏅 나의 말하기 결과표 (인증서) 보기</button>
     </div>
@@ -949,7 +949,7 @@
   <div class="modal-content">
     <h3>📖 학생 주도 다국어 연습기 & 양방향 번역기 안내</h3>
     <ol>
-      <li><strong>7문항 완료 시 [종합] 기록 & 목표 문장 드롭다운:</strong> 학생이 7개 문장을 모두 녹음 완료했을 때만 시트 목표 문장(D열)에 <code>[종합]</code>이 기록되며, 드롭다운 메뉴에서 종합 점수와 1번~7번 각 문장별 점수를 확인할 수 있습니다.</li>
+      <li><strong>7문항 완료 시 [종합] 기록 & 드롭다운 연동:</strong> 학생이 7개 문장을 모두 녹음 완료했을 때만 시트 목표 문장(D열)에 <code>[종합]</code>이 기록되며, 드롭다운 메뉴에서 <code>1번~7번</code> 문장을 선택하면 옆 <strong>발음 인식 결과(E열)</strong>와 <strong>점수(F열)</strong>가 해당 번호의 결과로 자동 변환됩니다.</li>
       <li><strong>기계음 부정 인식 원천 차단:</strong> 녹음 시작 시 모범 발음이 자동 종료되며, 녹음 도중 모범 발음 버튼을 누르면 채점이 즉시 취소됩니다.</li>
       <li><strong>느리게 듣기(0.7x) & 일반 속도(1.0x):</strong> 문장별로 두 가지 속도의 원어민 음성을 제공합니다.</li>
       <li><strong>PC·태블릿 시트 사본 자동 연결:</strong> 사본 시트 공유 링크를 복사한 뒤 앱 화면으로 돌아와 터치하거나 <code>[📥 2. 복사한 시트 링크 자동 붙여넣기]</code>를 누르면 즉시 연결됩니다.</li>
@@ -1023,7 +1023,7 @@
       totalTitle: "🏆 나의 종합 말하기 점수 (100점 만점 환산)",
       outOf100: "/ 100점 만점", completedPrefix: "완료된 문항", rawSumPrefix: "원점수 합계",
       certBtn: "🏅 나의 말하기 결과표 (인증서) 보기",
-      batchGuideDefault: "📌 7문장을 모두 녹음하면 구글 시트 목표 문장 칸에 [종합] 결과와 드롭다운 메뉴가 자동 기록됩니다.",
+      batchGuideDefault: "📌 7문장을 모두 녹음하면 구글 시트 목표 문장 칸에 [종합] 드롭다운(1~7번)이 자동 기록됩니다.",
       batchGuideProgress: "⏳ 현재 {done}/7문장 완료! 나머지 {left}문장까지 모두 녹음하면 시트에 [종합] 결과가 기록됩니다.",
       pendingSheetMsg: "⏳ 7문장 모두 완료 시 시트 전송",
       listeningGuide: "인식 중: (말씀하신 후 [녹음 완료 및 채점] 버튼을 누르세요)",
@@ -1049,7 +1049,7 @@
       totalTitle: "🏆 Total Speaking Score (100-pt Scale)",
       outOf100: "/ 100 pts", completedPrefix: "Completed", rawSumPrefix: "Raw Total",
       certBtn: "🏅 View Speaking Certificate",
-      batchGuideDefault: "📌 Complete all 7 sentences to record the [Total] result in Google Sheets.",
+      batchGuideDefault: "📌 Complete all 7 sentences to record the [Total] dropdown in Google Sheets.",
       batchGuideProgress: "⏳ {done}/7 completed! Finish {left} more to submit to Google Sheets.",
       pendingSheetMsg: "⏳ Submits after all 7 done",
       listeningGuide: "Listening... (Speak now, then click [Stop & Score])",
@@ -1075,7 +1075,7 @@
       totalTitle: "🏆 我的综合口语得分 (百分制换算)",
       outOf100: "/ 100分", completedPrefix: "已完成题数", rawSumPrefix: "原始总分",
       certBtn: "🏅 查看口语成绩单 (证书)",
-      batchGuideDefault: "📌 完成全部7句录音后，表格目标句栏将自动记录 [종합] 成绩及下拉菜单。",
+      batchGuideDefault: "📌 完成全部7句录音后，表格目标句栏将自动记录 [종합] 成绩及1~7号下拉菜单。",
       batchGuideProgress: "⏳ 已完成 {done}/7 句！再完成 {left} 句即可自动上传总成绩。",
       pendingSheetMsg: "⏳ 全部7句完成后上传表格",
       listeningGuide: "正在识别... (请朗读后点击 [完成并评分])",
@@ -2341,7 +2341,7 @@
         return;
       }
       if (res && res.success) {
-        const msg = `✓ [${res.sheetName || 'Google Sheet'}] 목표 문장 [종합] & 드롭다운 저장 완료!`;
+        const msg = `✓ [${res.sheetName || 'Google Sheet'}] 목표 문장 [종합] 드롭다운(1~7번) 저장 완료!`;
         statusEl.style.color = "#4ade80";
         statusEl.innerText = msg;
         if (batchStatusEl) {
@@ -3095,7 +3095,7 @@
 
         const completedCount = _0xDone.filter(Boolean).length;
 
-        // 7문장을 모두 녹음 완료한 경우에만 구글 시트로 [종합] 결과 전송 & D열(목표 문장) 드롭다운 기록
+        // 7문장을 모두 녹음 완료한 경우에만 구글 시트로 [종합] 결과 전송 & D열(목표 문장) 드롭다운(1~7번) 기록
         if (hasValidSheet || _0xIsStudentMode) {
           if (completedCount === 7) {
             const rawSum = _0xScores.reduce((a, b) => a + b, 0);
@@ -3105,15 +3105,12 @@
             else if (_0xMode === 'lenient') finalGrd = total100 >= 80 ? "A+" : total100 >= 65 ? "A" : total100 >= 50 ? "B" : "C";
             else finalGrd = total100 >= 90 ? "A+" : total100 >= 80 ? "A" : total100 >= 60 ? "B" : "C";
 
-            // D열(목표 문장) 드롭다운 항목 구성:
-            // [종합], 종합 점수 : XX점, 1번 문장 : YY점, 2번 문장 : ZZ점 ...
-            const dropdownDetails = [
-              "[종합]",
-              `종합 점수 : ${total100}점 (원점수 ${rawSum}/700점)`
-            ];
-            _0xList.forEach((item, k) => {
-              dropdownDetails.push(`${k + 1}번 ${item.text} : ${_0xScores[k]}점`);
-            });
+            // 1~7번 각 문장의 원문, 학생 발음 인식 결과, 점수를 객체 배열로 전송
+            const itemRecords = _0xList.map((item, k) => ({
+              target: item.text,
+              spoken: _0xSpokenHistory[k] || "(미인식)",
+              score: _0xScores[k] || 0
+            }));
 
             const summaryLine = _0xScores.map((sc, k) => `${k + 1}번:${sc}점`).join(" / ");
 
@@ -3122,7 +3119,7 @@
             const batchEl = _0xD.getElementById('sheetBatchStatusText');
             if (batchEl) {
               batchEl.style.color = "#4ade80";
-              batchEl.innerText = "⏳ 7문항 완료! 구글 시트 목표 문장 칸에 [종합]과 드롭다운을 기록하는 중입니다...";
+              batchEl.innerText = "⏳ 7문항 완료! 구글 시트 목표 문장 칸에 [종합]과 드롭다운(1~7번)을 기록하는 중입니다...";
             }
 
             _0xSaveSheet({
@@ -3133,7 +3130,7 @@
               spokenText: summaryLine,
               score: total100,
               grade: `${finalGrd} [환산 ${total100}점 / 원점수 ${rawSum}/700점 | ${_0xLang}]`,
-              detailsJson: JSON.stringify(dropdownDetails)
+              detailsJson: JSON.stringify(itemRecords)
             }, stEl, batchEl);
           } else {
             stEl.style.color = "#fde047";

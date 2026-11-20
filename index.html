@@ -536,6 +536,16 @@
       color: #94a3b8;
       margin-top: 6px;
     }
+    .sheet-batch-status {
+      font-size: 13px;
+      font-weight: bold;
+      color: #fde047;
+      margin-top: 10px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+      display: inline-block;
+    }
     .btn-cert {
       margin-top: 14px;
       background: linear-gradient(90deg, #f59e0b 0%, #eab308 100%);
@@ -807,7 +817,7 @@
       <button class="btn-translate" id="btnTranslate" onclick="_0xEngine.procIn()">🔄 번역 및 문항 등록</button>
     </div>
     <div class="translate-sub-hint" id="translateHintText">
-      💡 <strong>긴 문장(장문) 번역 & 기계음 방지:</strong> 여러 문장으로 된 긴 글도 자동 분할 번역되며, 녹음 시작 시 모범 발음(기계음)이 자동 차단되어 학생 본인의 육성만 인식합니다.
+      💡 <strong>7문항 완료 시 [종합] 일괄 기록:</strong> 학생이 7문장을 모두 녹음해야 구글 시트에 <strong>[종합]</strong> 점수와 1~7번 개별 문장 드롭다운이 기록됩니다.
     </div>
   </div>
 
@@ -826,7 +836,7 @@
   <div class="sheet-config-bar teacher-only" id="teacherSheetConfigBar">
     <div class="sheet-config-row">
       <label for="teacherSheetUrl" id="lblSheetUrl">📊 결과 구글 시트:</label>
-      <input type="text" id="teacherSheetUrl" placeholder="사본 시트 링크 복사 후 이 화면을 터치하거나 우측 [📋 복사한 링크 붙여넣기]를 누르세요!" oninput="_0xEngine.onUrlInput()" onfocus="_0xEngine.tryAutoPasteClipboard(true)" onclick="_0xEngine.tryAutoPasteClipboard(true)">
+      <input type="text" id="teacherSheetUrl" placeholder="사본 시트 링크 복사 후 이 화면을 터치하거나 우측 [📥 2. 복사한 시트 링크 자동 붙여넣기]를 누르세요!" oninput="_0xEngine.onUrlInput()" onfocus="_0xEngine.tryAutoPasteClipboard(true)" onclick="_0xEngine.tryAutoPasteClipboard(true)">
       <span class="sheet-status-badge" id="sheetStatusBadge">⚪ 시트 미연결</span>
     </div>
     <div class="sheet-config-row">
@@ -842,7 +852,7 @@
   </div>
 
   <div class="student-connected-badge" id="studentConnectedBadge">
-    ✅ 선생님 평가 시트와 안전하게 연결되었습니다. 학번과 이름을 입력하고 7개 문항을 연습해 보세요!
+    ✅ 선생님 평가 시트와 안전하게 연결되었습니다. 7개 문장을 모두 녹음하면 [종합] 결과가 시트에 자동 기록됩니다!
   </div>
 
   <div class="student-bar">
@@ -862,6 +872,9 @@
     <div class="total-summary-title" id="lblTotalTitle">🏆 나의 종합 말하기 점수 (100점 만점 환산)</div>
     <div class="total-score-display" id="totalScoreText">0점 <span>/ 100점 만점</span></div>
     <div class="total-sub-info" id="completedCountText">완료된 문항: 0 / 7개 (원점수 합계: 0 / 700점)</div>
+    <div>
+      <span class="sheet-batch-status" id="sheetBatchStatusText">📌 7문장을 모두 녹음해야 구글 시트에 [종합] 결과가 전송됩니다.</span>
+    </div>
     <div>
       <button type="button" class="btn-cert" id="btnShowCert" onclick="_0xEngine.openCert()">🏅 나의 말하기 결과표 (인증서) 보기</button>
     </div>
@@ -938,9 +951,9 @@
   <div class="modal-content">
     <h3>📖 학생 주도 다국어 연습기 & 양방향 번역기 안내</h3>
     <ol>
+      <li><strong>7문장 완료 시 [종합] 기록 및 드롭다운 확인:</strong> 학생이 7개 문장을 모두 녹음 완료한 경우에만 시트에 <code>[종합]</code> 행이 기록되며, 해당 셀의 드롭다운 화살표를 눌러 1~7번 각 문장별 발음과 점수를 확인할 수 있습니다.</li>
       <li><strong>기계음 부정 인식 원천 차단:</strong> 녹음 시작 시 모범 발음이 자동 종료되며, 녹음 도중 모범 발음 버튼을 누르면 채점이 즉시 취소되어 본인의 실제 육성만 평가됩니다.</li>
       <li><strong>느리게 듣기(0.7x) & 일반 속도(1.0x):</strong> 문장별로 두 가지 속도의 원어민 음성을 제공하여 초급자도 정확하게 따라 말할 수 있습니다.</li>
-      <li><strong>긴 문장(장문) 자동 분할 번역:</strong> 긴 문장이나 여러 문장을 입력해도 문장 단위로 끊어서 빠짐없이 번역하여 등록합니다.</li>
       <li><strong>PC·태블릿 시트 사본 자동 연결:</strong> 사본 시트 공유 링크를 복사한 뒤 앱 화면으로 돌아와 터치하거나 <code>[📥 2. 복사한 시트 링크 자동 붙여넣기]</code>를 누르면 즉시 연결됩니다.</li>
     </ol>
     <button class="modal-close" onclick="_0xEngine.clHelp()">확인 및 닫기</button>
@@ -1012,6 +1025,9 @@
       totalTitle: "🏆 나의 종합 말하기 점수 (100점 만점 환산)",
       outOf100: "/ 100점 만점", completedPrefix: "완료된 문항", rawSumPrefix: "원점수 합계",
       certBtn: "🏅 나의 말하기 결과표 (인증서) 보기",
+      batchGuideDefault: "📌 7문장을 모두 녹음해야 구글 시트에 [종합] 결과가 전송됩니다.",
+      batchGuideProgress: "⏳ 현재 {done}/7문항 완료! 나머지 {left}문항을 모두 녹음하면 시트에 [종합] 결과가 기록됩니다.",
+      pendingSheetMsg: "⏳ 7문장 모두 완료 시 시트 전송",
       listeningGuide: "인식 중: (말씀하신 후 [녹음 완료 및 채점] 버튼을 누르세요)",
       noSpeechErr: "음성이 감지되지 않았습니다. 다시 녹음해 주세요.",
       machineBlockedErr: "⚠️ 녹음 중에는 모범 발음(기계음)을 재생할 수 없습니다. 본인의 실제 목소리로 다시 녹음해 주세요!",
@@ -1035,6 +1051,9 @@
       totalTitle: "🏆 Total Speaking Score (100-pt Scale)",
       outOf100: "/ 100 pts", completedPrefix: "Completed", rawSumPrefix: "Raw Total",
       certBtn: "🏅 View Speaking Certificate",
+      batchGuideDefault: "📌 Complete all 7 sentences to submit the [종합] summary to Google Sheets.",
+      batchGuideProgress: "⏳ {done}/7 completed! Record {left} more to send [종합] result to Sheet.",
+      pendingSheetMsg: "⏳ Sends after all 7",
       listeningGuide: "Listening... (Speak now, then click [Stop & Score])",
       noSpeechErr: "No voice detected. Please try recording again.",
       machineBlockedErr: "⚠️ Playing model audio during recording is blocked. Please record your own voice!",
@@ -1058,6 +1077,9 @@
       totalTitle: "🏆 我的综合口语得分 (百分制换算)",
       outOf100: "/ 100分", completedPrefix: "已完成题数", rawSumPrefix: "原始总分",
       certBtn: "🏅 查看口语成绩单 (证书)",
+      batchGuideDefault: "📌 必须录完所有7个句子，系统才会将[종합]总成绩发送到表格。",
+      batchGuideProgress: "⏳ 已完成 {done}/7 题！再录完 {left} 题即可自动提交[종합]总成绩。",
+      pendingSheetMsg: "⏳ 录完7题后统一提交",
       listeningGuide: "正在识别... (请朗读后点击 [完成并评分])",
       noSpeechErr: "未检测到声音，请重新录音。",
       machineBlockedErr: "⚠️ 录音期间禁止播放示范音频，请用自己的声音重新录音！",
@@ -1081,6 +1103,9 @@
       totalTitle: "🏆 Tổng điểm nói của tôi (Thang điểm 100)",
       outOf100: "/ 100 điểm", completedPrefix: "Đã hoàn thành", rawSumPrefix: "Tổng điểm gốc",
       certBtn: "🏅 Xem Bảng Điểm (Chứng nhận)",
+      batchGuideDefault: "📌 Hoàn thành cả 7 câu để gửi kết quả [종합] vào trang tính.",
+      batchGuideProgress: "⏳ Đã xong {done}/7 câu! Còn {left} câu nữa để gửi kết quả [종합].",
+      pendingSheetMsg: "⏳ Gửi sau khi xong 7 câu",
       listeningGuide: "Đang nhận diện... (Hãy nói rồi bấm [Chấm điểm])",
       noSpeechErr: "Không nhận diện được giọng nói. Vui lòng thử lại.",
       machineBlockedErr: "⚠️ Không thể phát âm thanh mẫu khi đang ghi âm. Vui lòng ghi âm lại bằng giọng của bạn!",
@@ -1104,6 +1129,9 @@
       totalTitle: "🏆 総合スピーキング点数 (100点満点換算)",
       outOf100: "/ 100点満点", completedPrefix: "完了問題", rawSumPrefix: "合計点",
       certBtn: "🏅 スピーキング結果表を見る",
+      batchGuideDefault: "📌 7文すべて録音するとシートに[종합]結果が送信されます。",
+      batchGuideProgress: "⏳ 現在 {done}/7 完了！残り {left} 文録音すると[종합]結果が記録されます。",
+      pendingSheetMsg: "⏳ 7文完了後に送信",
       listeningGuide: "認識中... (発話後に [録音完了・採点] を押してください)",
       noSpeechErr: "音声が検出されませんでした。もう一度録音してください。",
       machineBlockedErr: "⚠️ 録音中は機械音を再生できません。ご自身の声で再度録音してください！",
@@ -1127,6 +1155,9 @@
       totalTitle: "🏆 Общий балл за произношение (из 100)",
       outOf100: "/ 100 баллов", completedPrefix: "Выполнено", rawSumPrefix: "Сумма",
       certBtn: "🏅 Показать сертификат результатов",
+      batchGuideDefault: "📌 Запишите все 7 фраз для отправки результата [종합] в таблицу.",
+      batchGuideProgress: "⏳ Выполнено {done}/7! Осталось {left} фраз для отправки.",
+      pendingSheetMsg: "⏳ Отправка после 7 фраз",
       listeningGuide: "Слушаю... (Произнесите фразу и нажмите [Оценить])",
       noSpeechErr: "Голос не распознан. Попробуйте еще раз.",
       machineBlockedErr: "⚠️ Во время записи воспроизведение образца запрещено. Запишите свой голос!",
@@ -1150,6 +1181,9 @@
       totalTitle: "🏆 Puntuación Total de Habla (sobre 100)",
       outOf100: "/ 100 pts", completedPrefix: "Completados", rawSumPrefix: "Total bruto",
       certBtn: "🏅 Ver Certificado de Resultados",
+      batchGuideDefault: "📌 Completa las 7 frases para guardar el resultado [종합] en la hoja.",
+      batchGuideProgress: "⏳ ¡{done}/7 completadas! Faltan {left} para enviar el resumen.",
+      pendingSheetMsg: "⏳ Se envía al completar 7",
       listeningGuide: "Escuchando... (Habla y pulsa [Evaluar])",
       noSpeechErr: "No se detectó voz. Inténtalo de nuevo.",
       machineBlockedErr: "⚠️ No se puede reproducir el audio modelo mientras grabas. ¡Graba tu propia voz!",
@@ -1173,6 +1207,9 @@
       totalTitle: "🏆 Gesamtpunktzahl (100-Punkte-Skala)",
       outOf100: "/ 100 Pkt", completedPrefix: "Abgeschlossen", rawSumPrefix: "Rohpunkte",
       certBtn: "🏅 Ergebniszertifikat anzeigen",
+      batchGuideDefault: "📌 Alle 7 Sätze aufnehmen, um [종합] in die Tabelle zu senden.",
+      batchGuideProgress: "⏳ {done}/7 fertig! Noch {left} Sätze bis zur Übermittlung.",
+      pendingSheetMsg: "⏳ Versand nach 7 Sätzen",
       listeningGuide: "Höre zu... (Sprechen und [Bewerten] klicken)",
       noSpeechErr: "Keine Stimme erkannt. Bitte erneut versuchen.",
       machineBlockedErr: "⚠️ Während der Aufnahme ist die Modellstimme gesperrt. Bitte selbst sprechen!",
@@ -1196,6 +1233,9 @@
       totalTitle: "🏆 Score Total d'Expression (sur 100)",
       outOf100: "/ 100 pts", completedPrefix: "Complétés", rawSumPrefix: "Total brut",
       certBtn: "🏅 Voir le Certificat de Résultats",
+      batchGuideDefault: "📌 Enregistrez les 7 phrases pour envoyer le bilan [종합] au tableau.",
+      batchGuideProgress: "⏳ {done}/7 terminées ! Plus que {left} avant l'envoi.",
+      pendingSheetMsg: "⏳ Envoi après les 7 phrases",
       listeningGuide: "Écoute en cours... (Parlez puis cliquez sur [Évaluer])",
       noSpeechErr: "Aucune voix détectée. Veuillez réessayer.",
       machineBlockedErr: "⚠️ Audio modèle bloqué pendant l'enregistrement. Enregistrez votre propre voix !",
@@ -1219,6 +1259,9 @@
       totalTitle: "🏆 مجموع درجات التحدث (من 100)",
       outOf100: "/ 100 نقطة", completedPrefix: "المكتمل", rawSumPrefix: "المجموع",
       certBtn: "🏅 عرض شهادة النتائج",
+      batchGuideDefault: "📌 أكمل جميع الجمل السبع لحفظ النتيجة الإجمالية في الجدول.",
+      batchGuideProgress: "⏳ اكتمل {done}/7! باقي {left} جمل للإرسال.",
+      pendingSheetMsg: "⏳ يُرسل بعد إكمال 7",
       listeningGuide: "جاري الاستماع... (تحدث ثم اضغط [إنهاء وتقييم])",
       noSpeechErr: "لم يتم اكتشاف صوت. يرجى المحاولة مرة أخرى.",
       machineBlockedErr: "⚠️ يُمنع تشغيل الصوت النموذجي أثناء التسجيل. يرجى التسجيل بصوتك!",
@@ -1396,7 +1439,7 @@
       const arCharMap = {
         "ا":"아","أ":"아","إ":"이","آ":"아","ب":"브","ت":"트","ث":"쓰","ج":"즈","ح":"하","خ":"크",
         "د":"드","ذ":"드","ر":"르","ز":"즈","س":"스","ش":"쉬","ص":"스","ض":"드","ط":"트","ظ":"즈",
-        "ع":"아","غ":"그","ف":"프","ق":"크","ك":"크","ل":"을","م":"음","н":"은","ه":"흐","ة":"아",
+        "ع":"아","غ":"그","ف":"프","ق":"크","ك":"크","ل":"을","م":"음","ن":"은","ه":"흐","ة":"아",
         "و":"우","ي":"이","ى":"아","ء":""
       };
       let res = "";
@@ -1407,7 +1450,7 @@
     }
 
     let s = w.toLowerCase()
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      .normalize("NFD").replace(/[̀-ͯ]/g, "");
 
     const rules = [
       [/sch/g, "슈"], [/ch/g, "흐"], [/sh/g, "쉬"], [/th/g, "트"], [/ph/g, "프"],
@@ -1730,6 +1773,7 @@
   let _0xMode = 'comm';
   let _0xQrUrl = "";
   let _0xScores = [0, 0, 0, 0, 0, 0, 0];
+  let _0xSpokenHistory = ["", "", "", "", "", "", ""];
   let _0xDone = [false, false, false, false, false, false, false];
   let _0xInRec = null;
   const _0xSharedAudio = new Audio();
@@ -1909,11 +1953,19 @@
     const cnt = _0xDone.filter(Boolean).length;
     _0xD.getElementById('totalScoreText').innerHTML = `${c100}${_0xT('ptUnit')} <span>${_0xT('outOf100')}</span>`;
     _0xD.getElementById('completedCountText').innerText = `${_0xT('completedPrefix')}: ${cnt} / 7 (${_0xT('rawSumPrefix')}: ${raw} / 700)`;
+
+    const batchStatusEl = _0xD.getElementById('sheetBatchStatusText');
+    if (batchStatusEl) {
+      if (cnt === 0) {
+        batchStatusEl.style.color = "#fde047";
+        batchStatusEl.innerText = _0xT('batchGuideDefault');
+      } else if (cnt < 7) {
+        batchStatusEl.style.color = "#38bdf8";
+        batchStatusEl.innerText = _0xT('batchGuideProgress').replace('{done}', cnt).replace('{left}', 7 - cnt);
+      }
+    }
   }
 
-  // =========================================================================
-  // [기계음 부정 인식 방지 + 속도 조절(1.0x / 0.7x) 10개 국어 무결점 음성 출력 엔진]
-  // =========================================================================
   function _0xPlayDirectUrlChain(speakText, tl, langCode, rate) {
     const enc = encodeURIComponent(speakText);
     const urls = [
@@ -1948,7 +2000,6 @@
   function _0xPlayTTS(text, customRate) {
     if (!text) return;
 
-    // [기계음 부정 인식 차단] 현재 학생 녹음(_0xRec)이 진행 중이면 모범 발음 재생을 차단하고 녹음을 즉시 무효화!
     if (_0xRec && _0xRecIdx !== null) {
       _0xStopAllAudio();
       _0xRecAbortedByMachine = true;
@@ -2036,7 +2087,9 @@
   }
 
   function _0xTokWords(str, lang) {
-    const clean = String(str || "").replace(/[，。！？、,.!?;:()\[\]"'؟،؛¡¿\n\r]/g, " ").trim();
+    const clean = String(str || "").replace(/[，。！？、,.!?;:()\[\]"'؟،؛¡¿
+
+]/g, " ").trim();
     if (!clean) return [];
     if (lang === 'zh-CN') {
       const ns = clean.replace(/\s+/g, "");
@@ -2062,7 +2115,7 @@
         return clean.split(/\s+/).filter(Boolean);
       }
       const ns = clean.replace(/\s+/g, "");
-      const jaKeys = Object.keys(_0xDictMulti).filter(k => /[\u3040-\u30ff]/.test(k)).sort((a, b) => b.length - a.length);
+      const jaKeys = Object.keys(_0xDictMulti).filter(k => /[぀-ヿ]/.test(k)).sort((a, b) => b.length - a.length);
       const out = [];
       let i = 0;
       while (i < ns.length) {
@@ -2217,7 +2270,8 @@
     _0xList.forEach((item, idx) => {
       const card = _0xD.createElement('div');
       card.className = 'card';
-      const safe = item.text.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/\n/g, " ");
+      const safe = item.text.replace(/\/g, "\\").replace(/'/g, "\'").replace(/
+/g, " ");
       let subDisplay = item.sub || "";
       if (_0xLang === 'en-US') {
         subDisplay = "";
@@ -2271,7 +2325,7 @@
     }
   }
 
-  function _0xSaveSheet(payload, statusEl) {
+  function _0xSaveSheet(payload, statusEl, batchStatusEl) {
     const cb = "cb_" + Math.floor(Math.random() * 1000000);
     const base = Object.assign({}, payload);
     payload.callback = cb;
@@ -2292,11 +2346,21 @@
         return;
       }
       if (res && res.success) {
+        const msg = `✓ [${res.sheetName || 'Google Sheet'}] [종합] 저장 완료! (드롭다운 확인 가능)`;
         statusEl.style.color = "#4ade80";
-        statusEl.innerText = `✓ [${res.sheetName || 'Google Sheet'}] Saved!`;
+        statusEl.innerText = msg;
+        if (batchStatusEl) {
+          batchStatusEl.style.color = "#4ade80";
+          batchStatusEl.innerText = msg;
+        }
       } else {
+        const errMsg = `⚠️ ${res ? res.message : '시트 저장 차단됨'}`;
         statusEl.style.color = "#f87171";
-        statusEl.innerText = `⚠️ ${res ? res.message : '시트 저장 차단됨'}`;
+        statusEl.innerText = errMsg;
+        if (batchStatusEl) {
+          batchStatusEl.style.color = "#f87171";
+          batchStatusEl.innerText = errMsg;
+        }
       }
     };
 
@@ -2308,7 +2372,14 @@
       const fqs = Object.keys(base).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(base[k])).join('&');
       const furl = `${_0xCfg.api}?${fqs}&nocache=${Date.now()}`;
       fetch(furl, { method: 'GET', mode: 'no-cors', cache: 'no-cache' })
-        .then(() => { statusEl.style.color = "#4ade80"; statusEl.innerText = "✓ Google Sheet Sent!"; })
+        .then(() => {
+          statusEl.style.color = "#4ade80";
+          statusEl.innerText = "✓ [종합] 구글 시트 전송 완료!";
+          if (batchStatusEl) {
+            batchStatusEl.style.color = "#4ade80";
+            batchStatusEl.innerText = "✓ [종합] 구글 시트 전송 완료!";
+          }
+        })
         .catch(() => {
           statusEl.style.color = "#f87171";
           statusEl.innerText = "⚠️ 네트워크 또는 시트 공유 권한을 확인해 주세요.";
@@ -2341,9 +2412,6 @@
     } catch (e) {}
   }
 
-  // =========================================================================
-  // [PC + 태블릿(아이패드·갤럭시탭) 완벽 지원 시트 사본 클립보드 자동 감지]
-  // =========================================================================
   function _0xApplySheetLinkIfValid(rawText, showAlert) {
     if (!rawText) return false;
     const clipText = String(rawText).trim();
@@ -2376,7 +2444,6 @@
     } catch (e) {}
   }
 
-  // PC용 focus 이벤트 + 태블릿(아이패드/갤럭시탭)용 visibilitychange & pointerdown 삼중 감지
   _0xW.addEventListener('focus', function() {
     _0xAutoDetectCopiedSheet(_0xWaitingManualCopy);
   });
@@ -2391,11 +2458,10 @@
     }
   }, { passive: true });
 
-  // =========================================================================
-  // [긴 문장(장문) 무제한 자동 분할 번역 엔진]
-  // =========================================================================
   async function _0xTranslateLongText(fullText, sourceLang, targetLang, includeRoma) {
-    const rawChunks = String(fullText).match(/[^.!?。！？\n]+[.!?。！？\n]*/g) || [String(fullText)];
+    const rawChunks = String(fullText).match(/[^.!?。！？
+]+[.!?。！？
+]*/g) || [String(fullText)];
     const chunks = [];
     let buf = "";
     for (let i = 0; i < rawChunks.length; i++) {
@@ -2461,6 +2527,7 @@
         _0xList = JSON.parse(JSON.stringify(_0xPresetsByLang[_0xLang]));
       }
       _0xScores = [0, 0, 0, 0, 0, 0, 0];
+      _0xSpokenHistory = ["", "", "", "", "", "", ""];
       _0xDone = [false, false, false, false, false, false, false];
       _0xUpdBoard();
       _0xRenderCards();
@@ -2510,7 +2577,9 @@
         u.indexOf('1PkyQGBrKkzQlNzOShNwM6Di_i-89HD3GQIMM2BVA2Uk') !== -1
       );
       if (isProtectedSheet && !_0xDevAuthorized) {
-        alert("⚠️ 이 주소는 개발자(신윤기 수석) 전용 시트 또는 배포 원본 템플릿입니다!\n\n타 교사는 [📋 1. 시트 사본 복사하기]를 눌러 생성된 본인 사본 시트의 주소를 넣어주세요.");
+        alert("⚠️ 이 주소는 개발자(신윤기 수석) 전용 시트 또는 배포 원본 템플릿입니다!
+
+타 교사는 [📋 1. 시트 사본 복사하기]를 눌러 생성된 본인 사본 시트의 주소를 넣어주세요.");
         _0xD.getElementById('teacherSheetUrl').value = "";
         _0xUpdateSheetStatusUI();
         return;
@@ -2599,7 +2668,8 @@
       }
     },
     toggleAppLock: function() {
-      const pin = prompt("🔒 [개발자 전용 권한]\n앱 전체 작동을 잠그거나 해제하려면 개발자 마스터 비밀번호를 입력하세요:");
+      const pin = prompt("🔒 [개발자 전용 권한]
+앱 전체 작동을 잠그거나 해제하려면 개발자 마스터 비밀번호를 입력하세요:");
       if (!pin) return;
 
       const cb = "tgl_" + Math.floor(Math.random() * 1000000);
@@ -2741,6 +2811,7 @@
       }
       _0xList = arr;
       _0xScores = [0, 0, 0, 0, 0, 0, 0];
+      _0xSpokenHistory = ["", "", "", "", "", "", ""];
       _0xDone = [false, false, false, false, false, false, false];
       _0xUpdBoard(); _0xRenderCards();
       _0xD.getElementById('editorPanel').style.display = 'none';
@@ -2752,7 +2823,7 @@
       const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(bundle))));
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(encoded).then(() => {
-          alert("📤 현재 7개 문항 세트 코드가 클립보드에 복사되었습니다!\n메신저로 동료 교사에게 보내주시면 [📥 문항 세트 코드 붙여넣기]로 즉시 불러올 수 있습니다.");
+          alert("📤 현재 7개 문항 세트 코드가 클립보드에 복사되었습니다!");
         }).catch(() => prompt("아래 문항 세트 코드를 전체 복사하세요:", encoded));
       } else {
         prompt("아래 문항 세트 코드를 전체 복사하세요:", encoded);
@@ -2770,6 +2841,7 @@
           }
           _0xList = parsed.items;
           _0xScores = [0, 0, 0, 0, 0, 0, 0];
+          _0xSpokenHistory = ["", "", "", "", "", "", ""];
           _0xDone = [false, false, false, false, false, false, false];
           _0xUpdBoard(); _0xRenderCards(); _0xBuildEd();
           _0xPushHist(`불러온 세트 (${_0xList[0].text.substring(0, 6)}...)`, _0xList);
@@ -2790,6 +2862,7 @@
         if (h[parseInt(v, 10)]) _0xList = JSON.parse(JSON.stringify(h[parseInt(v, 10)].sentences));
       }
       _0xScores = [0, 0, 0, 0, 0, 0, 0];
+      _0xSpokenHistory = ["", "", "", "", "", "", ""];
       _0xDone = [false, false, false, false, false, false, false];
       _0xUpdBoard(); _0xRenderCards(); _0xBuildEd();
     },
@@ -2860,7 +2933,6 @@
       if (_0xRecIdx === idx && _0xRec) { _0xRec.stop(); return; }
       if (_0xRec) { _0xRec.abort(); _0xRec = null; _0xRecIdx = null; }
 
-      // [기계음 차단 핵심] 녹음 버튼을 누르는 즉시 재생 중인 모든 모범 발음(기계음) 강제 정지!
       _0xStopAllAudio();
       _0xRecAbortedByMachine = false;
 
@@ -2886,11 +2958,15 @@
         }
       } else {
         if (!hasValidSheet) {
-          alert("⚠️ 연결된 구글 시트가 없습니다!\n\n- 학급 수업을 하시려면 [📋 1. 시트 사본 복사하기]로 시트를 연결하시고,\n- 시트 없이 혼자 번역·연습하시려면 상단의 [🎧 개인 연습용] 버튼을 눌러주세요!");
+          alert("⚠️ 연결된 구글 시트가 없습니다!
+
+- 학급 수업을 하시려면 [📋 1. 시트 사본 복사하기]로 시트를 연결하시고,
+- 시트 없이 혼자 번역·연습하시려면 상단의 [🎧 개인 연습용] 버튼을 눌러주세요!");
           return;
         }
         if (!id || !name) {
-          alert("먼저 학번과 이름을 입력해주세요.\n(시트 없이 혼자 연습하려면 상단 [🎧 개인 연습용] 버튼을 누르세요)");
+          alert("먼저 학번과 이름을 입력해주세요.
+(시트 없이 혼자 연습하려면 상단 [🎧 개인 연습용] 버튼을 누르세요)");
           return;
         }
       }
@@ -2966,7 +3042,7 @@
         for (let i = 0; i < tWords.length; i++) {
           const w = tWords[i];
           const info = _0xGetWordInfo(w, _0xLang);
-          const sw = w.replace(/'/g, "\\'");
+          const sw = w.replace(/'/g, "\'");
           const chk = _0xWordMatch(w, sFull, sWords, _0xLang);
 
           let pyFormatted = "";
@@ -3014,8 +3090,9 @@
         }
 
         _0xDone[idx] = true;
-        if (fSc > _0xScores[idx]) {
+        if (fSc >= _0xScores[idx]) {
           _0xScores[idx] = fSc;
+          _0xSpokenHistory[idx] = finalSp;
           const bEl = _0xD.getElementById(`bestBadge_${idx}`);
           if (bEl) bEl.innerText = `${_0xT('bestScore')}: ${fSc}${_0xT('ptUnit')}`;
         }
@@ -3030,21 +3107,49 @@
         spEl.innerHTML = `${_0xT('recognizedLbl')}: <strong>${finalSp}</strong>`;
         scEl.innerHTML = `${_0xT('evalScoreLbl')}: <strong>${fSc}${_0xT('ptUnit')}</strong> (${grd}) <span style="font-size:12px; color:#cbd5e1;">[${mNames[_0xMode]} | ${matched}/${tWords.length}]</span>`;
 
+        const completedCount = _0xDone.filter(Boolean).length;
+
+        // 7문장을 모두 녹음 완료한 경우에만 구글 시트로 [종합] 결과 전송
         if (hasValidSheet || _0xIsStudentMode) {
-          stEl.style.color = "#4ade80";
-          stEl.innerText = "⏳ Saving...";
-          _0xSaveSheet({
-            sheetUrl: su,
-            studentId: id || "개인연습",
-            studentName: name || "개인학습자",
-            targetText: targetText,
-            spokenText: finalSp,
-            score: fSc,
-            grade: `${grd} [${_0xMode} / ${_0xLang}]`
-          }, stEl);
+          if (completedCount === 7) {
+            const rawSum = _0xScores.reduce((a, b) => a + b, 0);
+            const total100 = Math.round(rawSum / 7);
+            let finalGrd = "C";
+            if (_0xMode === 'comm') finalGrd = total100 >= 85 ? "A+" : total100 >= 75 ? "A" : total100 >= 60 ? "B" : "C";
+            else if (_0xMode === 'lenient') finalGrd = total100 >= 80 ? "A+" : total100 >= 65 ? "A" : total100 >= 50 ? "B" : "C";
+            else finalGrd = total100 >= 90 ? "A+" : total100 >= 80 ? "A" : total100 >= 60 ? "B" : "C";
+
+            const dropdownDetails = _0xList.map((item, k) => {
+              const spText = _0xSpokenHistory[k] || "-";
+              return `${k + 1}번: ${item.text} | 발음: ${spText} | ${_0xScores[k]}점`;
+            });
+            const summaryLine = _0xScores.map((sc, k) => `${k + 1}번:${sc}점`).join(" / ");
+
+            stEl.style.color = "#4ade80";
+            stEl.innerText = "⏳ [종합] 시트 기록 중...";
+            const batchEl = _0xD.getElementById('sheetBatchStatusText');
+            if (batchEl) {
+              batchEl.style.color = "#4ade80";
+              batchEl.innerText = "⏳ 7문항 완료! 구글 시트에 [종합] 결과와 드롭다운을 기록하는 중입니다...";
+            }
+
+            _0xSaveSheet({
+              sheetUrl: su,
+              studentId: id || "개인연습",
+              studentName: name || "개인학습자",
+              targetText: "[종합]",
+              spokenText: summaryLine,
+              score: total100,
+              grade: `${finalGrd} [환산 ${total100}점 / 원점수 ${rawSum}/700점 | ${_0xLang}]`,
+              detailsJson: JSON.stringify(dropdownDetails)
+            }, stEl, batchEl);
+          } else {
+            stEl.style.color = "#fde047";
+            stEl.innerText = `${_0xT('pendingSheetMsg')} (${completedCount}/7)`;
+          }
         } else {
           stEl.style.color = "#f472b6";
-          stEl.innerText = `✓ [${name}] OK!`;
+          stEl.innerText = `✓ [${name}] OK! (${completedCount}/7)`;
         }
       };
 
